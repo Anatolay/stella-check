@@ -8,6 +8,16 @@ Typechecker for the Stella programming language.
 
 Note: Koka language server support is not smart enough to handle modules like `syntax/ast` within a `src` folder. In such cases it expects the module name to be `src/syntax/ast`. A workaround is to run VSCode directly from the `src` folder, but that is quite unpleasant. Instead, we rename `src` to `stella` to at least keep module names nicer.
 
+#### Run main
+```
+koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e stella/main.kk
+```
+e.g.
+```
+cat examples/FILENAME | koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e stella/main.kk
+```
+
+
 ### Build
 
 ```
