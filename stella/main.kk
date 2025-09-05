@@ -15,15 +15,15 @@ fun read-lines() : <console,div> string
   join(read-loop(), "\n")
 
 pub fun main() : <console, div> ()
-  // val s = read-lines()
-  // println(s)
-  // println(s)
   val mbProg = parseProgram(read-lines())
   match mbProg
     Nothing -> println("FAILURE!!! Failed to parse Stella program!")
-    Just(prog) -> println("Success!!!")
-  //     with fun error(e : stella-error)
-  //       match e
-  //         NoMain -> println("FAILURE!!! Function `main` not found!")
-  //     typecheck(prog)
-  //     println("Success!!!")
+    Just(prog) ->
+      with final ctl error(e : stella-error)
+        match e
+          NoMain -> println("FAILURE!!! Function `main` not found!")
+          UnsupportedNode(str) -> println("FAILURE!!! Currently we do not support " ++ str)
+          FunAlreadyDefined(str) -> println("FAILURE!!! Multiple definitions of " ++ str)
+          NoReturn -> println("FAILURE!!! Currently we do not support missing return types")
+      typecheck(prog)
+      println("Success!!!")
