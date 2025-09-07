@@ -57,10 +57,12 @@ pub type stella-error
   NoReturn // TODO: support declarations without return type
   UnhandledExpression
   UndefinedVariable(vname : string)
-  UnexpectedType
+  UnexpectedTypeForExpressions
   UnexpectedLambda
   UnexpectedNumberOfParametersInLambda
   UnexpectedTypeForParameter
+  NotAFunction
+  IncorrectNumberOfArguments
 
 
 /* TYPECHECKING */
@@ -96,22 +98,113 @@ pub fun typecheck-decl(functions : functions, declaration : decl) : error<stella
       typecheck-expr(new-functions, expression, return-type)
     _ -> ()
 
-pub fun typecheck-expr(functions : functions, expression : expr, expected-type : type_) : error<stella-error> ()
+// fun tt(functions : functions, expression : expr, expected-type : type_) : <error<stella-error>, div> ()
+fun typecheck-expr(functions : functions, expression : expr, expected-type : type_) : error<stella-error> ()
+  pretend-no-div(fn () -> typecheck-expr-div(functions,expression,expected-type))
+
+fun typecheck-expr-div(functions : functions, expression : expr, expected-type : type_) : <error<stella-error>, div> ()
   match expression
+    // FUNCTIONS AND VARIABLES (lambda-calculi)
     Var(ident) -> match functions.lookup(fn (i) -> i == ident)
       Nothing -> error(UndefinedVariable(ident.string))
-      Just(typ) -> if typ == expected-type then () else error(UnexpectedType)
+      Just(typ) -> if typ == expected-type then () else error(UnexpectedTypeForExpressions)
     Abstraction(param-decls, body) -> match expected-type
       TypeFun(expected-arg-types, expected-return-type) ->
         val params = collect-param-decls(param-decls)
         if expected-arg-types.length != params.length then error(UnexpectedNumberOfParametersInLambda)
         val are-equal = expected-arg-types.zipwith(params, fn (e-type, (_, a-type)) -> e-type == a-type)
         if not(all(are-equal)) then error(UnexpectedTypeForParameter)
-        typecheck-expr(params.append(functions), body, expected-return-type)
+        typecheck-expr-div(params.append(functions), body, expected-return-type)
       _ -> error(UnexpectedLambda)
+    Application(callee, args) ->
+      val fun-type = infer-expr-div(functions, callee)
+      match fun-type
+        TypeFun(params, return-type) ->
+          if params.length != args.length then error(IncorrectNumberOfArguments)
+          if return-type == expected-type then () else error(UnexpectedTypeForExpressions)
+        _ -> error(NotAFunction)
+    
+    // BOOLEANS
+    ConstTrue -> if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
+    ConstFalse -> if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
+    If(b, t, f) ->
+      typecheck-expr-div(functions, b, TypeBool)
+      typecheck-expr-div(functions, t, expected-type)
+      typecheck-expr-div(functions, f, expected-type)
+
+    // NATURALS
+    ConstInt -> if expected-type == TypeNat then () else error(UnexpectedTypeForExpressions)
+    Succ(expr) ->
+      if expected-type != TypeNat then error(UnexpectedTypeForExpressions)
+      typecheck-expr-div(functions, expr, TypeNat)
+    IsZero(expr) ->
+      if expected-type != TypeBool then error(UnexpectedTypeForExpressions)
+      typecheck-expr-div(functions, expr, TypeNat)
+    NatRec(n, z, s) ->
+      typecheck-expr-div(functions, n, TypeNat)
+      typecheck-expr-div(functions, z, expected-type)
+      typecheck-expr-div(functions, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)))
+
+
+    // OTHERWISE
     _ -> error(UnhandledExpression)
   ()
 
+pub fun infer-expr(functions : functions, expression : expr) : error<stella-error> type_
+  pretend-no-div(fn () infer-expr-div(functions, expression))
+
+fun infer-expr-div(functions : functions, expression : expr) : <error<stella-error>, div> type_
+  // Koka is not smart enough to understand that `final ctl` is not
+  // meant to ever be continued. Thus, the return type of `error`
+  // is not the expected `type_`
+  fun err(e : stella-error) : error<stella-error> type_
+    error(e)
+    // TypeBottom never returns
+    TypeBottom
+
+  match expression
+    // FUNCTIONS AND VARIABLES (lambda-calculi)
+    Var(ident) -> match functions.lookup(fn (i) -> i == ident)
+      Nothing ->
+        err(UndefinedVariable(ident.string))
+      Just(typ) -> typ
+    Abstraction(param-decls, body) ->
+      val params = collect-param-decls(param-decls)
+      val return-type = infer-expr-div(params.append(functions), body)
+      TypeFun(params.map(snd), return-type)
+    Application(callee, args) ->
+      val fun-type = infer-expr-div(functions, callee)
+      match fun-type
+        TypeFun(params, return-type) ->
+          if params.length != args.length then error(IncorrectNumberOfArguments)
+          return-type
+        _ -> err(NotAFunction)
+
+    // BOOLEANS
+    ConstTrue -> TypeBool
+    ConstFalse -> TypeBool
+    If(b, t, f) ->
+      typecheck-expr-div(functions, b, TypeBool)
+      val expected-type = infer-expr-div(functions, t)
+      typecheck-expr-div(functions, f, expected-type)
+      expected-type
+
+    // NATURALS
+    ConstInt -> TypeNat
+    Succ(expr) ->
+      typecheck-expr-div(functions, expr, TypeNat)
+      TypeNat
+    IsZero(expr) ->
+      typecheck-expr-div(functions, expr, TypeNat)
+      TypeBool
+    NatRec(n, z, s) ->
+      typecheck-expr-div(functions, n, TypeNat)
+      val expected-type = infer-expr-div(functions, z)
+      typecheck-expr-div(functions, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)))
+      expected-type
+
+    // OTHERWISE
+    _ -> err(UnhandledExpression)
 // pub fun infer-decl(decl : decl) : error<stella-error> type_
   // match decl
     // DeclFun -> TypeUnit
