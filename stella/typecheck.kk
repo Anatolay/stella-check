@@ -63,6 +63,10 @@ pub type stella-error
   UnexpectedTypeForParameter
   NotAFunction
   IncorrectNumberOfArguments
+  UnexpectedTuple
+  NotATuple
+  UnexpectedTupleLength
+  TupleIndexOutOfBounds
 
 
 /* TYPECHECKING */
@@ -145,6 +149,22 @@ fun typecheck-expr-div(functions : functions, expression : expr, expected-type :
       typecheck-expr-div(functions, z, expected-type)
       typecheck-expr-div(functions, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)))
 
+    // UNIT
+    ConstUnit -> if expected-type == TypeUnit then () else error(UnexpectedTypeForExpressions)
+
+    // TUPLES
+    Tuple(elems) -> match expected-type
+      TypeTuple(expected-types) ->
+        if elems.length != expected-types.length then error(UnexpectedTupleLength)
+        elems.zip(expected-types).foreach(fn ((el, et)) -> typecheck-expr-div(functions, el, et))
+      _ -> error(UnexpectedTuple)
+    DotTuple(tuple, ind) ->
+      match infer-expr-div(functions, tuple)
+        TypeTuple(elem-types) ->
+          match elem-types[ind]
+            Nothing -> error(TupleIndexOutOfBounds)
+            Just(elem-type) -> if elem-type == expected-type then () else error(UnexpectedTypeForExpressions)
+        _ -> error(NotATuple)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
@@ -202,6 +222,21 @@ fun infer-expr-div(functions : functions, expression : expr) : <error<stella-err
       val expected-type = infer-expr-div(functions, z)
       typecheck-expr-div(functions, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)))
       expected-type
+
+    // UNIT
+    ConstUnit -> TypeUnit
+
+    // TUPLES
+    Tuple(elems) ->
+      val elem-types = elems.map(fn (e) infer-expr-div(functions, e))
+      TypeTuple(elem-types)
+    DotTuple(tuple, ind) ->
+      match infer-expr-div(functions, tuple)
+        TypeTuple(elem-types) ->
+          match elem-types[ind]
+            Nothing -> err(TupleIndexOutOfBounds)
+            Just(elem-type) -> elem-type
+        _ -> err(NotATuple)
 
     // OTHERWISE
     _ -> err(UnhandledExpression)
