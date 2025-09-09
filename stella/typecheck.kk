@@ -88,21 +88,37 @@ pub fun collect-decls(declarations : list<decl>) : error<stella-error> functions
       Cons(_, ds) -> helper(ds, acc)
   helper(declarations, [])
 
+pub fun unit(_ : a) : ()
+  ()
+
 pub fun typecheck(AProgram(LanguageCore, _extensions, declarations) : program) : error<stella-error> ()
   val functions = collect-decls(declarations)
   if not(functions.has-key(StellaIdent("main"))) then error(NoMain)
-  declarations.foreach(fn (d) typecheck-decl(functions, d))
+  declarations.foreach(fn (d) unit(typecheck-decl(functions, d)))
 
-pub fun typecheck-decl(functions : functions, declaration : decl) : error<stella-error> ()
+pub fun typecheck-decl(functions : functions, declaration : decl) : error<stella-error> maybe<(stellaIdent, type_)>
+  pretend-no-div(fn () -> typecheck-decl-div(functions, declaration))
+
+pub fun typecheck-decl-div(functions : functions, declaration : decl) : <error<stella-error>, div> maybe<(stellaIdent, type_)>
   match declaration
-    DeclFun(_, _fname, param-decls, SomeReturnType(return-type), _throw, _decls, expression) ->
-      // TODO: typecheck nested decls
+    DeclFun(_, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
       val params = collect-param-decls(param-decls)
       val new-functions = params.append(functions)
-      typecheck-expr(new-functions, expression, return-type)
-    _ -> ()
+      val new-new-functions = typecheck-decls-div(new-functions, decls)
+      typecheck-expr(new-new-functions, expression, return-type)
+      Just((fname, TypeFun(params.map(snd), return-type)))
+    _ -> Nothing
 
-// fun tt(functions : functions, expression : expr, expected-type : type_) : <error<stella-error>, div> ()
+pub fun typecheck-decls-div(functions : functions, declarations : list<decl>) : <error<stella-error>, div> functions
+  match declarations
+    Cons(d, ds) ->
+      val mb-ident = typecheck-decl-div(functions, d)
+      val new-functions = match mb-ident
+        Nothing -> functions
+        Just(f) -> Cons(f, functions)
+      typecheck-decls-div(new-functions, ds)
+    Nil -> functions
+
 fun typecheck-expr(functions : functions, expression : expr, expected-type : type_) : error<stella-error> ()
   pretend-no-div(fn () -> typecheck-expr-div(functions,expression,expected-type))
 
