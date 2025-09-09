@@ -181,10 +181,34 @@ fun typecheck-expr-div(functions : functions, expression : expr, expected-type :
             Nothing -> error(TupleIndexOutOfBounds)
             Just(elem-type) -> if elem-type == expected-type then () else error(UnexpectedTypeForExpressions)
         _ -> error(NotATuple)
+    
+    // LET-BINDING
+    Let(patterns, expr) ->
+      // TODO: support more patterns than just variables
+      val extra-functions = infer-pattern-bindings-div(functions, patterns)
+      typecheck-expr-div(extra-functions.append(functions), expr, expected-type)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
   ()
+
+
+pub fun infer-pattern-bindings-div(functions : functions, patterns : list<patternBinding>) : <error<stella-error>, div> functions
+  fun get-ident(APatternBinding(pat))
+    match pat
+      PatternVar(ident) -> ident
+      _ ->
+        // TODO: support more patterns than just variables
+        error(UnhandledExpression)
+        StellaIdent("")
+  val idents = patterns.map(get-ident)
+  val exprs = patterns.map(fn (APatternBinding(_, e)) e)
+  val types = exprs.map(fn (e) infer-expr-div(functions, e))
+  // If there are several variables of the same name,
+  // the latter should (probably) take the precedence,
+  // hence we reverse the list
+  idents.zip(types).reverse
+
 
 pub fun infer-expr(functions : functions, expression : expr) : error<stella-error> type_
   pretend-no-div(fn () infer-expr-div(functions, expression))
@@ -254,9 +278,12 @@ fun infer-expr-div(functions : functions, expression : expr) : <error<stella-err
             Just(elem-type) -> elem-type
         _ -> err(NotATuple)
 
+    // LET-BINDING
+    Let(patterns, expr) ->
+      // TODO: support more patterns than just variables
+      val extra-functions = infer-pattern-bindings-div(functions, patterns)
+      infer-expr-div(extra-functions.append(functions), expr)
+
     // OTHERWISE
     _ -> err(UnhandledExpression)
-// pub fun infer-decl(decl : decl) : error<stella-error> type_
-  // match decl
-    // DeclFun -> TypeUnit
-    // _ -> TypeUnit
+
