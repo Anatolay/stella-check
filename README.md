@@ -4,7 +4,7 @@ Typechecker for the Stella programming language.
 
 ## Development
 
-...
+The code is developed with the [Koka](https://koka-lang.github.io/koka/doc/book.html) v3.2.2 and a [custom](https://github.com/Anatolay/bnfc-koka) version of the [BNFC](https://github.com/BNFC/bnfc) tool.
 
 Note: Koka language server support is not smart enough to handle modules like `syntax/ast` within a `src` folder. In such cases it expects the module name to be `src/syntax/ast`. A workaround is to run VSCode directly from the `src` folder, but that is quite unpleasant. Instead, we rename `src` to `stella` to at least keep module names nicer.
 
@@ -14,7 +14,7 @@ koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax
 ```
 e.g.
 ```
-cat examples/FILENAME | koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e stella/main.kk
+cat FILEPATH | koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e stella/main.kk
 ```
 
 
@@ -24,9 +24,15 @@ cat examples/FILENAME | koka --ccincdir=stella/syntax --cclinkopts="stella/synta
 koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -o EXECUTABLE stella/main.kk 
 ```
 
+### Test
+
+One day I will add some proper testing...
+
+For now refer to the `test.py` script.
+
 ### Update grammar
 
-...
+You will need to build the [custom](https://github.com/Anatolay/bnfc-koka) version of BNFC with Koka support.
 
 ```sh
 bnfc --koka -o stella/syntax/ -p stella/syntax -m stella/syntax/Syntax.cf

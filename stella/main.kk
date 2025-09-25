@@ -1,7 +1,6 @@
 module stella/main
 
 import std/os/readline
-import std/core/exn
 import stella/syntax/parse
 import stella/typecheck
 import stella/syntax/ast
