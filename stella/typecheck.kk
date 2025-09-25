@@ -32,6 +32,33 @@ fun type_/(==)(a : type_, b : type_) : bool
     (TypeVar(ident_1), TypeVar(ident_2)) -> ident_1 == ident_2
     _ -> False
 
+pub fun stellaIdent/show(i : stellaIdent) : string
+  i.string
+
+pub fun type_/show(t : type_) : _ string
+  match t
+    TypeAuto -> "auto"
+    TypeFun(args, return-type) -> "(" ++ args.show ++ ") -> " ++ return-type.show
+    // TypeForAll (stellaIdentList : list<stellaIdent>, type_ : type_)
+    // TypeRec (stellaIdent : stellaIdent, type_ : type_)
+    // TypeSum (type__1 : type_, type__2 : type_)
+    // TypeTuple (type_List : list<type_>)
+    // TypeRecord (recordFieldTypeList : list<recordFieldType>)
+    // TypeVariant (variantFieldTypeList : list<variantFieldType>)
+    // TypeList (type_ : type_)
+    TypeBool -> "Bool"
+    TypeNat -> "Nat"
+    TypeUnit -> "Unit"
+    // TypeTop
+    // TypeBottom
+    // TypeRef (type_ : type_)
+    TypeVar(ident) -> "var " ++ ident.show
+    _ -> "UnexpectedType"
+
+pub fun list/show(?a/show : (a) -> string, l : list<a>) : string
+  val ss = l.map(a/show)
+  "[" ++ ss.join(", ") ++ "]"
+
 pub fun collect-param-decls(param-decls : list<paramDecl>) : list<(stellaIdent, type_)>
   param-decls.map(fn (AParamDecl(name, typ)) -> (name, typ))
 
@@ -42,6 +69,11 @@ pub fun list/all(bs : list<bool>) : bool
 
 pub effect error<a>
   final ctl error(a : a) : ()
+
+pub effect log<a>
+  fun log(a : a) : ()
+
+alias typechecker = <error<stella-error>, log<string>>
 
 pub alias environment = list<(stellaIdent, type_)>
 
@@ -71,7 +103,7 @@ pub type stella-error
 
 /* TYPECHECKING */
 
-pub fun collect-decls(declarations : list<decl>) : error<stella-error> environment
+pub fun collect-decls(declarations : list<decl>) : typechecker environment
   fun helper(decls, acc)
     match decls
       Nil -> acc.reverse
@@ -91,15 +123,15 @@ pub fun collect-decls(declarations : list<decl>) : error<stella-error> environme
 pub fun unit(_ : a) : ()
   ()
 
-pub fun typecheck(AProgram(LanguageCore, _extensions, declarations) : program) : error<stella-error> ()
+pub fun typecheck(AProgram(LanguageCore, _extensions, declarations) : program) : typechecker ()
   val environment = collect-decls(declarations)
   if not(environment.has-key(StellaIdent("main"))) then error(NoMain)
   declarations.foreach(fn (d) unit(typecheck-decl(environment, d)))
 
-pub fun typecheck-decl(environment : environment, declaration : decl) : error<stella-error> maybe<(stellaIdent, type_)>
+pub fun typecheck-decl(environment : environment, declaration : decl) : typechecker maybe<(stellaIdent, type_)>
   pretend-no-div(fn () -> typecheck-decl-div(environment, declaration))
 
-pub fun typecheck-decl-div(environment : environment, declaration : decl) : <error<stella-error>, div> maybe<(stellaIdent, type_)>
+pub fun typecheck-decl-div(environment : environment, declaration : decl) : <typechecker, div> maybe<(stellaIdent, type_)>
   match declaration
     DeclFun(_, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
       val params = collect-param-decls(param-decls)
@@ -109,7 +141,7 @@ pub fun typecheck-decl-div(environment : environment, declaration : decl) : <err
       Just((fname, TypeFun(params.map(snd), return-type)))
     _ -> Nothing
 
-pub fun typecheck-decls-div(environment : environment, declarations : list<decl>) : <error<stella-error>, div> environment
+pub fun typecheck-decls-div(environment : environment, declarations : list<decl>) : <typechecker, div> environment
   match declarations
     Cons(d, ds) ->
       val mb-ident = typecheck-decl-div(environment, d)
@@ -119,10 +151,10 @@ pub fun typecheck-decls-div(environment : environment, declarations : list<decl>
       typecheck-decls-div(new-environment, ds)
     Nil -> environment
 
-fun typecheck-expr(environment : environment, expression : expr, expected-type : type_) : error<stella-error> ()
+fun typecheck-expr(environment : environment, expression : expr, expected-type : type_) : typechecker ()
   pretend-no-div(fn () -> typecheck-expr-div(environment,expression,expected-type))
 
-fun typecheck-expr-div(environment : environment, expression : expr, expected-type : type_) : <error<stella-error>, div> ()
+fun typecheck-expr-div(environment : environment, expression : expr, expected-type : type_) : <typechecker, div> ()
   match expression
     // FUNCTIONS AND VARIABLES (lambda-calculi)
     Var(ident) -> match environment.lookup(fn (i) -> i == ident)
@@ -145,15 +177,21 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
         _ -> error(NotAFunction)
     
     // BOOLEANS
-    ConstTrue -> if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
-    ConstFalse -> if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
+    ConstTrue ->
+      log("Why?")
+      if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
+    ConstFalse ->
+      log("Why?")
+      if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
     If(b, t, f) ->
       typecheck-expr-div(environment, b, TypeBool)
       typecheck-expr-div(environment, t, expected-type)
       typecheck-expr-div(environment, f, expected-type)
 
     // NATURALS
-    ConstInt -> if expected-type == TypeNat then () else error(UnexpectedTypeForExpressions)
+    ConstInt ->
+      log("Why?")
+      if expected-type == TypeNat then () else error(UnexpectedTypeForExpressions)
     Succ(expr) ->
       if expected-type != TypeNat then error(UnexpectedTypeForExpressions)
       typecheck-expr-div(environment, expr, TypeNat)
@@ -163,7 +201,8 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
     NatRec(n, z, s) ->
       typecheck-expr-div(environment, n, TypeNat)
       typecheck-expr-div(environment, z, expected-type)
-      typecheck-expr-div(environment, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)))
+      val operator-type = TypeFun([TypeNat], TypeFun([expected-type], expected-type))
+      typecheck-expr-div(environment, s, operator-type)
 
     // UNIT
     ConstUnit -> if expected-type == TypeUnit then () else error(UnexpectedTypeForExpressions)
@@ -193,7 +232,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
   ()
 
 
-pub fun infer-pattern-bindings-div(environment : environment, patterns : list<patternBinding>) : <error<stella-error>, div> environment
+pub fun infer-pattern-bindings-div(environment : environment, patterns : list<patternBinding>) : <typechecker, div> environment
   fun get-ident(APatternBinding(pat))
     match pat
       PatternVar(ident) -> ident
@@ -210,10 +249,10 @@ pub fun infer-pattern-bindings-div(environment : environment, patterns : list<pa
   idents.zip(types).reverse
 
 
-pub fun infer-expr(environment : environment, expression : expr) : error<stella-error> type_
+pub fun infer-expr(environment : environment, expression : expr) : typechecker type_
   pretend-no-div(fn () infer-expr-div(environment, expression))
 
-fun infer-expr-div(environment : environment, expression : expr) : <error<stella-error>, div> type_
+fun infer-expr-div(environment : environment, expression : expr) : <typechecker, div> type_
   // Koka is not smart enough to understand that `final ctl` is not
   // meant to ever be continued. Thus, the return type of `error`
   // is not the expected `type_`
