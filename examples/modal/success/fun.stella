@@ -2,10 +2,10 @@ language core;
 
 extend with #modal-lock;
 
-fn Nat::add(n : Nat, m : Nat) -> Nat {
-  return n
+fn zero(n : Nat) -> Nat {
+  return mod [lock] { 0 }
 }
 
 fn main(x : Nat) -> Nat {
-  return 0
+  return zero(x)
 }

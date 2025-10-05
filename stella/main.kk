@@ -22,6 +22,8 @@ pub fun main() : <console, div> ()
     Nothing -> println("FAILURE!!! Failed to parse Stella program!")
     Just(prog) -> if prog.has-extension("#modal-lock") || prog.has-extension("#modal-locks")
       then
+        println("Typechecking modal!")
         typecheck-modal(prog)
       else
+        println("Typechecking core!")
         typecheck-core(prog)

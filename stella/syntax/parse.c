@@ -61,6 +61,7 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx);
 kk_std_core_types__list convert_ListExpr(ListExpr listExpr, kk_context_t* _ctx);
 kk_stella_syntax_ast__patternBinding convert_PatternBinding(PatternBinding patternBinding, kk_context_t* _ctx);
 kk_std_core_types__list convert_ListPatternBinding(ListPatternBinding listPatternBinding, kk_context_t* _ctx);
+kk_stella_syntax_ast__mod convert_Mod(Mod mod, kk_context_t* _ctx);
 kk_stella_syntax_ast__variantFieldType convert_VariantFieldType(VariantFieldType variantFieldType, kk_context_t* _ctx);
 kk_std_core_types__list convert_ListVariantFieldType(ListVariantFieldType listVariantFieldType, kk_context_t* _ctx);
 kk_stella_syntax_ast__recordFieldType convert_RecordFieldType(RecordFieldType recordFieldType, kk_context_t* _ctx);
@@ -198,25 +199,44 @@ kk_stella_syntax_ast__decl convert_Decl(Decl decl, kk_context_t* _ctx) {
       kk_stella_syntax_ast__expr k1_8 = convert_Expr(c1_8, _ctx);
 
       return kk_stella_syntax_ast__new_DeclFunGeneric(kk_reuse_null, 0, k1_1, k1_2, k1_3, k1_4, k1_5, k1_6, k1_7, k1_8, _ctx);
+    case is_DeclFunMod:
+      ListAnnotation c2_1 = decl->u.declFunMod_.listannotation_;
+      kk_std_core_types__list k2_1 = convert_ListAnnotation(c2_1, _ctx);
+      Mod c2_2 = decl->u.declFunMod_.mod_;
+      kk_stella_syntax_ast__mod k2_2 = convert_Mod(c2_2, _ctx);
+      StellaIdent c2_3 = decl->u.declFunMod_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k2_3 = convert_StellaIdent(c2_3, _ctx);
+      ListParamDecl c2_4 = decl->u.declFunMod_.listparamdecl_;
+      kk_std_core_types__list k2_4 = convert_ListParamDecl(c2_4, _ctx);
+      ReturnType c2_5 = decl->u.declFunMod_.returntype_;
+      kk_stella_syntax_ast__returnType k2_5 = convert_ReturnType(c2_5, _ctx);
+      ThrowType c2_6 = decl->u.declFunMod_.throwtype_;
+      kk_stella_syntax_ast__throwType k2_6 = convert_ThrowType(c2_6, _ctx);
+      ListDecl c2_7 = decl->u.declFunMod_.listdecl_;
+      kk_std_core_types__list k2_7 = convert_ListDecl(c2_7, _ctx);
+      Expr c2_8 = decl->u.declFunMod_.expr_;
+      kk_stella_syntax_ast__expr k2_8 = convert_Expr(c2_8, _ctx);
+
+      return kk_stella_syntax_ast__new_DeclFunMod(kk_reuse_null, 0, k2_1, k2_2, k2_3, k2_4, k2_5, k2_6, k2_7, k2_8, _ctx);
     case is_DeclTypeAlias:
-      StellaIdent c2_1 = decl->u.declTypeAlias_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k2_1 = convert_StellaIdent(c2_1, _ctx);
-      Type c2_2 = decl->u.declTypeAlias_.type_;
-      kk_stella_syntax_ast__type__ k2_2 = convert_Type(c2_2, _ctx);
+      StellaIdent c3_1 = decl->u.declTypeAlias_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k3_1 = convert_StellaIdent(c3_1, _ctx);
+      Type c3_2 = decl->u.declTypeAlias_.type_;
+      kk_stella_syntax_ast__type__ k3_2 = convert_Type(c3_2, _ctx);
 
-      return kk_stella_syntax_ast__new_DeclTypeAlias(kk_reuse_null, 0, k2_1, k2_2, _ctx);
+      return kk_stella_syntax_ast__new_DeclTypeAlias(kk_reuse_null, 0, k3_1, k3_2, _ctx);
     case is_DeclExceptionType:
-      Type c3_1 = decl->u.declExceptionType_.type_;
-      kk_stella_syntax_ast__type__ k3_1 = convert_Type(c3_1, _ctx);
+      Type c4_1 = decl->u.declExceptionType_.type_;
+      kk_stella_syntax_ast__type__ k4_1 = convert_Type(c4_1, _ctx);
 
-      return kk_stella_syntax_ast__new_DeclExceptionType(kk_reuse_null, 0, k3_1, _ctx);
+      return kk_stella_syntax_ast__new_DeclExceptionType(kk_reuse_null, 0, k4_1, _ctx);
     case is_DeclExceptionVariant:
-      StellaIdent c4_1 = decl->u.declExceptionVariant_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k4_1 = convert_StellaIdent(c4_1, _ctx);
-      Type c4_2 = decl->u.declExceptionVariant_.type_;
-      kk_stella_syntax_ast__type__ k4_2 = convert_Type(c4_2, _ctx);
+      StellaIdent c5_1 = decl->u.declExceptionVariant_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k5_1 = convert_StellaIdent(c5_1, _ctx);
+      Type c5_2 = decl->u.declExceptionVariant_.type_;
+      kk_stella_syntax_ast__type__ k5_2 = convert_Type(c5_2, _ctx);
 
-      return kk_stella_syntax_ast__new_DeclExceptionVariant(kk_reuse_null, 0, k4_1, k4_2, _ctx);
+      return kk_stella_syntax_ast__new_DeclExceptionVariant(kk_reuse_null, 0, k5_1, k5_2, _ctx);
 
   }
 
@@ -762,231 +782,238 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
       kk_stella_syntax_ast__expr k14_2 = convert_Expr(c14_2, _ctx);
 
       return kk_stella_syntax_ast__new_Abstraction(kk_reuse_null, 0, k14_1, k14_2, _ctx);
+    case is_Mod:
+      Mod c15_1 = expr->u.mod_.mod_;
+      kk_stella_syntax_ast__mod k15_1 = convert_Mod(c15_1, _ctx);
+      Expr c15_2 = expr->u.mod_.expr_;
+      kk_stella_syntax_ast__expr k15_2 = convert_Expr(c15_2, _ctx);
+
+      return kk_stella_syntax_ast__new_Mod(kk_reuse_null, 0, k15_1, k15_2, _ctx);
     case is_Variant:
-      StellaIdent c15_1 = expr->u.variant_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k15_1 = convert_StellaIdent(c15_1, _ctx);
-      ExprData c15_2 = expr->u.variant_.exprdata_;
-      kk_stella_syntax_ast__exprData k15_2 = convert_ExprData(c15_2, _ctx);
+      StellaIdent c16_1 = expr->u.variant_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k16_1 = convert_StellaIdent(c16_1, _ctx);
+      ExprData c16_2 = expr->u.variant_.exprdata_;
+      kk_stella_syntax_ast__exprData k16_2 = convert_ExprData(c16_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Variant(kk_reuse_null, 0, k15_1, k15_2, _ctx);
+      return kk_stella_syntax_ast__new_Variant(kk_reuse_null, 0, k16_1, k16_2, _ctx);
     case is_Match:
-      Expr c16_1 = expr->u.match_.expr_;
-      kk_stella_syntax_ast__expr k16_1 = convert_Expr(c16_1, _ctx);
-      ListMatchCase c16_2 = expr->u.match_.listmatchcase_;
-      kk_std_core_types__list k16_2 = convert_ListMatchCase(c16_2, _ctx);
+      Expr c17_1 = expr->u.match_.expr_;
+      kk_stella_syntax_ast__expr k17_1 = convert_Expr(c17_1, _ctx);
+      ListMatchCase c17_2 = expr->u.match_.listmatchcase_;
+      kk_std_core_types__list k17_2 = convert_ListMatchCase(c17_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Match(kk_reuse_null, 0, k16_1, k16_2, _ctx);
+      return kk_stella_syntax_ast__new_Match(kk_reuse_null, 0, k17_1, k17_2, _ctx);
     case is_List:
-      ListExpr c17_1 = expr->u.list_.listexpr_;
-      kk_std_core_types__list k17_1 = convert_ListExpr(c17_1, _ctx);
+      ListExpr c18_1 = expr->u.list_.listexpr_;
+      kk_std_core_types__list k18_1 = convert_ListExpr(c18_1, _ctx);
 
-      return kk_stella_syntax_ast__new_List(kk_reuse_null, 0, k17_1, _ctx);
+      return kk_stella_syntax_ast__new_List(kk_reuse_null, 0, k18_1, _ctx);
     case is_Add:
-      Expr c18_1 = expr->u.add_.expr_1;
-      kk_stella_syntax_ast__expr k18_1 = convert_Expr(c18_1, _ctx);
-      Expr c18_2 = expr->u.add_.expr_2;
-      kk_stella_syntax_ast__expr k18_2 = convert_Expr(c18_2, _ctx);
-
-      return kk_stella_syntax_ast__new_Add(kk_reuse_null, 0, k18_1, k18_2, _ctx);
-    case is_Subtract:
-      Expr c19_1 = expr->u.subtract_.expr_1;
+      Expr c19_1 = expr->u.add_.expr_1;
       kk_stella_syntax_ast__expr k19_1 = convert_Expr(c19_1, _ctx);
-      Expr c19_2 = expr->u.subtract_.expr_2;
+      Expr c19_2 = expr->u.add_.expr_2;
       kk_stella_syntax_ast__expr k19_2 = convert_Expr(c19_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Subtract(kk_reuse_null, 0, k19_1, k19_2, _ctx);
-    case is_LogicOr:
-      Expr c20_1 = expr->u.logicOr_.expr_1;
+      return kk_stella_syntax_ast__new_Add(kk_reuse_null, 0, k19_1, k19_2, _ctx);
+    case is_Subtract:
+      Expr c20_1 = expr->u.subtract_.expr_1;
       kk_stella_syntax_ast__expr k20_1 = convert_Expr(c20_1, _ctx);
-      Expr c20_2 = expr->u.logicOr_.expr_2;
+      Expr c20_2 = expr->u.subtract_.expr_2;
       kk_stella_syntax_ast__expr k20_2 = convert_Expr(c20_2, _ctx);
 
-      return kk_stella_syntax_ast__new_LogicOr(kk_reuse_null, 0, k20_1, k20_2, _ctx);
-    case is_Multiply:
-      Expr c21_1 = expr->u.multiply_.expr_1;
+      return kk_stella_syntax_ast__new_Subtract(kk_reuse_null, 0, k20_1, k20_2, _ctx);
+    case is_LogicOr:
+      Expr c21_1 = expr->u.logicOr_.expr_1;
       kk_stella_syntax_ast__expr k21_1 = convert_Expr(c21_1, _ctx);
-      Expr c21_2 = expr->u.multiply_.expr_2;
+      Expr c21_2 = expr->u.logicOr_.expr_2;
       kk_stella_syntax_ast__expr k21_2 = convert_Expr(c21_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Multiply(kk_reuse_null, 0, k21_1, k21_2, _ctx);
-    case is_Divide:
-      Expr c22_1 = expr->u.divide_.expr_1;
+      return kk_stella_syntax_ast__new_LogicOr(kk_reuse_null, 0, k21_1, k21_2, _ctx);
+    case is_Multiply:
+      Expr c22_1 = expr->u.multiply_.expr_1;
       kk_stella_syntax_ast__expr k22_1 = convert_Expr(c22_1, _ctx);
-      Expr c22_2 = expr->u.divide_.expr_2;
+      Expr c22_2 = expr->u.multiply_.expr_2;
       kk_stella_syntax_ast__expr k22_2 = convert_Expr(c22_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Divide(kk_reuse_null, 0, k22_1, k22_2, _ctx);
-    case is_LogicAnd:
-      Expr c23_1 = expr->u.logicAnd_.expr_1;
+      return kk_stella_syntax_ast__new_Multiply(kk_reuse_null, 0, k22_1, k22_2, _ctx);
+    case is_Divide:
+      Expr c23_1 = expr->u.divide_.expr_1;
       kk_stella_syntax_ast__expr k23_1 = convert_Expr(c23_1, _ctx);
-      Expr c23_2 = expr->u.logicAnd_.expr_2;
+      Expr c23_2 = expr->u.divide_.expr_2;
       kk_stella_syntax_ast__expr k23_2 = convert_Expr(c23_2, _ctx);
 
-      return kk_stella_syntax_ast__new_LogicAnd(kk_reuse_null, 0, k23_1, k23_2, _ctx);
-    case is_Ref:
-      Expr c24_1 = expr->u.ref_.expr_;
+      return kk_stella_syntax_ast__new_Divide(kk_reuse_null, 0, k23_1, k23_2, _ctx);
+    case is_LogicAnd:
+      Expr c24_1 = expr->u.logicAnd_.expr_1;
       kk_stella_syntax_ast__expr k24_1 = convert_Expr(c24_1, _ctx);
+      Expr c24_2 = expr->u.logicAnd_.expr_2;
+      kk_stella_syntax_ast__expr k24_2 = convert_Expr(c24_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Ref(kk_reuse_null, 0, k24_1, _ctx);
-    case is_Deref:
-      Expr c25_1 = expr->u.deref_.expr_;
+      return kk_stella_syntax_ast__new_LogicAnd(kk_reuse_null, 0, k24_1, k24_2, _ctx);
+    case is_Ref:
+      Expr c25_1 = expr->u.ref_.expr_;
       kk_stella_syntax_ast__expr k25_1 = convert_Expr(c25_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Deref(kk_reuse_null, 0, k25_1, _ctx);
-    case is_Application:
-      Expr c26_1 = expr->u.application_.expr_;
+      return kk_stella_syntax_ast__new_Ref(kk_reuse_null, 0, k25_1, _ctx);
+    case is_Deref:
+      Expr c26_1 = expr->u.deref_.expr_;
       kk_stella_syntax_ast__expr k26_1 = convert_Expr(c26_1, _ctx);
-      ListExpr c26_2 = expr->u.application_.listexpr_;
-      kk_std_core_types__list k26_2 = convert_ListExpr(c26_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Application(kk_reuse_null, 0, k26_1, k26_2, _ctx);
-    case is_TypeApplication:
-      Expr c27_1 = expr->u.typeApplication_.expr_;
+      return kk_stella_syntax_ast__new_Deref(kk_reuse_null, 0, k26_1, _ctx);
+    case is_Application:
+      Expr c27_1 = expr->u.application_.expr_;
       kk_stella_syntax_ast__expr k27_1 = convert_Expr(c27_1, _ctx);
-      ListType c27_2 = expr->u.typeApplication_.listtype_;
-      kk_std_core_types__list k27_2 = convert_ListType(c27_2, _ctx);
+      ListExpr c27_2 = expr->u.application_.listexpr_;
+      kk_std_core_types__list k27_2 = convert_ListExpr(c27_2, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeApplication(kk_reuse_null, 0, k27_1, k27_2, _ctx);
-    case is_DotRecord:
-      Expr c28_1 = expr->u.dotRecord_.expr_;
+      return kk_stella_syntax_ast__new_Application(kk_reuse_null, 0, k27_1, k27_2, _ctx);
+    case is_TypeApplication:
+      Expr c28_1 = expr->u.typeApplication_.expr_;
       kk_stella_syntax_ast__expr k28_1 = convert_Expr(c28_1, _ctx);
-      StellaIdent c28_2 = expr->u.dotRecord_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k28_2 = convert_StellaIdent(c28_2, _ctx);
+      ListType c28_2 = expr->u.typeApplication_.listtype_;
+      kk_std_core_types__list k28_2 = convert_ListType(c28_2, _ctx);
 
-      return kk_stella_syntax_ast__new_DotRecord(kk_reuse_null, 0, k28_1, k28_2, _ctx);
-    case is_DotTuple:
-      Expr c29_1 = expr->u.dotTuple_.expr_;
+      return kk_stella_syntax_ast__new_TypeApplication(kk_reuse_null, 0, k28_1, k28_2, _ctx);
+    case is_DotRecord:
+      Expr c29_1 = expr->u.dotRecord_.expr_;
       kk_stella_syntax_ast__expr k29_1 = convert_Expr(c29_1, _ctx);
-      Integer c29_2 = expr->u.dotTuple_.integer_;
-      kk_integer_t k29_2 = convert_Integer(c29_2, _ctx);
+      StellaIdent c29_2 = expr->u.dotRecord_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k29_2 = convert_StellaIdent(c29_2, _ctx);
 
-      return kk_stella_syntax_ast__new_DotTuple(kk_reuse_null, 0, k29_1, k29_2, _ctx);
+      return kk_stella_syntax_ast__new_DotRecord(kk_reuse_null, 0, k29_1, k29_2, _ctx);
+    case is_DotTuple:
+      Expr c30_1 = expr->u.dotTuple_.expr_;
+      kk_stella_syntax_ast__expr k30_1 = convert_Expr(c30_1, _ctx);
+      Integer c30_2 = expr->u.dotTuple_.integer_;
+      kk_integer_t k30_2 = convert_Integer(c30_2, _ctx);
+
+      return kk_stella_syntax_ast__new_DotTuple(kk_reuse_null, 0, k30_1, k30_2, _ctx);
     case is_Tuple:
-      ListExpr c30_1 = expr->u.tuple_.listexpr_;
-      kk_std_core_types__list k30_1 = convert_ListExpr(c30_1, _ctx);
+      ListExpr c31_1 = expr->u.tuple_.listexpr_;
+      kk_std_core_types__list k31_1 = convert_ListExpr(c31_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Tuple(kk_reuse_null, 0, k30_1, _ctx);
+      return kk_stella_syntax_ast__new_Tuple(kk_reuse_null, 0, k31_1, _ctx);
     case is_Record:
-      ListBinding c31_1 = expr->u.record_.listbinding_;
-      kk_std_core_types__list k31_1 = convert_ListBinding(c31_1, _ctx);
+      ListBinding c32_1 = expr->u.record_.listbinding_;
+      kk_std_core_types__list k32_1 = convert_ListBinding(c32_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Record(kk_reuse_null, 0, k31_1, _ctx);
+      return kk_stella_syntax_ast__new_Record(kk_reuse_null, 0, k32_1, _ctx);
     case is_ConsList:
-      Expr c32_1 = expr->u.consList_.expr_1;
-      kk_stella_syntax_ast__expr k32_1 = convert_Expr(c32_1, _ctx);
-      Expr c32_2 = expr->u.consList_.expr_2;
-      kk_stella_syntax_ast__expr k32_2 = convert_Expr(c32_2, _ctx);
-
-      return kk_stella_syntax_ast__new_ConsList(kk_reuse_null, 0, k32_1, k32_2, _ctx);
-    case is_Head:
-      Expr c33_1 = expr->u.head_.expr_;
+      Expr c33_1 = expr->u.consList_.expr_1;
       kk_stella_syntax_ast__expr k33_1 = convert_Expr(c33_1, _ctx);
+      Expr c33_2 = expr->u.consList_.expr_2;
+      kk_stella_syntax_ast__expr k33_2 = convert_Expr(c33_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Head(kk_reuse_null, 0, k33_1, _ctx);
-    case is_IsEmpty:
-      Expr c34_1 = expr->u.isEmpty_.expr_;
+      return kk_stella_syntax_ast__new_ConsList(kk_reuse_null, 0, k33_1, k33_2, _ctx);
+    case is_Head:
+      Expr c34_1 = expr->u.head_.expr_;
       kk_stella_syntax_ast__expr k34_1 = convert_Expr(c34_1, _ctx);
 
-      return kk_stella_syntax_ast__new_IsEmpty(kk_reuse_null, 0, k34_1, _ctx);
-    case is_Tail:
-      Expr c35_1 = expr->u.tail_.expr_;
+      return kk_stella_syntax_ast__new_Head(kk_reuse_null, 0, k34_1, _ctx);
+    case is_IsEmpty:
+      Expr c35_1 = expr->u.isEmpty_.expr_;
       kk_stella_syntax_ast__expr k35_1 = convert_Expr(c35_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Tail(kk_reuse_null, 0, k35_1, _ctx);
+      return kk_stella_syntax_ast__new_IsEmpty(kk_reuse_null, 0, k35_1, _ctx);
+    case is_Tail:
+      Expr c36_1 = expr->u.tail_.expr_;
+      kk_stella_syntax_ast__expr k36_1 = convert_Expr(c36_1, _ctx);
+
+      return kk_stella_syntax_ast__new_Tail(kk_reuse_null, 0, k36_1, _ctx);
     case is_Panic:
       return kk_stella_syntax_ast__new_Panic(_ctx);
     case is_Throw:
-      Expr c37_1 = expr->u.throw_.expr_;
-      kk_stella_syntax_ast__expr k37_1 = convert_Expr(c37_1, _ctx);
-
-      return kk_stella_syntax_ast__new_Throw(kk_reuse_null, 0, k37_1, _ctx);
-    case is_TryCatch:
-      Expr c38_1 = expr->u.tryCatch_.expr_1;
+      Expr c38_1 = expr->u.throw_.expr_;
       kk_stella_syntax_ast__expr k38_1 = convert_Expr(c38_1, _ctx);
-      Pattern c38_2 = expr->u.tryCatch_.pattern_;
-      kk_stella_syntax_ast__pattern k38_2 = convert_Pattern(c38_2, _ctx);
-      Expr c38_3 = expr->u.tryCatch_.expr_2;
-      kk_stella_syntax_ast__expr k38_3 = convert_Expr(c38_3, _ctx);
 
-      return kk_stella_syntax_ast__new_TryCatch(kk_reuse_null, 0, k38_1, k38_2, k38_3, _ctx);
-    case is_TryWith:
-      Expr c39_1 = expr->u.tryWith_.expr_1;
+      return kk_stella_syntax_ast__new_Throw(kk_reuse_null, 0, k38_1, _ctx);
+    case is_TryCatch:
+      Expr c39_1 = expr->u.tryCatch_.expr_1;
       kk_stella_syntax_ast__expr k39_1 = convert_Expr(c39_1, _ctx);
-      Expr c39_2 = expr->u.tryWith_.expr_2;
-      kk_stella_syntax_ast__expr k39_2 = convert_Expr(c39_2, _ctx);
+      Pattern c39_2 = expr->u.tryCatch_.pattern_;
+      kk_stella_syntax_ast__pattern k39_2 = convert_Pattern(c39_2, _ctx);
+      Expr c39_3 = expr->u.tryCatch_.expr_2;
+      kk_stella_syntax_ast__expr k39_3 = convert_Expr(c39_3, _ctx);
 
-      return kk_stella_syntax_ast__new_TryWith(kk_reuse_null, 0, k39_1, k39_2, _ctx);
-    case is_TryCastAs:
-      Expr c40_1 = expr->u.tryCastAs_.expr_1;
+      return kk_stella_syntax_ast__new_TryCatch(kk_reuse_null, 0, k39_1, k39_2, k39_3, _ctx);
+    case is_TryWith:
+      Expr c40_1 = expr->u.tryWith_.expr_1;
       kk_stella_syntax_ast__expr k40_1 = convert_Expr(c40_1, _ctx);
-      Type c40_2 = expr->u.tryCastAs_.type_;
-      kk_stella_syntax_ast__type__ k40_2 = convert_Type(c40_2, _ctx);
-      Pattern c40_3 = expr->u.tryCastAs_.pattern_;
-      kk_stella_syntax_ast__pattern k40_3 = convert_Pattern(c40_3, _ctx);
-      Expr c40_4 = expr->u.tryCastAs_.expr_2;
-      kk_stella_syntax_ast__expr k40_4 = convert_Expr(c40_4, _ctx);
-      Expr c40_5 = expr->u.tryCastAs_.expr_3;
-      kk_stella_syntax_ast__expr k40_5 = convert_Expr(c40_5, _ctx);
+      Expr c40_2 = expr->u.tryWith_.expr_2;
+      kk_stella_syntax_ast__expr k40_2 = convert_Expr(c40_2, _ctx);
 
-      return kk_stella_syntax_ast__new_TryCastAs(kk_reuse_null, 0, k40_1, k40_2, k40_3, k40_4, k40_5, _ctx);
-    case is_Inl:
-      Expr c41_1 = expr->u.inl_.expr_;
+      return kk_stella_syntax_ast__new_TryWith(kk_reuse_null, 0, k40_1, k40_2, _ctx);
+    case is_TryCastAs:
+      Expr c41_1 = expr->u.tryCastAs_.expr_1;
       kk_stella_syntax_ast__expr k41_1 = convert_Expr(c41_1, _ctx);
+      Type c41_2 = expr->u.tryCastAs_.type_;
+      kk_stella_syntax_ast__type__ k41_2 = convert_Type(c41_2, _ctx);
+      Pattern c41_3 = expr->u.tryCastAs_.pattern_;
+      kk_stella_syntax_ast__pattern k41_3 = convert_Pattern(c41_3, _ctx);
+      Expr c41_4 = expr->u.tryCastAs_.expr_2;
+      kk_stella_syntax_ast__expr k41_4 = convert_Expr(c41_4, _ctx);
+      Expr c41_5 = expr->u.tryCastAs_.expr_3;
+      kk_stella_syntax_ast__expr k41_5 = convert_Expr(c41_5, _ctx);
 
-      return kk_stella_syntax_ast__new_Inl(kk_reuse_null, 0, k41_1, _ctx);
-    case is_Inr:
-      Expr c42_1 = expr->u.inr_.expr_;
+      return kk_stella_syntax_ast__new_TryCastAs(kk_reuse_null, 0, k41_1, k41_2, k41_3, k41_4, k41_5, _ctx);
+    case is_Inl:
+      Expr c42_1 = expr->u.inl_.expr_;
       kk_stella_syntax_ast__expr k42_1 = convert_Expr(c42_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Inr(kk_reuse_null, 0, k42_1, _ctx);
-    case is_Succ:
-      Expr c43_1 = expr->u.succ_.expr_;
+      return kk_stella_syntax_ast__new_Inl(kk_reuse_null, 0, k42_1, _ctx);
+    case is_Inr:
+      Expr c43_1 = expr->u.inr_.expr_;
       kk_stella_syntax_ast__expr k43_1 = convert_Expr(c43_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Succ(kk_reuse_null, 0, k43_1, _ctx);
-    case is_LogicNot:
-      Expr c44_1 = expr->u.logicNot_.expr_;
+      return kk_stella_syntax_ast__new_Inr(kk_reuse_null, 0, k43_1, _ctx);
+    case is_Succ:
+      Expr c44_1 = expr->u.succ_.expr_;
       kk_stella_syntax_ast__expr k44_1 = convert_Expr(c44_1, _ctx);
 
-      return kk_stella_syntax_ast__new_LogicNot(kk_reuse_null, 0, k44_1, _ctx);
-    case is_Pred:
-      Expr c45_1 = expr->u.pred_.expr_;
+      return kk_stella_syntax_ast__new_Succ(kk_reuse_null, 0, k44_1, _ctx);
+    case is_LogicNot:
+      Expr c45_1 = expr->u.logicNot_.expr_;
       kk_stella_syntax_ast__expr k45_1 = convert_Expr(c45_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Pred(kk_reuse_null, 0, k45_1, _ctx);
-    case is_IsZero:
-      Expr c46_1 = expr->u.isZero_.expr_;
+      return kk_stella_syntax_ast__new_LogicNot(kk_reuse_null, 0, k45_1, _ctx);
+    case is_Pred:
+      Expr c46_1 = expr->u.pred_.expr_;
       kk_stella_syntax_ast__expr k46_1 = convert_Expr(c46_1, _ctx);
 
-      return kk_stella_syntax_ast__new_IsZero(kk_reuse_null, 0, k46_1, _ctx);
-    case is_Fix:
-      Expr c47_1 = expr->u.fix_.expr_;
+      return kk_stella_syntax_ast__new_Pred(kk_reuse_null, 0, k46_1, _ctx);
+    case is_IsZero:
+      Expr c47_1 = expr->u.isZero_.expr_;
       kk_stella_syntax_ast__expr k47_1 = convert_Expr(c47_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Fix(kk_reuse_null, 0, k47_1, _ctx);
-    case is_NatRec:
-      Expr c48_1 = expr->u.natRec_.expr_1;
+      return kk_stella_syntax_ast__new_IsZero(kk_reuse_null, 0, k47_1, _ctx);
+    case is_Fix:
+      Expr c48_1 = expr->u.fix_.expr_;
       kk_stella_syntax_ast__expr k48_1 = convert_Expr(c48_1, _ctx);
-      Expr c48_2 = expr->u.natRec_.expr_2;
-      kk_stella_syntax_ast__expr k48_2 = convert_Expr(c48_2, _ctx);
-      Expr c48_3 = expr->u.natRec_.expr_3;
-      kk_stella_syntax_ast__expr k48_3 = convert_Expr(c48_3, _ctx);
 
-      return kk_stella_syntax_ast__new_NatRec(kk_reuse_null, 0, k48_1, k48_2, k48_3, _ctx);
-    case is_Fold:
-      Type c49_1 = expr->u.fold_.type_;
-      kk_stella_syntax_ast__type__ k49_1 = convert_Type(c49_1, _ctx);
-      Expr c49_2 = expr->u.fold_.expr_;
+      return kk_stella_syntax_ast__new_Fix(kk_reuse_null, 0, k48_1, _ctx);
+    case is_NatRec:
+      Expr c49_1 = expr->u.natRec_.expr_1;
+      kk_stella_syntax_ast__expr k49_1 = convert_Expr(c49_1, _ctx);
+      Expr c49_2 = expr->u.natRec_.expr_2;
       kk_stella_syntax_ast__expr k49_2 = convert_Expr(c49_2, _ctx);
+      Expr c49_3 = expr->u.natRec_.expr_3;
+      kk_stella_syntax_ast__expr k49_3 = convert_Expr(c49_3, _ctx);
 
-      return kk_stella_syntax_ast__new_Fold(kk_reuse_null, 0, k49_1, k49_2, _ctx);
-    case is_Unfold:
-      Type c50_1 = expr->u.unfold_.type_;
+      return kk_stella_syntax_ast__new_NatRec(kk_reuse_null, 0, k49_1, k49_2, k49_3, _ctx);
+    case is_Fold:
+      Type c50_1 = expr->u.fold_.type_;
       kk_stella_syntax_ast__type__ k50_1 = convert_Type(c50_1, _ctx);
-      Expr c50_2 = expr->u.unfold_.expr_;
+      Expr c50_2 = expr->u.fold_.expr_;
       kk_stella_syntax_ast__expr k50_2 = convert_Expr(c50_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Unfold(kk_reuse_null, 0, k50_1, k50_2, _ctx);
+      return kk_stella_syntax_ast__new_Fold(kk_reuse_null, 0, k50_1, k50_2, _ctx);
+    case is_Unfold:
+      Type c51_1 = expr->u.unfold_.type_;
+      kk_stella_syntax_ast__type__ k51_1 = convert_Type(c51_1, _ctx);
+      Expr c51_2 = expr->u.unfold_.expr_;
+      kk_stella_syntax_ast__expr k51_2 = convert_Expr(c51_2, _ctx);
+
+      return kk_stella_syntax_ast__new_Unfold(kk_reuse_null, 0, k51_1, k51_2, _ctx);
     case is_ConstTrue:
       return kk_stella_syntax_ast__new_ConstTrue(_ctx);
     case is_ConstFalse:
@@ -994,20 +1021,20 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
     case is_ConstUnit:
       return kk_stella_syntax_ast__new_ConstUnit(_ctx);
     case is_ConstInt:
-      Integer c54_1 = expr->u.constInt_.integer_;
-      kk_integer_t k54_1 = convert_Integer(c54_1, _ctx);
+      Integer c55_1 = expr->u.constInt_.integer_;
+      kk_integer_t k55_1 = convert_Integer(c55_1, _ctx);
 
-      return kk_stella_syntax_ast__new_ConstInt(kk_reuse_null, 0, k54_1, _ctx);
+      return kk_stella_syntax_ast__new_ConstInt(kk_reuse_null, 0, k55_1, _ctx);
     case is_ConstMemory:
-      MemoryAddress c55_1 = expr->u.constMemory_.memoryaddress_;
-      kk_stella_syntax_ast__memoryAddress k55_1 = convert_MemoryAddress(c55_1, _ctx);
+      MemoryAddress c56_1 = expr->u.constMemory_.memoryaddress_;
+      kk_stella_syntax_ast__memoryAddress k56_1 = convert_MemoryAddress(c56_1, _ctx);
 
-      return kk_stella_syntax_ast__new_ConstMemory(kk_reuse_null, 0, k55_1, _ctx);
+      return kk_stella_syntax_ast__new_ConstMemory(kk_reuse_null, 0, k56_1, _ctx);
     case is_Var:
-      StellaIdent c56_1 = expr->u.var_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k56_1 = convert_StellaIdent(c56_1, _ctx);
+      StellaIdent c57_1 = expr->u.var_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k57_1 = convert_StellaIdent(c57_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Var(kk_reuse_null, 0, k56_1, _ctx);
+      return kk_stella_syntax_ast__new_Var(kk_reuse_null, 0, k57_1, _ctx);
 
   }
 
@@ -1053,6 +1080,15 @@ kk_std_core_types__list convert_ListPatternBinding(ListPatternBinding listPatter
   else {
     return kk_std_core_types__new_Nil(_ctx);
   }
+}
+
+kk_stella_syntax_ast__mod convert_Mod(Mod mod, kk_context_t* _ctx) {
+  switch(mod->kind) {
+    case is_ModLock:
+      return kk_stella_syntax_ast__new_ModLock(_ctx);
+
+  }
+
 }
 
 kk_stella_syntax_ast__variantFieldType convert_VariantFieldType(VariantFieldType variantFieldType, kk_context_t* _ctx) {
@@ -1553,6 +1589,18 @@ kk_std_core_types__maybe kk_parse_ListExpr2(kk_string_t kstr, kk_context_t* _ctx
   if (parse_tree) {
     kk_std_core_types__list converted = convert_ListExpr(parse_tree, _ctx);
     return kk_std_core_types__new_Just(kk_std_core_types__list_box(converted, _ctx), _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nothing(_ctx);
+  }
+}
+kk_std_core_types__maybe kk_parse_Mod(kk_string_t kstr, kk_context_t* _ctx) {
+  const uint8_t* cstr = string_to_chars(kstr, _ctx);
+  Mod parse_tree;
+  parse_tree = psMod(cstr);
+  if (parse_tree) {
+    kk_stella_syntax_ast__mod converted = convert_Mod(parse_tree, _ctx);
+    return kk_std_core_types__new_Just(kk_stella_syntax_ast__mod_box(converted, _ctx), _ctx);
   }
   else {
     return kk_std_core_types__new_Nothing(_ctx);

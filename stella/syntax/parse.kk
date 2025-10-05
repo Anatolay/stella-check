@@ -115,6 +115,9 @@ pub extern parseExpr2(str : string) : maybe<expr>
 pub extern parseExpr2List(str : string) : maybe<list<expr>>
   c "kk_parse_ListExpr2"
 
+pub extern parseMod(str : string) : maybe<mod>
+  c "kk_parse_Mod"
+
 pub extern parseExpr3(str : string) : maybe<expr>
   c "kk_parse_Expr3"
 

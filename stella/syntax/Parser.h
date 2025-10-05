@@ -78,6 +78,8 @@ Expr  pExpr2(FILE *inp);
 Expr psExpr2(const char *str);
 ListExpr  pListExpr2(FILE *inp);
 ListExpr psListExpr2(const char *str);
+Mod  pMod(FILE *inp);
+Mod psMod(const char *str);
 Expr  pExpr3(FILE *inp);
 Expr psExpr3(const char *str);
 Expr  pExpr4(FILE *inp);

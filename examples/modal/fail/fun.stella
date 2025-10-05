@@ -1,0 +1,11 @@
+language core;
+
+extend with #modal-lock;
+
+fn zero(n : Nat) -> Nat {
+  return mod [lock] { n }
+}
+
+fn main(x : Nat) -> Nat {
+  return zero(x)
+}

@@ -23,6 +23,7 @@ pub type extension
 pub type decl
   DeclFun (annotationList : list<annotation>, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
   DeclFunGeneric (annotationList : list<annotation>, stellaIdent : stellaIdent, stellaIdentList : list<stellaIdent>, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
+  DeclFunMod (annotationList : list<annotation>, mod : mod, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
   DeclTypeAlias (stellaIdent : stellaIdent, type_ : type_)
   DeclExceptionType (type_ : type_)
   DeclExceptionVariant (stellaIdent : stellaIdent, type_ : type_)
@@ -116,6 +117,7 @@ pub type expr
   TypeAsc (expr : expr, type_ : type_)
   TypeCast (expr : expr, type_ : type_)
   Abstraction (paramDeclList : list<paramDecl>, expr : expr)
+  Mod (mod : mod, expr : expr)
   Variant (stellaIdent : stellaIdent, exprData : exprData)
   Match (expr : expr, matchCaseList : list<matchCase>)
   List (exprList : list<expr>)
@@ -161,6 +163,9 @@ pub type expr
 
 pub type patternBinding
   APatternBinding (pattern : pattern, expr : expr)
+
+pub type mod
+  ModLock
 
 pub type variantFieldType
   AVariantFieldType (stellaIdent : stellaIdent, optionalTyping : optionalTyping)

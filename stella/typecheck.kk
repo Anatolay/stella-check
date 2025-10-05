@@ -62,6 +62,9 @@ pub fun list/show(?a/show : (a) -> string, l : list<a>) : string
 pub fun collect-param-decls(param-decls : list<paramDecl>) : list<(stellaIdent, type_)>
   param-decls.map(fn (AParamDecl(name, typ)) -> (name, typ))
 
+pub fun varify(l : list<(stellaIdent, type_)>) : list<env-item>
+  l.map(fn ((n,t)) Var(n, t, Identity))
+
 pub fun list/all(bs : list<bool>) : bool
   bs.foldl(True,(&&))
 
@@ -75,12 +78,33 @@ pub effect log<a>
 
 alias typechecker = <error<stella-error>, log<string>>
 
-pub alias environment = list<(stellaIdent, type_)>
+pub type modality
+  Identity
+
+pub type env-item
+  Var (name : stellaIdent, type_ : type_, mod : modality)
+  Lock (mod : mod)
+
+pub alias environment = list<env-item>
 
 pub fun has-key(c : environment, k : stellaIdent) : bool
-  match c.lookup(fn (key) key == k)
-    Nothing -> False
-    Just(_) -> True
+  match c
+    Nil -> False
+    Cons(Var(name), rest) -> if name == k then True else rest.has-key(k)
+    Cons(_, rest) -> rest.has-key(k)
+
+pub fun get-item(c : environment, k : stellaIdent) : maybe<type_>
+  c.get-item-with([], k)
+
+pub fun get-item-with(c : environment, mods : list<mod>, k : stellaIdent) : maybe<type_>
+  match c
+    Nil -> Nothing
+    Cons(Lock(ModLock), _) -> Nothing
+    Cons(Var(name, typ, modality), rest) -> if name == k && modality.unlocks(mods) then Just(typ) else rest.get-item-with(mods, k)
+
+pub fun unlocks(m : modality, locks : list<mod>) : bool
+  // TODO: add more modes and modalities
+  True
 
 pub type stella-error
   NoMain
@@ -89,6 +113,7 @@ pub type stella-error
   NoReturn // TODO: support declarations without return type
   UnhandledExpression
   UndefinedVariable(vname : string)
+  LockedVariable(vname : string)
   UnexpectedTypeForExpressions
   UnexpectedLambda
   UnexpectedNumberOfParametersInLambda
@@ -115,7 +140,7 @@ pub fun collect-decls(declarations : list<decl>) : typechecker environment
         if acc.has-key(ident) then error(FunAlreadyDefined(ident.string))
         val input-types = params.map(fn (AParamDecl(_, t)) t)
         val fun-type = TypeFun(input-types, return-type)
-        helper(ds, Cons((ident, fun-type), acc))
+        helper(ds, Cons(Var(ident, fun-type, Identity), acc))
       // TODO: Handle other declarations
       Cons(_, ds) -> helper(ds, acc)
   helper(declarations, [])
@@ -135,7 +160,7 @@ pub fun typecheck-decl-div(environment : environment, declaration : decl) : <typ
   match declaration
     DeclFun(_, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
       val params = collect-param-decls(param-decls)
-      val new-environment = params.append(environment)
+      val new-environment = params.varify.append(environment)
       val new-new-environment = typecheck-decls-div(new-environment, decls)
       typecheck-expr(new-new-environment, expression, return-type)
       Just((fname, TypeFun(params.map(snd), return-type)))
@@ -147,7 +172,7 @@ pub fun typecheck-decls-div(environment : environment, declarations : list<decl>
       val mb-ident = typecheck-decl-div(environment, d)
       val new-environment = match mb-ident
         Nothing -> environment
-        Just(f) -> Cons(f, environment)
+        Just((n,t)) -> Cons(Var(n,t,Identity), environment)
       typecheck-decls-div(new-environment, ds)
     Nil -> environment
 
@@ -157,16 +182,21 @@ fun typecheck-expr(environment : environment, expression : expr, expected-type :
 fun typecheck-expr-div(environment : environment, expression : expr, expected-type : type_) : <typechecker, div> ()
   match expression
     // FUNCTIONS AND VARIABLES (lambda-calculi)
-    Var(ident) -> match environment.lookup(fn (i) -> i == ident)
-      Nothing -> error(UndefinedVariable(ident.string))
-      Just(typ) -> if typ == expected-type then () else error(UnexpectedTypeForExpressions)
+    // TODO: vars
+    Var(ident) -> match environment.get-item(ident)
+      Nothing ->
+        log("Why?")
+        if environment.has-key(ident) then error(LockedVariable(ident.string)) else error(UndefinedVariable(ident.string))
+      Just(typ) ->
+        log("Why?")
+        if typ == expected-type then () else error(UnexpectedTypeForExpressions)
     Abstraction(param-decls, body) -> match expected-type
       TypeFun(expected-arg-types, expected-return-type) ->
         val params = collect-param-decls(param-decls)
         if expected-arg-types.length != params.length then error(UnexpectedNumberOfParametersInLambda)
         val are-equal = expected-arg-types.zipwith(params, fn (e-type, (_, a-type)) -> e-type == a-type)
         if not(all(are-equal)) then error(UnexpectedTypeForParameter)
-        typecheck-expr-div(params.append(environment), body, expected-return-type)
+        typecheck-expr-div(params.varify.append(environment), body, expected-return-type)
       _ -> error(UnexpectedLambda)
     Application(callee, args) ->
       val fun-type = infer-expr-div(environment, callee)
@@ -175,7 +205,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
           if params.length != args.length then error(IncorrectNumberOfArguments)
           if return-type == expected-type then () else error(UnexpectedTypeForExpressions)
         _ -> error(NotAFunction)
-    
+
     // BOOLEANS
     ConstTrue ->
       log("Why?")
@@ -227,6 +257,9 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
       val extra-environment = infer-pattern-bindings-div(environment, patterns)
       typecheck-expr-div(extra-environment.append(environment), expr, expected-type)
 
+    // Modalities
+    Mod(ModLock, expr) -> typecheck-expr-div(Cons(Lock(ModLock), environment), expr, expected-type)
+
     // OTHERWISE
     _ -> error(UnhandledExpression)
   ()
@@ -246,7 +279,7 @@ pub fun infer-pattern-bindings-div(environment : environment, patterns : list<pa
   // If there are several variables of the same name,
   // the latter should (probably) take the precedence,
   // hence we reverse the list
-  idents.zip(types).reverse
+  idents.zip(types).varify.reverse
 
 
 pub fun infer-expr(environment : environment, expression : expr) : typechecker type_
@@ -263,13 +296,14 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
 
   match expression
     // FUNCTIONS AND VARIABLES (lambda-calculi)
-    Var(ident) -> match environment.lookup(fn (i) -> i == ident)
+    Var(ident) -> match environment.get-item(ident)
       Nothing ->
-        err(UndefinedVariable(ident.string))
+        log("Why?")
+        if environment.has-key(ident) then err(LockedVariable(ident.string)) else err(UndefinedVariable(ident.string))
       Just(typ) -> typ
     Abstraction(param-decls, body) ->
       val params = collect-param-decls(param-decls)
-      val return-type = infer-expr-div(params.append(environment), body)
+      val return-type = infer-expr-div(params.map(fn ((n, t)) Var(n,t,Identity)).append(environment), body)
       TypeFun(params.map(snd), return-type)
     Application(callee, args) ->
       val fun-type = infer-expr-div(environment, callee)
@@ -322,6 +356,9 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
       // TODO: support more patterns than just variables
       val extra-environment = infer-pattern-bindings-div(environment, patterns)
       infer-expr-div(extra-environment.append(environment), expr)
+    
+    // Modalities
+    Mod(ModLock, expr) -> infer-expr-div(Cons(Lock(ModLock), environment), expr)
 
     // OTHERWISE
     _ -> err(UnhandledExpression)
@@ -338,6 +375,7 @@ pub fun typecheck-modal(prog : program) : <console, div> ()
       NoReturn -> println("FAILURE!!! Currently we do not support missing return types")
       UnhandledExpression -> println("FAILURE!!! Unhandled expression!")
       UndefinedVariable(vname) -> println("FAILURE!!! ERROR_UNDEFINED_VARIABLE " ++ vname ++ "!")
+      LockedVariable(vname) -> println("FAILURE!!! Trying to use variable " ++ vname ++ " in a locked term!")
       UnexpectedTypeForExpressions -> println("FAILURE!!! ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
       UnexpectedLambda -> println("FAILURE!!! ERROR_UNEXPECTED_LAMBDA")
       UnexpectedNumberOfParametersInLambda -> println("FAILURE!!! ERROR_UNEXPECTED_NUMBER_OF_PARAMETERS_IN_LAMBDA")
@@ -349,7 +387,7 @@ pub fun typecheck-modal(prog : program) : <console, div> ()
       UnexpectedTupleLength -> println("FAILURE!!! ERROR_UNEXPECTED_TUPLE_LENGTH")
       TupleIndexOutOfBounds -> println("FAILURE!!! ERROR_TUPLE_INDEX_OUT_OF_BOUNDS")
   with fun log(s)
-    // println(s)
+    println(s)
     ()
   typecheck(prog)
   println("Success!!!")

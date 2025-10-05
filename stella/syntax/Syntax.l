@@ -109,7 +109,9 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"language"      	 return _KW_language;
 <INITIAL>"let"      	 return _KW_let;
 <INITIAL>"letrec"      	 return _KW_letrec;
+<INITIAL>"lock"      	 return _KW_lock;
 <INITIAL>"match"      	 return _KW_match;
+<INITIAL>"mod"      	 return _KW_mod;
 <INITIAL>"new"      	 return _KW_new;
 <INITIAL>"not"      	 return _KW_not;
 <INITIAL>"or"      	 return _KW_or;
@@ -125,7 +127,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"unit"      	 return _KW_unit;
 <INITIAL>"variant"      	 return _KW_variant;
 <INITIAL>"with"      	 return _KW_with;
-<INITIAL>"µ"      	 return _KW_80;
+<INITIAL>"µ"      	 return _KW_82;
 
 <INITIAL>"//"[^\n]* /* skip */; /* BNFC: comment "//" */
 <INITIAL>"/*" BEGIN COMMENT;

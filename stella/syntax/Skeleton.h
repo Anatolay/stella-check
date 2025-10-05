@@ -40,6 +40,7 @@ void visitExpr(Expr p);
 void visitListExpr(ListExpr p);
 void visitPatternBinding(PatternBinding p);
 void visitListPatternBinding(ListPatternBinding p);
+void visitMod(Mod p);
 void visitVariantFieldType(VariantFieldType p);
 void visitListVariantFieldType(ListVariantFieldType p);
 void visitRecordFieldType(RecordFieldType p);

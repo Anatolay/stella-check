@@ -19,6 +19,7 @@ terminator Extension ";" ;
 
 DeclFun.    Decl ::= [Annotation] "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
 DeclFunGeneric. Decl ::= [Annotation] "generic" "fn" StellaIdent "[" [StellaIdent] "]" "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
+DeclFunMod. Decl ::= [Annotation] "mod" "[" Mod "]" "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
 DeclTypeAlias.  Decl ::= "type" StellaIdent "=" Type ;
 DeclExceptionType. Decl ::= "exception" "type" "=" Type ;
 DeclExceptionVariant. Decl ::= "exception" "variant" StellaIdent ":" Type ;
@@ -102,9 +103,12 @@ Equal.              Expr2 ::= Expr3 "==" Expr3 ;
 NotEqual.           Expr2 ::= Expr3 "!=" Expr3 ;
 terminator nonempty Expr2 ";" ;
 
+ModLock. Mod ::= "lock" ;
+
 TypeAsc.      Expr3 ::= Expr3 "as" Type2 ;
 TypeCast.     Expr3 ::= Expr3 "cast" "as" Type2 ;
 Abstraction.  Expr3 ::= "fn" "(" [ParamDecl] ")" "{" "return" Expr "}" ;
+Mod.          Expr3 ::= "mod" "[" Mod "]" "{" Expr "}" ;
 Variant.      Expr3 ::= "<|" StellaIdent ExprData "|>" ;
 Match.        Expr3 ::= "match" Expr2 "{" [MatchCase] "}" ;
 List.         Expr3 ::= "[" [Expr] "]" ;

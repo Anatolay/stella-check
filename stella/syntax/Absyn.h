@@ -125,6 +125,9 @@ typedef struct PatternBinding_ *PatternBinding;
 struct ListPatternBinding_;
 typedef struct ListPatternBinding_ *ListPatternBinding;
 
+struct Mod_;
+typedef struct Mod_ *Mod;
+
 struct VariantFieldType_;
 typedef struct VariantFieldType_ *VariantFieldType;
 
@@ -200,11 +203,12 @@ ListExtension make_ListExtension(Extension p1, ListExtension p2);
 
 struct Decl_
 {
-  enum { is_DeclFun, is_DeclFunGeneric, is_DeclTypeAlias, is_DeclExceptionType, is_DeclExceptionVariant } kind;
+  enum { is_DeclFun, is_DeclFunGeneric, is_DeclFunMod, is_DeclTypeAlias, is_DeclExceptionType, is_DeclExceptionVariant } kind;
   union
   {
     struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFun_;
     struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; ListStellaIdent liststellaident_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunGeneric_;
+    struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; Mod mod_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunMod_;
     struct { StellaIdent stellaident_; Type type_; } declTypeAlias_;
     struct { Type type_; } declExceptionType_;
     struct { StellaIdent stellaident_; Type type_; } declExceptionVariant_;
@@ -213,6 +217,7 @@ struct Decl_
 
 Decl make_DeclFun(ListAnnotation p0, StellaIdent p1, ListParamDecl p2, ReturnType p3, ThrowType p4, ListDecl p5, Expr p6);
 Decl make_DeclFunGeneric(ListAnnotation p0, StellaIdent p1, ListStellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
+Decl make_DeclFunMod(ListAnnotation p0, Mod p1, StellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
 Decl make_DeclTypeAlias(StellaIdent p0, Type p1);
 Decl make_DeclExceptionType(Type p0);
 Decl make_DeclExceptionVariant(StellaIdent p0, Type p1);
@@ -487,7 +492,7 @@ ListBinding make_ListBinding(Binding p1, ListBinding p2);
 
 struct Expr_
 {
-  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
+  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_Mod, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
   union
   {
     struct { Expr expr_1, expr_2; } sequence_;
@@ -505,6 +510,7 @@ struct Expr_
     struct { Expr expr_; Type type_; } typeAsc_;
     struct { Expr expr_; Type type_; } typeCast_;
     struct { Expr expr_; ListParamDecl listparamdecl_; } abstraction_;
+    struct { Expr expr_; Mod mod_; } mod_;
     struct { ExprData exprdata_; StellaIdent stellaident_; } variant_;
     struct { Expr expr_; ListMatchCase listmatchcase_; } match_;
     struct { ListExpr listexpr_; } list_;
@@ -561,6 +567,7 @@ Expr make_NotEqual(Expr p0, Expr p1);
 Expr make_TypeAsc(Expr p0, Type p1);
 Expr make_TypeCast(Expr p0, Type p1);
 Expr make_Abstraction(ListParamDecl p0, Expr p1);
+Expr make_Mod(Mod p0, Expr p1);
 Expr make_Variant(StellaIdent p0, ExprData p1);
 Expr make_Match(Expr p0, ListMatchCase p1);
 Expr make_List(ListExpr p0);
@@ -630,6 +637,16 @@ struct ListPatternBinding_
 };
 
 ListPatternBinding make_ListPatternBinding(PatternBinding p1, ListPatternBinding p2);
+
+struct Mod_
+{
+  enum { is_ModLock } kind;
+  union
+  {
+  } u;
+};
+
+Mod make_ModLock(void);
 
 struct VariantFieldType_
 {
@@ -715,6 +732,7 @@ Expr clone_Expr(Expr p);
 ListExpr clone_ListExpr(ListExpr p);
 PatternBinding clone_PatternBinding(PatternBinding p);
 ListPatternBinding clone_ListPatternBinding(ListPatternBinding p);
+Mod clone_Mod(Mod p);
 VariantFieldType clone_VariantFieldType(VariantFieldType p);
 ListVariantFieldType clone_ListVariantFieldType(ListVariantFieldType p);
 RecordFieldType clone_RecordFieldType(RecordFieldType p);
@@ -764,6 +782,7 @@ void free_Expr(Expr p);
 void free_ListExpr(ListExpr p);
 void free_PatternBinding(PatternBinding p);
 void free_ListPatternBinding(ListPatternBinding p);
+void free_Mod(Mod p);
 void free_VariantFieldType(VariantFieldType p);
 void free_ListVariantFieldType(ListVariantFieldType p);
 void free_RecordFieldType(RecordFieldType p);

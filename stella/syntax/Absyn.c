@@ -140,6 +140,28 @@ Decl make_DeclFunGeneric(ListAnnotation p1, StellaIdent p2, ListStellaIdent p3, 
     return tmp;
 }
 
+/********************   DeclFunMod    ********************/
+
+Decl make_DeclFunMod(ListAnnotation p1, Mod p2, StellaIdent p3, ListParamDecl p4, ReturnType p5, ThrowType p6, ListDecl p7, Expr p8)
+{
+    Decl tmp = (Decl) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating DeclFunMod!\n");
+        exit(1);
+    }
+    tmp->kind = is_DeclFunMod;
+    tmp->u.declFunMod_.listannotation_ = p1;
+    tmp->u.declFunMod_.mod_ = p2;
+    tmp->u.declFunMod_.stellaident_ = p3;
+    tmp->u.declFunMod_.listparamdecl_ = p4;
+    tmp->u.declFunMod_.returntype_ = p5;
+    tmp->u.declFunMod_.throwtype_ = p6;
+    tmp->u.declFunMod_.listdecl_ = p7;
+    tmp->u.declFunMod_.expr_ = p8;
+    return tmp;
+}
+
 /********************   DeclTypeAlias    ********************/
 
 Decl make_DeclTypeAlias(StellaIdent p1, Type p2)
@@ -1265,6 +1287,22 @@ Expr make_Abstraction(ListParamDecl p1, Expr p2)
     return tmp;
 }
 
+/********************   Mod    ********************/
+
+Expr make_Mod(Mod p1, Expr p2)
+{
+    Expr tmp = (Expr) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating Mod!\n");
+        exit(1);
+    }
+    tmp->kind = is_Mod;
+    tmp->u.mod_.mod_ = p1;
+    tmp->u.mod_.expr_ = p2;
+    return tmp;
+}
+
 /********************   Variant    ********************/
 
 Expr make_Variant(StellaIdent p1, ExprData p2)
@@ -1961,6 +1999,20 @@ ListPatternBinding make_ListPatternBinding(PatternBinding p1, ListPatternBinding
     return tmp;
 }
 
+/********************   ModLock    ********************/
+
+Mod make_ModLock()
+{
+    Mod tmp = (Mod) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ModLock!\n");
+        exit(1);
+    }
+    tmp->kind = is_ModLock;
+    return tmp;
+}
+
 /********************   AVariantFieldType    ********************/
 
 VariantFieldType make_AVariantFieldType(StellaIdent p1, OptionalTyping p2)
@@ -2148,6 +2200,18 @@ Decl clone_Decl(Decl p)
       , clone_ThrowType(p->u.declFunGeneric_.throwtype_)
       , clone_ListDecl(p->u.declFunGeneric_.listdecl_)
       , clone_Expr(p->u.declFunGeneric_.expr_)
+      );
+
+  case is_DeclFunMod:
+    return make_DeclFunMod
+      ( clone_ListAnnotation(p->u.declFunMod_.listannotation_)
+      , clone_Mod(p->u.declFunMod_.mod_)
+      , strdup(p->u.declFunMod_.stellaident_)
+      , clone_ListParamDecl(p->u.declFunMod_.listparamdecl_)
+      , clone_ReturnType(p->u.declFunMod_.returntype_)
+      , clone_ThrowType(p->u.declFunMod_.throwtype_)
+      , clone_ListDecl(p->u.declFunMod_.listdecl_)
+      , clone_Expr(p->u.declFunMod_.expr_)
       );
 
   case is_DeclTypeAlias:
@@ -2690,6 +2754,12 @@ Expr clone_Expr(Expr p)
       , clone_Expr(p->u.abstraction_.expr_)
       );
 
+  case is_Mod:
+    return make_Mod
+      ( clone_Mod(p->u.mod_.mod_)
+      , clone_Expr(p->u.mod_.expr_)
+      );
+
   case is_Variant:
     return make_Variant
       ( strdup(p->u.variant_.stellaident_)
@@ -2926,6 +2996,19 @@ ListPatternBinding clone_ListPatternBinding(ListPatternBinding listpatternbindin
   else return NULL; /* clone of empty list */
 }
 
+Mod clone_Mod(Mod p)
+{
+  switch(p->kind)
+  {
+  case is_ModLock:
+    return make_ModLock ();
+
+  default:
+    fprintf(stderr, "Error: bad kind field when cloning Mod!\n");
+    exit(1);
+  }
+}
+
 VariantFieldType clone_VariantFieldType(VariantFieldType p)
 {
   switch(p->kind)
@@ -3109,6 +3192,17 @@ void free_Decl(Decl p)
     free_ThrowType(p->u.declFunGeneric_.throwtype_);
     free_ListDecl(p->u.declFunGeneric_.listdecl_);
     free_Expr(p->u.declFunGeneric_.expr_);
+    break;
+
+  case is_DeclFunMod:
+    free_ListAnnotation(p->u.declFunMod_.listannotation_);
+    free_Mod(p->u.declFunMod_.mod_);
+    free(p->u.declFunMod_.stellaident_);
+    free_ListParamDecl(p->u.declFunMod_.listparamdecl_);
+    free_ReturnType(p->u.declFunMod_.returntype_);
+    free_ThrowType(p->u.declFunMod_.throwtype_);
+    free_ListDecl(p->u.declFunMod_.listdecl_);
+    free_Expr(p->u.declFunMod_.expr_);
     break;
 
   case is_DeclTypeAlias:
@@ -3629,6 +3723,11 @@ void free_Expr(Expr p)
     free_Expr(p->u.abstraction_.expr_);
     break;
 
+  case is_Mod:
+    free_Mod(p->u.mod_.mod_);
+    free_Expr(p->u.mod_.expr_);
+    break;
+
   case is_Variant:
     free(p->u.variant_.stellaident_);
     free_ExprData(p->u.variant_.exprdata_);
@@ -3856,6 +3955,20 @@ void free_ListPatternBinding(ListPatternBinding listpatternbinding)
     free_ListPatternBinding(listpatternbinding->listpatternbinding_);
     free(listpatternbinding);
   }
+}
+
+void free_Mod(Mod p)
+{
+  switch(p->kind)
+  {
+  case is_ModLock:
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when freeing Mod!\n");
+    exit(1);
+  }
+  free(p);
 }
 
 void free_VariantFieldType(VariantFieldType p)

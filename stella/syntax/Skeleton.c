@@ -111,6 +111,17 @@ void visitDecl(Decl p)
     visitListDecl(p->u.declFunGeneric_.listdecl_);
     visitExpr(p->u.declFunGeneric_.expr_);
     break;
+  case is_DeclFunMod:
+    /* Code for DeclFunMod Goes Here */
+    visitListAnnotation(p->u.declFunMod_.listannotation_);
+    visitMod(p->u.declFunMod_.mod_);
+    visitStellaIdent(p->u.declFunMod_.stellaident_);
+    visitListParamDecl(p->u.declFunMod_.listparamdecl_);
+    visitReturnType(p->u.declFunMod_.returntype_);
+    visitThrowType(p->u.declFunMod_.throwtype_);
+    visitListDecl(p->u.declFunMod_.listdecl_);
+    visitExpr(p->u.declFunMod_.expr_);
+    break;
   case is_DeclTypeAlias:
     /* Code for DeclTypeAlias Goes Here */
     visitStellaIdent(p->u.declTypeAlias_.stellaident_);
@@ -630,6 +641,11 @@ void visitExpr(Expr p)
     visitListParamDecl(p->u.abstraction_.listparamdecl_);
     visitExpr(p->u.abstraction_.expr_);
     break;
+  case is_Mod:
+    /* Code for Mod Goes Here */
+    visitMod(p->u.mod_.mod_);
+    visitExpr(p->u.mod_.expr_);
+    break;
   case is_Variant:
     /* Code for Variant Goes Here */
     visitStellaIdent(p->u.variant_.stellaident_);
@@ -858,6 +874,20 @@ void visitListPatternBinding(ListPatternBinding listpatternbinding)
     /* Code For ListPatternBinding Goes Here */
     visitPatternBinding(listpatternbinding->patternbinding_);
     listpatternbinding = listpatternbinding->listpatternbinding_;
+  }
+}
+
+void visitMod(Mod p)
+{
+  switch(p->kind)
+  {
+  case is_ModLock:
+    /* Code for ModLock Goes Here */
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when printing Mod!\n");
+    exit(1);
   }
 }
 

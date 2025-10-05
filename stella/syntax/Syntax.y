@@ -294,6 +294,7 @@ ListRecordFieldType reverseListRecordFieldType(ListRecordFieldType l)
   ListExpr listexpr_;
   PatternBinding patternbinding_;
   ListPatternBinding listpatternbinding_;
+  Mod mod_;
   VariantFieldType variantfieldtype_;
   ListVariantFieldType listvariantfieldtype_;
   RecordFieldType recordfieldtype_;
@@ -373,7 +374,9 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_language     /* language */
 %token          _KW_let          /* let */
 %token          _KW_letrec       /* letrec */
+%token          _KW_lock         /* lock */
 %token          _KW_match        /* match */
+%token          _KW_mod          /* mod */
 %token          _KW_new          /* new */
 %token          _KW_not          /* not */
 %token          _KW_or           /* or */
@@ -394,7 +397,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _BAR             /* | */
 %token          _SYMB_14         /* |> */
 %token          _RBRACE          /* } */
-%token          _KW_80           /* µ */
+%token          _KW_82           /* µ */
 %token<_string> T_ExtensionName  /* ExtensionName */
 %token<_string> T_MemoryAddress  /* MemoryAddress */
 %token<_string> T_StellaIdent    /* StellaIdent */
@@ -436,6 +439,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %type <listpatternbinding_> ListPatternBinding
 %type <expr_> Expr2
 %type <listexpr_> ListExpr2
+%type <mod_> Mod
 %type <expr_> Expr3
 %type <expr_> Expr4
 %type <expr_> Expr5
@@ -475,6 +479,7 @@ ListExtension : /* empty */ { $$ = 0; result->listextension_ = $$; }
 ;
 Decl : ListAnnotation _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFun(reverseListAnnotation($1), $3, $5, $7, $8, reverseListDecl($10), $12); result->decl_ = $$; }
   | ListAnnotation _KW_generic _KW_fn T_StellaIdent _LBRACK ListStellaIdent _RBRACK _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFunGeneric(reverseListAnnotation($1), $4, $6, $9, $11, $12, reverseListDecl($14), $16); result->decl_ = $$; }
+  | ListAnnotation _KW_mod _LBRACK Mod _RBRACK _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFunMod(reverseListAnnotation($1), $4, $7, $9, $11, $12, reverseListDecl($14), $16); result->decl_ = $$; }
   | _KW_type T_StellaIdent _EQ Type { $$ = make_DeclTypeAlias($2, $4); result->decl_ = $$; }
   | _KW_exception _KW_type _EQ Type { $$ = make_DeclExceptionType($4); result->decl_ = $$; }
   | _KW_exception _KW_variant T_StellaIdent _COLON Type { $$ = make_DeclExceptionVariant($3, $5); result->decl_ = $$; }
@@ -587,9 +592,12 @@ Expr2 : Expr3 _LT Expr3 { $$ = make_LessThan($1, $3); result->expr_ = $$; }
 ListExpr2 : Expr2 _SEMI { $$ = make_ListExpr($1, 0); result->listexpr_ = $$; }
   | Expr2 _SEMI ListExpr2 { $$ = make_ListExpr($1, $3); result->listexpr_ = $$; }
 ;
+Mod : _KW_lock { $$ = make_ModLock(); result->mod_ = $$; }
+;
 Expr3 : Expr3 _KW_as Type2 { $$ = make_TypeAsc($1, $3); result->expr_ = $$; }
   | Expr3 _KW_cast _KW_as Type2 { $$ = make_TypeCast($1, $4); result->expr_ = $$; }
   | _KW_fn _LPAREN ListParamDecl _RPAREN _LBRACE _KW_return Expr _RBRACE { $$ = make_Abstraction($3, $7); result->expr_ = $$; }
+  | _KW_mod _LBRACK Mod _RBRACK _LBRACE Expr _RBRACE { $$ = make_Mod($3, $6); result->expr_ = $$; }
   | _SYMB_13 T_StellaIdent ExprData _SYMB_14 { $$ = make_Variant($2, $3); result->expr_ = $$; }
   | _KW_match Expr2 _LBRACE ListMatchCase _RBRACE { $$ = make_Match($2, $4); result->expr_ = $$; }
   | _LBRACK ListExpr _RBRACK { $$ = make_List($2); result->expr_ = $$; }
@@ -645,7 +653,7 @@ Expr7 : _KW_true { $$ = make_ConstTrue(); result->expr_ = $$; }
 Type : _KW_auto { $$ = make_TypeAuto(); result->type_ = $$; }
   | _KW_fn _LPAREN ListType _RPAREN _RARROW Type { $$ = make_TypeFun($3, $6); result->type_ = $$; }
   | _KW_forall ListStellaIdent _DOT Type { $$ = make_TypeForAll($2, $4); result->type_ = $$; }
-  | _KW_80 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
+  | _KW_82 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
   | Type1 { $$ = $1; result->type_ = $$; }
 ;
 Type1 : Type2 _PLUS Type2 { $$ = make_TypeSum($1, $3); result->type_ = $$; }
@@ -2268,6 +2276,50 @@ ListExpr psListExpr2(const char *str)
   else
   { /* Success */
     return result.listexpr_;
+  }
+}
+
+/* Entrypoint: parse Mod from file. */
+Mod pMod(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.mod_;
+  }
+}
+
+/* Entrypoint: parse Mod from string. */
+Mod psMod(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = syntax__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  syntax__delete_buffer(buf, scanner);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.mod_;
   }
 }
 

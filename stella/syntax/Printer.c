@@ -349,6 +349,13 @@ char *printListPatternBinding(ListPatternBinding p)
   ppListPatternBinding(p, 0);
   return buf_;
 }
+char *printMod(Mod p)
+{
+  _n_ = 0;
+  bufReset();
+  ppMod(p, 0);
+  return buf_;
+}
 char *printVariantFieldType(VariantFieldType p)
 {
   _n_ = 0;
@@ -615,6 +622,13 @@ char *showListPatternBinding(ListPatternBinding p)
   shListPatternBinding(p);
   return buf_;
 }
+char *showMod(Mod p)
+{
+  _n_ = 0;
+  bufReset();
+  shMod(p);
+  return buf_;
+}
 char *showVariantFieldType(VariantFieldType p)
 {
   _n_ = 0;
@@ -791,6 +805,28 @@ void ppDecl(Decl p, int _i_)
     ppListDecl(p->u.declFunGeneric_.listdecl_, 0);
     renderS("return");
     ppExpr(p->u.declFunGeneric_.expr_, 0);
+    renderC('}');
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
+  case is_DeclFunMod:
+    if (_i_ > 0) renderC(_L_PAREN);
+    ppListAnnotation(p->u.declFunMod_.listannotation_, 0);
+    renderS("mod");
+    renderC('[');
+    ppMod(p->u.declFunMod_.mod_, 0);
+    renderC(']');
+    renderS("fn");
+    ppIdent(p->u.declFunMod_.stellaident_, 0);
+    renderC('(');
+    ppListParamDecl(p->u.declFunMod_.listparamdecl_, 0);
+    renderC(')');
+    ppReturnType(p->u.declFunMod_.returntype_, 0);
+    ppThrowType(p->u.declFunMod_.throwtype_, 0);
+    renderC('{');
+    ppListDecl(p->u.declFunMod_.listdecl_, 0);
+    renderS("return");
+    ppExpr(p->u.declFunMod_.expr_, 0);
     renderC('}');
     if (_i_ > 0) renderC(_R_PAREN);
     break;
@@ -1584,6 +1620,18 @@ void ppExpr(Expr p, int _i_)
     if (_i_ > 3) renderC(_R_PAREN);
     break;
 
+  case is_Mod:
+    if (_i_ > 3) renderC(_L_PAREN);
+    renderS("mod");
+    renderC('[');
+    ppMod(p->u.mod_.mod_, 0);
+    renderC(']');
+    renderC('{');
+    ppExpr(p->u.mod_.expr_, 0);
+    renderC('}');
+    if (_i_ > 3) renderC(_R_PAREN);
+    break;
+
   case is_Variant:
     if (_i_ > 3) renderC(_L_PAREN);
     renderS("<|");
@@ -2027,6 +2075,22 @@ void ppListPatternBinding(ListPatternBinding listpatternbinding, int i)
   }
 }
 
+void ppMod(Mod p, int _i_)
+{
+  switch(p->kind)
+  {
+  case is_ModLock:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderS("lock");
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when printing Mod!\n");
+    exit(1);
+  }
+}
+
 void ppVariantFieldType(VariantFieldType p, int _i_)
 {
   switch(p->kind)
@@ -2342,6 +2406,32 @@ void shDecl(Decl p)
     shListDecl(p->u.declFunGeneric_.listdecl_);
   bufAppendC(' ');
     shExpr(p->u.declFunGeneric_.expr_);
+
+    bufAppendC(')');
+
+    break;
+  case is_DeclFunMod:
+    bufAppendC('(');
+
+    bufAppendS("DeclFunMod");
+
+    bufAppendC(' ');
+
+    shListAnnotation(p->u.declFunMod_.listannotation_);
+  bufAppendC(' ');
+    shMod(p->u.declFunMod_.mod_);
+  bufAppendC(' ');
+    shIdent(p->u.declFunMod_.stellaident_);
+  bufAppendC(' ');
+    shListParamDecl(p->u.declFunMod_.listparamdecl_);
+  bufAppendC(' ');
+    shReturnType(p->u.declFunMod_.returntype_);
+  bufAppendC(' ');
+    shThrowType(p->u.declFunMod_.throwtype_);
+  bufAppendC(' ');
+    shListDecl(p->u.declFunMod_.listdecl_);
+  bufAppendC(' ');
+    shExpr(p->u.declFunMod_.expr_);
 
     bufAppendC(')');
 
@@ -3460,6 +3550,20 @@ void shExpr(Expr p)
     bufAppendC(')');
 
     break;
+  case is_Mod:
+    bufAppendC('(');
+
+    bufAppendS("Mod");
+
+    bufAppendC(' ');
+
+    shMod(p->u.mod_.mod_);
+  bufAppendC(' ');
+    shExpr(p->u.mod_.expr_);
+
+    bufAppendC(')');
+
+    break;
   case is_Variant:
     bufAppendC('(');
 
@@ -4066,6 +4170,25 @@ void shListPatternBinding(ListPatternBinding listpatternbinding)
     }
   }
   bufAppendC(']');
+}
+
+void shMod(Mod p)
+{
+  switch(p->kind)
+  {
+  case is_ModLock:
+
+    bufAppendS("ModLock");
+
+
+
+
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when showing Mod!\n");
+    exit(1);
+  }
 }
 
 void shVariantFieldType(VariantFieldType p)
