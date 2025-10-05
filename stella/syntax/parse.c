@@ -121,6 +121,14 @@ kk_stella_syntax_ast__languageDecl convert_LanguageDecl(LanguageDecl languageDec
 }
 
 kk_stella_syntax_ast__extension convert_Extension(Extension extension, kk_context_t* _ctx) {
+  switch(extension->kind) {
+    case is_AnExtension:
+      ListExtensionName c0_1 = extension->u.anExtension_.listextensionname_;
+      kk_std_core_types__list k0_1 = convert_ListExtensionName(c0_1, _ctx);
+
+      return kk_stella_syntax_ast__new_AnExtension(k0_1, _ctx);
+
+  }
 
 }
 
@@ -229,6 +237,14 @@ kk_std_core_types__list convert_ListDecl(ListDecl listDecl, kk_context_t* _ctx) 
 }
 
 kk_stella_syntax_ast__localDecl convert_LocalDecl(LocalDecl localDecl, kk_context_t* _ctx) {
+  switch(localDecl->kind) {
+    case is_ALocalDecl:
+      Decl c0_1 = localDecl->u.aLocalDecl_.decl_;
+      kk_stella_syntax_ast__decl k0_1 = convert_Decl(c0_1, _ctx);
+
+      return kk_stella_syntax_ast__new_ALocalDecl(k0_1, _ctx);
+
+  }
 
 }
 

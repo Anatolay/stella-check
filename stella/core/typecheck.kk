@@ -1,4 +1,4 @@
-module stella/typecheck
+module stella/core/typecheck
 
 import stella/syntax/ast
 import std/core/undiv
@@ -329,7 +329,7 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
 
 /* MAIN */
 
-pub fun typecheck-modal(prog : program) : <console, div> ()
+pub fun typecheck-core(prog : program) : <console, div> ()
   with final ctl error(e : stella-error)
     match e
       NoMain -> println("FAILURE!!! Function `main` not found! ERROR_MISSING_MAIN")
