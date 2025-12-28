@@ -53,12 +53,21 @@ fun validate-declaration(decl : decl) : <validate> ()
           ()
       declList.map(fn (d) validate-declaration(pretend-decreasing(d)))
       validate-expr(expr)
-    // DeclFunGeneric
-    // DeclFunMod
-    // DeclTypeAlias
-    // DeclExceptionType
-    // DeclExceptionVariant
-    _ -> ()
+    DeclFunGeneric(annotationList, stellaIdent, _, paramDeclList, returnType, throwType, declList, expr) ->
+      check("#universal-types")
+      validate-declaration(pretend-decreasing(DeclFun(annotationList, stellaIdent, paramDeclList, returnType, throwType, declList, expr)))
+    DeclFunMod ->
+      // TODO
+      check-any(["#modal-lock"])
+    DeclTypeAlias(_, type_) ->
+      check("#type-aliases")
+      validate-type(type_)
+    DeclExceptionType(type_) ->
+      check("#exception-type-declaration")
+      validate-type(type_)
+    DeclExceptionVariant(_, type_) ->
+      check("#open-variant-exceptions")
+      validate-type(type_)
 
 fun validate-paramDecl(AParamDecl(_, type_) : paramDecl) : <validate> ()
   validate-type(type_)
@@ -330,4 +339,55 @@ fun validate-expr(expr : expr) : <validate> ()
     Var -> ()
 
 fun validate-pattern(pattern : pattern) : <validate> ()
-  ()
+  match pattern
+    PatternCastAs(_pattern, _type_) ->
+      fail("Undocumented: Type cast")
+    PatternAsc(pattern, type_) ->
+      check("#type-ascriptions")
+      validate-pattern(pattern)
+      validate-type(type_)
+    PatternVariant (_, patternData) ->
+      check("#structural-patterns")
+      check("#variants")
+      match patternData
+        NoPatternData -> ()
+        SomePatternData(p) -> validate-pattern(p)
+    PatternInl(pattern) ->
+      check("#structural-patterns")
+      check("#sum-types")
+      validate-pattern(pattern)
+    PatternInr(pattern) ->
+      check("#structural-patterns")
+      check("#sum-types")
+      validate-pattern(pattern)
+    PatternTuple(patternList) ->
+      check("#structural-patterns")
+      if patternList.length == 2
+      then check-any(["#pairs", "#tuples"])
+      else check("#tuples")
+      patternList.map(fn (p) validate-pattern(pretend-decreasing(p)))
+      ()
+    PatternRecord (labelledPatternList) ->
+      check("#structural-patterns")
+      check("#records")
+      labelledPatternList.map(fn (ALabelledPattern(_, p)) validate-pattern(pretend-decreasing(p)))
+      ()
+    PatternList(patternList) ->
+      check("#structural-patterns")
+      check("#lists")
+      patternList.map(fn (p) validate-pattern(pretend-decreasing(p)))
+      ()
+    PatternCons(pattern_1, pattern_2) ->
+      check("#structural-patterns")
+      check("#lists")
+      validate-pattern(pattern_1)
+      validate-pattern(pattern_2)
+    PatternFalse -> ()
+    PatternTrue -> ()
+    PatternUnit -> check("#unit-type")
+    PatternInt(int : int) ->
+      if int == 0 then () else check("#natural-literals")
+    PatternSucc(pattern : pattern) ->
+      check("#structural-patterns")
+      validate-pattern(pattern)
+    PatternVar -> ()
