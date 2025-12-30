@@ -2,7 +2,7 @@ module stella/typecheck
 
 import stella/syntax/ast
 import std/core/undiv
-
+import stella/utils
 
 /* UTILITY FUNCTIONS */
 
@@ -78,8 +78,125 @@ pub effect log<a>
 
 alias typechecker = <error<stella-error>, log<string>>
 
+pub type presence
+  Operation(from : type_, to : type_) // A ->> B
+  Absent
+
+/*
+// A naive implementation of effect contexts, masks and extensions.
+// A better implementation uses maps (dictionaries) instead of lists:
+// since contexts are identified up to reordering of distinct labels,
+// it is better modeled as a map from each distinct label to a list
+// of presences with the given label.
+
+// l : P1, l : P2, l' : P3   ===   { l -> [P1, P2], l' -> [P3] }
+
+// P.s. in my implementation, `dict` uses lists under the hood :|
+
+alias effect-mask = list<string>
+alias effect-extension = list<(string, presence)>
+alias effect-context = list<(string, presence)>
+
+pub fun extract(a : string, l : list<(string, b)>) : (maybe<b>, list<(string, b)>)
+  match l
+    [] -> (Nothing, [])
+    Cons((x, b), xs) ->
+      if a == x
+      then (Just(b), xs)
+      else
+        val (res, ys) = extract(a, xs)
+        (res, Cons((x, b), ys))
+
+pub fun drop-first(a : string, l : list<string>) : maybe<list<string>>
+  match l
+    [] -> Nothing
+    Cons(x, xs) ->
+      if a == x
+      then Just(xs)
+      else match drop-first(a, xs)
+        Nothing -> Nothing
+        Just(ys) -> Just(Cons(x, ys))
+
+pub fun extend(c1 : effect-extension, c2 : effect-context) : effect-context
+  c1.append(c2)
+pub fun remove(c : effect-context, l : effect-mask) : effect-context
+  match c
+    [] -> []
+    Cons((label, p), rest) ->
+      match drop-first(label, l)
+        Nothing -> Cons((label, p), remove(rest, l))
+        Just(l') -> remove(rest, l')
+pub fun difference(l : effect-mask, d : effect-extension) : (effect-mask, effect-extension)
+  match d
+    [] -> (l, [])
+    Cons((label, p), rest) ->
+      match drop-first(label, l)
+        Nothing ->
+          val (l', d') = difference(l, rest)
+          (l', Cons((label, p), d'))
+        Just(l') -> difference(l', rest)
+*/
+
+/*
+Since contexts are identified up to reordering of distinct labels,
+it is better modeled as a map from each distinct label to a list
+of presences with the given label.
+*/
+alias effect-mask = multiset<string>
+alias effect-extension = dict<string, list<presence>>
+alias effect-context = dict<string, list<presence>>
+
+fun remove-first-label(ec : effect-extension, label : string) : effect-extension
+  match ec.lookup(label)
+    Nothing -> ec
+    Just([]) -> ec.remove(label)
+    Just(Cons(_, [])) -> ec.remove(label)
+    Just(Cons(_, rest)) -> ec.insert(label, rest)
+
+pub fun extend(c1 : effect-extension, c2 : effect-context) : effect-context
+  c1.merge(c2)
+pub fun remove(c : effect-context, l : effect-mask) : effect-context
+  val lbls = c.keys()
+  fun diff(labels : list<string>, effect-context : effect-context, effect-mask : effect-mask) : effect-context
+    match labels
+      [] -> effect-context
+      Cons(label, rest) ->
+        match effect-mask.lookup(label)
+          Nothing -> diff(rest, effect-context, effect-mask)
+          Just -> diff(rest, effect-context.remove-first-label(label), effect-mask.remove-one(label))
+  diff(lbls, c, l)
+pub fun difference(l : effect-mask, d : effect-extension) : (effect-mask, effect-extension)
+  val lbls = d.keys()
+  fun diff(labels : list<string>, effect-mask : effect-mask, effect-extension : effect-extension) : (effect-mask, effect-extension)
+    match labels
+      [] -> (effect-mask, effect-extension)
+      Cons(label, rest) ->
+        match effect-mask.lookup(label)
+          Nothing -> diff(rest, effect-mask, effect-extension)
+          Just -> diff(rest, effect-mask.remove-one(label), effect-extension.remove-first-label(label))
+  diff(lbls, l, d)
+
 pub type modality
   Identity
+  Absolute(ec : effect-context)
+  Relative(em : effect-mask, ee : effect-extension)
+
+pub fun apply-modality(m : modality, ec : effect-context) : effect-context
+  match m
+    Identity -> ec
+    Absolute(c) -> c // [E](F)  =  E
+    Relative(l, d) -> extend(d, remove(ec, l)) // <L|D>(F)  =  D + (F - L)
+
+pub fun compose-modalities(m1 : modality, m2 : modality) : modality
+  match (m1, m2)
+    (_, Absolute(e)) -> Absolute(e)
+    (Absolute(e), Relative(l, d)) -> Absolute(extend(d, remove(e, l)))
+    (Relative(l1, d1), Relative(l2, d2)) ->
+      val (l, d) = difference(l2, d1)
+      Relative(l1.merge(l), d2.merge(d))
+    (m, Identity) -> m
+    (Identity, m) -> m
+    _ -> m2 // Not needed, but for some reason Koka fails to understand that all paths are covered
 
 pub type env-item
   Var (name : stellaIdent, type_ : type_, mod : modality)
