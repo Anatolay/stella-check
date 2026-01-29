@@ -146,6 +146,44 @@ alias effect-mask = multiset<string>
 alias effect-extension = dict<string, list<presence>>
 alias effect-context = dict<string, list<presence>>
 
+// P1 <= P2 if
+// 1. P1 is absent
+// or
+// 2. P1 == P2
+fun is-sub-presence(p1 : presence, p2 : presence) : bool
+  match (p1, p2)
+    (Absent, _) -> True
+    (Operation(from1, to1), Operation(from2, to2)) -> from1 == from2 && to1 == to2
+    _ -> False
+
+// E <= F if
+// 1. Labels in E are subset of labels in F
+// and
+// 2. For the same label `l`, E has nothing OR the same operation as F
+fun is-sub-effect-context(c1 : effect-context, c2 : effect-context) : bool
+  val lbls = c1.keys()
+  fun check(label : string) : bool
+    match (c1.lookup(label), c2.lookup(label))
+      (Nothing, _) -> False // impossible
+      (Just(_), Nothing) -> False
+      (Just(presences1), Just(presences2)) -> presences1.zip(presences2).map(fn ((p1, p2)) is-sub-presence(p1,p2)).all()
+  lbls.map(check).all()
+
+// D1 <= D2 if
+// 1. Labels in D1 and D2 are the same
+// and
+// 2. For the same label `l`, D1 has nothing OR the same operation as D2
+fun is-sub-effect-extension(c1 : effect-extension, c2 : effect-extension) : bool
+  val lbls1 = c1.keys()
+  val lbls2 = c2.keys()
+  fun check(label : string) : bool
+    match (c1.lookup(label), c2.lookup(label))
+      (Nothing, _) -> False // impossible
+      (Just(_), Nothing) -> False
+      (Just(presences1), Just(presences2)) ->
+        presences1.length() == presences2.length() && presences1.zip(presences2).map(fn ((p1, p2)) is-sub-presence(p1,p2)).all()
+  lbls1.map(check).all() && lbls1.length() == lbls2.length()
+
 fun remove-first-label(ec : effect-extension, label : string) : effect-extension
   match ec.lookup(label)
     Nothing -> ec
@@ -187,6 +225,7 @@ pub fun apply-modality(m : modality, ec : effect-context) : effect-context
     Absolute(c) -> c // [E](F)  =  E
     Relative(l, d) -> extend(d, remove(ec, l)) // <L|D>(F)  =  D + (F - L)
 
+// First apply m1, then m2
 pub fun compose-modalities(m1 : modality, m2 : modality) : modality
   match (m1, m2)
     (_, Absolute(e)) -> Absolute(e)
@@ -197,6 +236,17 @@ pub fun compose-modalities(m1 : modality, m2 : modality) : modality
     (m, Identity) -> m
     (Identity, m) -> m
     _ -> m2 // Not needed, but for some reason Koka fails to understand that all paths are covered
+
+// mu_F => nu_F is a safe transform when the action of mu on F
+// results in a smaller context then the action of nu on F
+pub fun is-safe-transform(m1 : modality, m2 : modality, ef : effect-context) : bool
+  // I have several questions to the original paper
+  // match (m1, m2)
+  //   (Absolute(e), _) -> e.is-sub-effect-context(apply-modality(m2, ef))
+  //   (Relative(l1, d1), Relative(l2, d2)) -> False
+  //   _ -> False
+  // This does not align with the paper in certain cases, but seems reasonable
+  is-sub-effect-context(apply-modality(m1, ef),apply-modality(m2, ef))
 
 pub type env-item
   Var (name : stellaIdent, type_ : type_, mod : modality)

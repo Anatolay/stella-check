@@ -103,7 +103,12 @@ Equal.              Expr2 ::= Expr3 "==" Expr3 ;
 NotEqual.           Expr2 ::= Expr3 "!=" Expr3 ;
 terminator nonempty Expr2 ";" ;
 
+LabelledEffect. LabelledEffect ::= StellaIdent ":" Type ;
+separator LabelledEffect "," ;
+
 ModLock. Mod ::= "lock" ;
+ModAbs.  Mod ::= "abs" "<" [LabelledEffect] ">" ;
+ModRel.  Mod ::= "rel" "<" [StellaIdent] "|" [LabelledEffect] ">" ;
 
 TypeAsc.      Expr3 ::= Expr3 "as" Type2 ;
 TypeCast.     Expr3 ::= Expr3 "cast" "as" Type2 ;
@@ -148,6 +153,8 @@ LogicNot.     Expr6 ::= "not" "(" Expr ")" ;
 Pred.         Expr6 ::= "Nat::pred" "(" Expr ")" ;
 IsZero.       Expr6 ::= "Nat::iszero" "(" Expr ")" ;
 
+Handle.       Expr6 ::= "handle" "{" Expr "}" "with" "{" [Handler] "}" ;
+
 Fix.          Expr6 ::= "fix" "(" Expr ")" ;
 NatRec.       Expr6 ::= "Nat::rec" "(" Expr "," Expr "," Expr ")" ;
 
@@ -161,6 +168,11 @@ ConstInt.     Expr7 ::= Integer ;
 ConstMemory.  Expr7 ::= MemoryAddress ;
 Var.          Expr7 ::= StellaIdent ;
 
+HandlerReturn. Handler ::= "return" Pattern "->" Expr ;
+HandlerLabel.  Handler ::= "(" LabelledEffect "," Expr "," StellaIdent ")" "->" Expr ;
+terminator nonempty Handler ";" ;
+
+TypeMod.      Type ::= "[" Mod "]" Type ;
 TypeAuto.     Type ::= "auto" ;
 TypeFun.      Type ::= "fn" "(" [Type] ")" "->" Type ;
 TypeForAll.   Type ::= "forall" [StellaIdent] "." Type ;
