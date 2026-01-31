@@ -349,11 +349,39 @@ char *printListPatternBinding(ListPatternBinding p)
   ppListPatternBinding(p, 0);
   return buf_;
 }
-char *printMod(Mod p)
+char *printLabelledEffect(LabelledEffect p)
 {
   _n_ = 0;
   bufReset();
-  ppMod(p, 0);
+  ppLabelledEffect(p, 0);
+  return buf_;
+}
+char *printListLabelledEffect(ListLabelledEffect p)
+{
+  _n_ = 0;
+  bufReset();
+  ppListLabelledEffect(p, 0);
+  return buf_;
+}
+char *printModality(Modality p)
+{
+  _n_ = 0;
+  bufReset();
+  ppModality(p, 0);
+  return buf_;
+}
+char *printHandler(Handler p)
+{
+  _n_ = 0;
+  bufReset();
+  ppHandler(p, 0);
+  return buf_;
+}
+char *printListHandler(ListHandler p)
+{
+  _n_ = 0;
+  bufReset();
+  ppListHandler(p, 0);
   return buf_;
 }
 char *printVariantFieldType(VariantFieldType p)
@@ -622,11 +650,39 @@ char *showListPatternBinding(ListPatternBinding p)
   shListPatternBinding(p);
   return buf_;
 }
-char *showMod(Mod p)
+char *showLabelledEffect(LabelledEffect p)
 {
   _n_ = 0;
   bufReset();
-  shMod(p);
+  shLabelledEffect(p);
+  return buf_;
+}
+char *showListLabelledEffect(ListLabelledEffect p)
+{
+  _n_ = 0;
+  bufReset();
+  shListLabelledEffect(p);
+  return buf_;
+}
+char *showModality(Modality p)
+{
+  _n_ = 0;
+  bufReset();
+  shModality(p);
+  return buf_;
+}
+char *showHandler(Handler p)
+{
+  _n_ = 0;
+  bufReset();
+  shHandler(p);
+  return buf_;
+}
+char *showListHandler(ListHandler p)
+{
+  _n_ = 0;
+  bufReset();
+  shListHandler(p);
   return buf_;
 }
 char *showVariantFieldType(VariantFieldType p)
@@ -814,7 +870,7 @@ void ppDecl(Decl p, int _i_)
     ppListAnnotation(p->u.declFunMod_.listannotation_, 0);
     renderS("mod");
     renderC('[');
-    ppMod(p->u.declFunMod_.mod_, 0);
+    ppModality(p->u.declFunMod_.modality_, 0);
     renderC(']');
     renderS("fn");
     ppIdent(p->u.declFunMod_.stellaident_, 0);
@@ -1016,6 +1072,15 @@ void ppType(Type p, int _i_)
 {
   switch(p->kind)
   {
+  case is_TypeMod:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderC('[');
+    ppModality(p->u.typeMod_.modality_, 0);
+    renderC(']');
+    ppType(p->u.typeMod_.type_, 0);
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
   case is_TypeAuto:
     if (_i_ > 0) renderC(_L_PAREN);
     renderS("auto");
@@ -1620,14 +1685,14 @@ void ppExpr(Expr p, int _i_)
     if (_i_ > 3) renderC(_R_PAREN);
     break;
 
-  case is_Mod:
+  case is_ModBox:
     if (_i_ > 3) renderC(_L_PAREN);
     renderS("mod");
     renderC('[');
-    ppMod(p->u.mod_.mod_, 0);
+    ppModality(p->u.modBox_.modality_, 0);
     renderC(']');
     renderC('{');
-    ppExpr(p->u.mod_.expr_, 0);
+    ppExpr(p->u.modBox_.expr_, 0);
     renderC('}');
     if (_i_ > 3) renderC(_R_PAREN);
     break;
@@ -1929,6 +1994,19 @@ void ppExpr(Expr p, int _i_)
     if (_i_ > 6) renderC(_R_PAREN);
     break;
 
+  case is_Handle:
+    if (_i_ > 6) renderC(_L_PAREN);
+    renderS("handle");
+    renderC('{');
+    ppExpr(p->u.handle_.expr_, 0);
+    renderC('}');
+    renderS("with");
+    renderC('{');
+    ppListHandler(p->u.handle_.listhandler_, 0);
+    renderC('}');
+    if (_i_ > 6) renderC(_R_PAREN);
+    break;
+
   case is_Fix:
     if (_i_ > 6) renderC(_L_PAREN);
     renderS("fix");
@@ -2075,19 +2153,124 @@ void ppListPatternBinding(ListPatternBinding listpatternbinding, int i)
   }
 }
 
-void ppMod(Mod p, int _i_)
+void ppLabelledEffect(LabelledEffect p, int _i_)
 {
   switch(p->kind)
   {
-  case is_ModLock:
+  case is_ALabelledEffect:
+    if (_i_ > 0) renderC(_L_PAREN);
+    ppIdent(p->u.aLabelledEffect_.stellaident_, 0);
+    renderC(':');
+    ppType(p->u.aLabelledEffect_.type_, 0);
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when printing LabelledEffect!\n");
+    exit(1);
+  }
+}
+
+void ppListLabelledEffect(ListLabelledEffect listlabelledeffect, int i)
+{
+  if (listlabelledeffect == 0)
+  { /* nil */
+  }
+  else if (listlabelledeffect->listlabelledeffect_ == 0)
+  { /* last */
+    ppLabelledEffect(listlabelledeffect->labelledeffect_, 0);
+  }
+  else
+  { /* cons */
+    ppLabelledEffect(listlabelledeffect->labelledeffect_, 0);
+    renderC(',');
+    ppListLabelledEffect(listlabelledeffect->listlabelledeffect_, 0);
+  }
+}
+
+void ppModality(Modality p, int _i_)
+{
+  switch(p->kind)
+  {
+  case is_ModalityLock:
     if (_i_ > 0) renderC(_L_PAREN);
     renderS("lock");
     if (_i_ > 0) renderC(_R_PAREN);
     break;
 
+  case is_ModalityAbs:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderS("abs");
+    renderC('<');
+    ppListLabelledEffect(p->u.modalityAbs_.listlabelledeffect_, 0);
+    renderC('>');
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
+  case is_ModalityRel:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderS("rel");
+    renderC('<');
+    ppListStellaIdent(p->u.modalityRel_.liststellaident_, 0);
+    renderC('|');
+    ppListLabelledEffect(p->u.modalityRel_.listlabelledeffect_, 0);
+    renderC('>');
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
   default:
-    fprintf(stderr, "Error: bad kind field when printing Mod!\n");
+    fprintf(stderr, "Error: bad kind field when printing Modality!\n");
     exit(1);
+  }
+}
+
+void ppHandler(Handler p, int _i_)
+{
+  switch(p->kind)
+  {
+  case is_HandlerReturn:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderS("return");
+    ppPattern(p->u.handlerReturn_.pattern_, 0);
+    renderS("->");
+    ppExpr(p->u.handlerReturn_.expr_, 0);
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
+  case is_HandlerLabel:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderC('(');
+    ppLabelledEffect(p->u.handlerLabel_.labelledeffect_, 0);
+    renderC(',');
+    ppExpr(p->u.handlerLabel_.expr_1, 0);
+    renderC(',');
+    ppIdent(p->u.handlerLabel_.stellaident_, 0);
+    renderC(')');
+    renderS("->");
+    ppExpr(p->u.handlerLabel_.expr_2, 0);
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when printing Handler!\n");
+    exit(1);
+  }
+}
+
+void ppListHandler(ListHandler listhandler, int i)
+{
+  if (listhandler == 0)
+  { /* nil */
+  }
+  else if (listhandler->listhandler_ == 0)
+  { /* last */
+    ppHandler(listhandler->handler_, 0); renderC(';');
+  }
+  else
+  { /* cons */
+    ppHandler(listhandler->handler_, 0);
+    renderC(';');
+    ppListHandler(listhandler->listhandler_, 0);
   }
 }
 
@@ -2419,7 +2602,7 @@ void shDecl(Decl p)
 
     shListAnnotation(p->u.declFunMod_.listannotation_);
   bufAppendC(' ');
-    shMod(p->u.declFunMod_.mod_);
+    shModality(p->u.declFunMod_.modality_);
   bufAppendC(' ');
     shIdent(p->u.declFunMod_.stellaident_);
   bufAppendC(' ');
@@ -2696,6 +2879,20 @@ void shType(Type p)
 {
   switch(p->kind)
   {
+  case is_TypeMod:
+    bufAppendC('(');
+
+    bufAppendS("TypeMod");
+
+    bufAppendC(' ');
+
+    shModality(p->u.typeMod_.modality_);
+  bufAppendC(' ');
+    shType(p->u.typeMod_.type_);
+
+    bufAppendC(')');
+
+    break;
   case is_TypeAuto:
 
     bufAppendS("TypeAuto");
@@ -3550,16 +3747,16 @@ void shExpr(Expr p)
     bufAppendC(')');
 
     break;
-  case is_Mod:
+  case is_ModBox:
     bufAppendC('(');
 
-    bufAppendS("Mod");
+    bufAppendS("ModBox");
 
     bufAppendC(' ');
 
-    shMod(p->u.mod_.mod_);
+    shModality(p->u.modBox_.modality_);
   bufAppendC(' ');
-    shExpr(p->u.mod_.expr_);
+    shExpr(p->u.modBox_.expr_);
 
     bufAppendC(')');
 
@@ -3984,6 +4181,20 @@ void shExpr(Expr p)
     bufAppendC(')');
 
     break;
+  case is_Handle:
+    bufAppendC('(');
+
+    bufAppendS("Handle");
+
+    bufAppendC(' ');
+
+    shExpr(p->u.handle_.expr_);
+  bufAppendC(' ');
+    shListHandler(p->u.handle_.listhandler_);
+
+    bufAppendC(')');
+
+    break;
   case is_Fix:
     bufAppendC('(');
 
@@ -4172,23 +4383,157 @@ void shListPatternBinding(ListPatternBinding listpatternbinding)
   bufAppendC(']');
 }
 
-void shMod(Mod p)
+void shLabelledEffect(LabelledEffect p)
 {
   switch(p->kind)
   {
-  case is_ModLock:
+  case is_ALabelledEffect:
+    bufAppendC('(');
 
-    bufAppendS("ModLock");
+    bufAppendS("ALabelledEffect");
+
+    bufAppendC(' ');
+
+    shIdent(p->u.aLabelledEffect_.stellaident_);
+  bufAppendC(' ');
+    shType(p->u.aLabelledEffect_.type_);
+
+    bufAppendC(')');
+
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when showing LabelledEffect!\n");
+    exit(1);
+  }
+}
+
+void shListLabelledEffect(ListLabelledEffect listlabelledeffect)
+{
+  bufAppendC('[');
+  while(listlabelledeffect != 0)
+  {
+    if (listlabelledeffect->listlabelledeffect_)
+    {
+      shLabelledEffect(listlabelledeffect->labelledeffect_);
+      bufAppendS(", ");
+      listlabelledeffect = listlabelledeffect->listlabelledeffect_;
+    }
+    else
+    {
+      shLabelledEffect(listlabelledeffect->labelledeffect_);
+      listlabelledeffect = 0;
+    }
+  }
+  bufAppendC(']');
+}
+
+void shModality(Modality p)
+{
+  switch(p->kind)
+  {
+  case is_ModalityLock:
+
+    bufAppendS("ModalityLock");
 
 
 
 
     break;
+  case is_ModalityAbs:
+    bufAppendC('(');
+
+    bufAppendS("ModalityAbs");
+
+    bufAppendC(' ');
+
+    shListLabelledEffect(p->u.modalityAbs_.listlabelledeffect_);
+
+    bufAppendC(')');
+
+    break;
+  case is_ModalityRel:
+    bufAppendC('(');
+
+    bufAppendS("ModalityRel");
+
+    bufAppendC(' ');
+
+    shListStellaIdent(p->u.modalityRel_.liststellaident_);
+  bufAppendC(' ');
+    shListLabelledEffect(p->u.modalityRel_.listlabelledeffect_);
+
+    bufAppendC(')');
+
+    break;
 
   default:
-    fprintf(stderr, "Error: bad kind field when showing Mod!\n");
+    fprintf(stderr, "Error: bad kind field when showing Modality!\n");
     exit(1);
   }
+}
+
+void shHandler(Handler p)
+{
+  switch(p->kind)
+  {
+  case is_HandlerReturn:
+    bufAppendC('(');
+
+    bufAppendS("HandlerReturn");
+
+    bufAppendC(' ');
+
+    shPattern(p->u.handlerReturn_.pattern_);
+  bufAppendC(' ');
+    shExpr(p->u.handlerReturn_.expr_);
+
+    bufAppendC(')');
+
+    break;
+  case is_HandlerLabel:
+    bufAppendC('(');
+
+    bufAppendS("HandlerLabel");
+
+    bufAppendC(' ');
+
+    shLabelledEffect(p->u.handlerLabel_.labelledeffect_);
+  bufAppendC(' ');
+    shExpr(p->u.handlerLabel_.expr_1);
+  bufAppendC(' ');
+    shIdent(p->u.handlerLabel_.stellaident_);
+  bufAppendC(' ');
+    shExpr(p->u.handlerLabel_.expr_2);
+
+    bufAppendC(')');
+
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when showing Handler!\n");
+    exit(1);
+  }
+}
+
+void shListHandler(ListHandler listhandler)
+{
+  bufAppendC('[');
+  while(listhandler != 0)
+  {
+    if (listhandler->listhandler_)
+    {
+      shHandler(listhandler->handler_);
+      bufAppendS(", ");
+      listhandler = listhandler->listhandler_;
+    }
+    else
+    {
+      shHandler(listhandler->handler_);
+      listhandler = 0;
+    }
+  }
+  bufAppendC(']');
 }
 
 void shVariantFieldType(VariantFieldType p)

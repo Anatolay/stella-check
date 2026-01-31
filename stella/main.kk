@@ -20,10 +20,4 @@ pub fun main() : <console, div> ()
   val mbProg = parseProgram(read-lines())
   match mbProg
     Nothing -> println("FAILURE!!! Failed to parse Stella program!")
-    Just(prog) -> if prog.has-extension("#modal-lock") || prog.has-extension("#modal-locks")
-      then
-        println("Typechecking modal!")
-        typecheck-modal(prog)
-      else
-        println("Typechecking core!")
-        typecheck-core(prog)
+    Just(prog) -> typecheck-modal(prog)

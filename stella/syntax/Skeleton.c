@@ -114,7 +114,7 @@ void visitDecl(Decl p)
   case is_DeclFunMod:
     /* Code for DeclFunMod Goes Here */
     visitListAnnotation(p->u.declFunMod_.listannotation_);
-    visitMod(p->u.declFunMod_.mod_);
+    visitModality(p->u.declFunMod_.modality_);
     visitStellaIdent(p->u.declFunMod_.stellaident_);
     visitListParamDecl(p->u.declFunMod_.listparamdecl_);
     visitReturnType(p->u.declFunMod_.returntype_);
@@ -268,6 +268,11 @@ void visitType(Type p)
 {
   switch(p->kind)
   {
+  case is_TypeMod:
+    /* Code for TypeMod Goes Here */
+    visitModality(p->u.typeMod_.modality_);
+    visitType(p->u.typeMod_.type_);
+    break;
   case is_TypeAuto:
     /* Code for TypeAuto Goes Here */
     break;
@@ -641,10 +646,10 @@ void visitExpr(Expr p)
     visitListParamDecl(p->u.abstraction_.listparamdecl_);
     visitExpr(p->u.abstraction_.expr_);
     break;
-  case is_Mod:
-    /* Code for Mod Goes Here */
-    visitMod(p->u.mod_.mod_);
-    visitExpr(p->u.mod_.expr_);
+  case is_ModBox:
+    /* Code for ModBox Goes Here */
+    visitModality(p->u.modBox_.modality_);
+    visitExpr(p->u.modBox_.expr_);
     break;
   case is_Variant:
     /* Code for Variant Goes Here */
@@ -793,6 +798,11 @@ void visitExpr(Expr p)
     /* Code for IsZero Goes Here */
     visitExpr(p->u.isZero_.expr_);
     break;
+  case is_Handle:
+    /* Code for Handle Goes Here */
+    visitExpr(p->u.handle_.expr_);
+    visitListHandler(p->u.handle_.listhandler_);
+    break;
   case is_Fix:
     /* Code for Fix Goes Here */
     visitExpr(p->u.fix_.expr_);
@@ -877,17 +887,85 @@ void visitListPatternBinding(ListPatternBinding listpatternbinding)
   }
 }
 
-void visitMod(Mod p)
+void visitLabelledEffect(LabelledEffect p)
 {
   switch(p->kind)
   {
-  case is_ModLock:
-    /* Code for ModLock Goes Here */
+  case is_ALabelledEffect:
+    /* Code for ALabelledEffect Goes Here */
+    visitStellaIdent(p->u.aLabelledEffect_.stellaident_);
+    visitType(p->u.aLabelledEffect_.type_);
     break;
 
   default:
-    fprintf(stderr, "Error: bad kind field when printing Mod!\n");
+    fprintf(stderr, "Error: bad kind field when printing LabelledEffect!\n");
     exit(1);
+  }
+}
+
+void visitListLabelledEffect(ListLabelledEffect listlabelledeffect)
+{
+  while(listlabelledeffect  != 0)
+  {
+    /* Code For ListLabelledEffect Goes Here */
+    visitLabelledEffect(listlabelledeffect->labelledeffect_);
+    listlabelledeffect = listlabelledeffect->listlabelledeffect_;
+  }
+}
+
+void visitModality(Modality p)
+{
+  switch(p->kind)
+  {
+  case is_ModalityLock:
+    /* Code for ModalityLock Goes Here */
+    break;
+  case is_ModalityAbs:
+    /* Code for ModalityAbs Goes Here */
+    visitListLabelledEffect(p->u.modalityAbs_.listlabelledeffect_);
+    break;
+  case is_ModalityRel:
+    /* Code for ModalityRel Goes Here */
+    visitListStellaIdent(p->u.modalityRel_.liststellaident_);
+    visitListLabelledEffect(p->u.modalityRel_.listlabelledeffect_);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when printing Modality!\n");
+    exit(1);
+  }
+}
+
+void visitHandler(Handler p)
+{
+  switch(p->kind)
+  {
+  case is_HandlerReturn:
+    /* Code for HandlerReturn Goes Here */
+    visitPattern(p->u.handlerReturn_.pattern_);
+    visitExpr(p->u.handlerReturn_.expr_);
+    break;
+  case is_HandlerLabel:
+    /* Code for HandlerLabel Goes Here */
+    visitLabelledEffect(p->u.handlerLabel_.labelledeffect_);
+    visitExpr(p->u.handlerLabel_.expr_1);
+    visitStellaIdent(p->u.handlerLabel_.stellaident_);
+    visitExpr(p->u.handlerLabel_.expr_2);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when printing Handler!\n");
+    exit(1);
+  }
+}
+
+void visitListHandler(ListHandler listhandler)
+{
+  while(listhandler  != 0)
+  {
+    /* Code For ListHandler Goes Here */
+    visitHandler(listhandler->handler_);
+    listhandler = listhandler->listhandler_;
   }
 }
 

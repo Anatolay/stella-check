@@ -225,6 +225,32 @@ ListPatternBinding reverseListPatternBinding(ListPatternBinding l)
   }
   return prev;
 }
+ListLabelledEffect reverseListLabelledEffect(ListLabelledEffect l)
+{
+  ListLabelledEffect prev = 0;
+  ListLabelledEffect tmp = 0;
+  while (l)
+  {
+    tmp = l->listlabelledeffect_;
+    l->listlabelledeffect_ = prev;
+    prev = l;
+    l = tmp;
+  }
+  return prev;
+}
+ListHandler reverseListHandler(ListHandler l)
+{
+  ListHandler prev = 0;
+  ListHandler tmp = 0;
+  while (l)
+  {
+    tmp = l->listhandler_;
+    l->listhandler_ = prev;
+    prev = l;
+    l = tmp;
+  }
+  return prev;
+}
 ListVariantFieldType reverseListVariantFieldType(ListVariantFieldType l)
 {
   ListVariantFieldType prev = 0;
@@ -294,7 +320,11 @@ ListRecordFieldType reverseListRecordFieldType(ListRecordFieldType l)
   ListExpr listexpr_;
   PatternBinding patternbinding_;
   ListPatternBinding listpatternbinding_;
-  Mod mod_;
+  LabelledEffect labelledeffect_;
+  ListLabelledEffect listlabelledeffect_;
+  Modality modality_;
+  Handler handler_;
+  ListHandler listhandler_;
   VariantFieldType variantfieldtype_;
   ListVariantFieldType listvariantfieldtype_;
   RecordFieldType recordfieldtype_;
@@ -350,6 +380,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_Unit         /* Unit */
 %token          _LBRACK          /* [ */
 %token          _RBRACK          /* ] */
+%token          _KW_abs          /* abs */
 %token          _KW_and          /* and */
 %token          _KW_as           /* as */
 %token          _KW_auto         /* auto */
@@ -366,6 +397,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_fold         /* fold */
 %token          _KW_forall       /* forall */
 %token          _KW_generic      /* generic */
+%token          _KW_handle       /* handle */
 %token          _KW_if           /* if */
 %token          _KW_in           /* in */
 %token          _KW_inl          /* inl */
@@ -381,6 +413,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_not          /* not */
 %token          _KW_or           /* or */
 %token          _SYMB_30         /* panic! */
+%token          _KW_rel          /* rel */
 %token          _KW_return       /* return */
 %token          _KW_succ         /* succ */
 %token          _KW_then         /* then */
@@ -397,7 +430,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _BAR             /* | */
 %token          _SYMB_14         /* |> */
 %token          _RBRACE          /* } */
-%token          _KW_82           /* µ */
+%token          _KW_85           /* µ */
 %token<_string> T_ExtensionName  /* ExtensionName */
 %token<_string> T_MemoryAddress  /* MemoryAddress */
 %token<_string> T_StellaIdent    /* StellaIdent */
@@ -439,12 +472,16 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %type <listpatternbinding_> ListPatternBinding
 %type <expr_> Expr2
 %type <listexpr_> ListExpr2
-%type <mod_> Mod
+%type <labelledeffect_> LabelledEffect
+%type <listlabelledeffect_> ListLabelledEffect
+%type <modality_> Modality
 %type <expr_> Expr3
 %type <expr_> Expr4
 %type <expr_> Expr5
 %type <expr_> Expr6
 %type <expr_> Expr7
+%type <handler_> Handler
+%type <listhandler_> ListHandler
 %type <type_> Type
 %type <type_> Type1
 %type <type_> Type2
@@ -479,7 +516,7 @@ ListExtension : /* empty */ { $$ = 0; result->listextension_ = $$; }
 ;
 Decl : ListAnnotation _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFun(reverseListAnnotation($1), $3, $5, $7, $8, reverseListDecl($10), $12); result->decl_ = $$; }
   | ListAnnotation _KW_generic _KW_fn T_StellaIdent _LBRACK ListStellaIdent _RBRACK _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFunGeneric(reverseListAnnotation($1), $4, $6, $9, $11, $12, reverseListDecl($14), $16); result->decl_ = $$; }
-  | ListAnnotation _KW_mod _LBRACK Mod _RBRACK _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFunMod(reverseListAnnotation($1), $4, $7, $9, $11, $12, reverseListDecl($14), $16); result->decl_ = $$; }
+  | ListAnnotation _KW_mod _LBRACK Modality _RBRACK _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE { $$ = make_DeclFunMod(reverseListAnnotation($1), $4, $7, $9, $11, $12, reverseListDecl($14), $16); result->decl_ = $$; }
   | _KW_type T_StellaIdent _EQ Type { $$ = make_DeclTypeAlias($2, $4); result->decl_ = $$; }
   | _KW_exception _KW_type _EQ Type { $$ = make_DeclExceptionType($4); result->decl_ = $$; }
   | _KW_exception _KW_variant T_StellaIdent _COLON Type { $$ = make_DeclExceptionVariant($3, $5); result->decl_ = $$; }
@@ -592,12 +629,20 @@ Expr2 : Expr3 _LT Expr3 { $$ = make_LessThan($1, $3); result->expr_ = $$; }
 ListExpr2 : Expr2 _SEMI { $$ = make_ListExpr($1, 0); result->listexpr_ = $$; }
   | Expr2 _SEMI ListExpr2 { $$ = make_ListExpr($1, $3); result->listexpr_ = $$; }
 ;
-Mod : _KW_lock { $$ = make_ModLock(); result->mod_ = $$; }
+LabelledEffect : T_StellaIdent _COLON Type { $$ = make_ALabelledEffect($1, $3); result->labelledeffect_ = $$; }
+;
+ListLabelledEffect : /* empty */ { $$ = 0; result->listlabelledeffect_ = $$; }
+  | LabelledEffect { $$ = make_ListLabelledEffect($1, 0); result->listlabelledeffect_ = $$; }
+  | LabelledEffect _COMMA ListLabelledEffect { $$ = make_ListLabelledEffect($1, $3); result->listlabelledeffect_ = $$; }
+;
+Modality : _KW_lock { $$ = make_ModalityLock(); result->modality_ = $$; }
+  | _KW_abs _LT ListLabelledEffect _GT { $$ = make_ModalityAbs($3); result->modality_ = $$; }
+  | _KW_rel _LT ListStellaIdent _BAR ListLabelledEffect _GT { $$ = make_ModalityRel($3, $5); result->modality_ = $$; }
 ;
 Expr3 : Expr3 _KW_as Type2 { $$ = make_TypeAsc($1, $3); result->expr_ = $$; }
   | Expr3 _KW_cast _KW_as Type2 { $$ = make_TypeCast($1, $4); result->expr_ = $$; }
   | _KW_fn _LPAREN ListParamDecl _RPAREN _LBRACE _KW_return Expr _RBRACE { $$ = make_Abstraction($3, $7); result->expr_ = $$; }
-  | _KW_mod _LBRACK Mod _RBRACK _LBRACE Expr _RBRACE { $$ = make_Mod($3, $6); result->expr_ = $$; }
+  | _KW_mod _LBRACK Modality _RBRACK _LBRACE Expr _RBRACE { $$ = make_ModBox($3, $6); result->expr_ = $$; }
   | _SYMB_13 T_StellaIdent ExprData _SYMB_14 { $$ = make_Variant($2, $3); result->expr_ = $$; }
   | _KW_match Expr2 _LBRACE ListMatchCase _RBRACE { $$ = make_Match($2, $4); result->expr_ = $$; }
   | _LBRACK ListExpr _RBRACK { $$ = make_List($2); result->expr_ = $$; }
@@ -636,6 +681,7 @@ Expr6 : Expr6 _LPAREN ListExpr _RPAREN { $$ = make_Application($1, $3); result->
   | _KW_not _LPAREN Expr _RPAREN { $$ = make_LogicNot($3); result->expr_ = $$; }
   | _SYMB_31 _LPAREN Expr _RPAREN { $$ = make_Pred($3); result->expr_ = $$; }
   | _SYMB_32 _LPAREN Expr _RPAREN { $$ = make_IsZero($3); result->expr_ = $$; }
+  | _KW_handle _LBRACE Expr _RBRACE _KW_with _LBRACE ListHandler _RBRACE { $$ = make_Handle($3, $7); result->expr_ = $$; }
   | _KW_fix _LPAREN Expr _RPAREN { $$ = make_Fix($3); result->expr_ = $$; }
   | _SYMB_33 _LPAREN Expr _COMMA Expr _COMMA Expr _RPAREN { $$ = make_NatRec($3, $5, $7); result->expr_ = $$; }
   | _KW_fold _LBRACK Type _RBRACK Expr7 { $$ = make_Fold($3, $5); result->expr_ = $$; }
@@ -650,10 +696,17 @@ Expr7 : _KW_true { $$ = make_ConstTrue(); result->expr_ = $$; }
   | T_StellaIdent { $$ = make_Var($1); result->expr_ = $$; }
   | _LPAREN Expr _RPAREN { $$ = $2; result->expr_ = $$; }
 ;
-Type : _KW_auto { $$ = make_TypeAuto(); result->type_ = $$; }
+Handler : _KW_return Pattern _RARROW Expr { $$ = make_HandlerReturn($2, $4); result->handler_ = $$; }
+  | _LPAREN LabelledEffect _COMMA Expr _COMMA T_StellaIdent _RPAREN _RARROW Expr { $$ = make_HandlerLabel($2, $4, $6, $9); result->handler_ = $$; }
+;
+ListHandler : Handler _SEMI { $$ = make_ListHandler($1, 0); result->listhandler_ = $$; }
+  | Handler _SEMI ListHandler { $$ = make_ListHandler($1, $3); result->listhandler_ = $$; }
+;
+Type : _LBRACK Modality _RBRACK Type { $$ = make_TypeMod($2, $4); result->type_ = $$; }
+  | _KW_auto { $$ = make_TypeAuto(); result->type_ = $$; }
   | _KW_fn _LPAREN ListType _RPAREN _RARROW Type { $$ = make_TypeFun($3, $6); result->type_ = $$; }
   | _KW_forall ListStellaIdent _DOT Type { $$ = make_TypeForAll($2, $4); result->type_ = $$; }
-  | _KW_82 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
+  | _KW_85 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
   | Type1 { $$ = $1; result->type_ = $$; }
 ;
 Type1 : Type2 _PLUS Type2 { $$ = make_TypeSum($1, $3); result->type_ = $$; }
@@ -2279,8 +2332,8 @@ ListExpr psListExpr2(const char *str)
   }
 }
 
-/* Entrypoint: parse Mod from file. */
-Mod pMod(FILE *inp)
+/* Entrypoint: parse LabelledEffect from file. */
+LabelledEffect pLabelledEffect(FILE *inp)
 {
   YYSTYPE result;
   yyscan_t scanner = syntax__initialize_lexer(inp);
@@ -2296,12 +2349,12 @@ Mod pMod(FILE *inp)
   }
   else
   { /* Success */
-    return result.mod_;
+    return result.labelledeffect_;
   }
 }
 
-/* Entrypoint: parse Mod from string. */
-Mod psMod(const char *str)
+/* Entrypoint: parse LabelledEffect from string. */
+LabelledEffect psLabelledEffect(const char *str)
 {
   YYSTYPE result;
   yyscan_t scanner = syntax__initialize_lexer(0);
@@ -2319,7 +2372,95 @@ Mod psMod(const char *str)
   }
   else
   { /* Success */
-    return result.mod_;
+    return result.labelledeffect_;
+  }
+}
+
+/* Entrypoint: parse ListLabelledEffect from file. */
+ListLabelledEffect pListLabelledEffect(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.listlabelledeffect_;
+  }
+}
+
+/* Entrypoint: parse ListLabelledEffect from string. */
+ListLabelledEffect psListLabelledEffect(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = syntax__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  syntax__delete_buffer(buf, scanner);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.listlabelledeffect_;
+  }
+}
+
+/* Entrypoint: parse Modality from file. */
+Modality pModality(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.modality_;
+  }
+}
+
+/* Entrypoint: parse Modality from string. */
+Modality psModality(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = syntax__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  syntax__delete_buffer(buf, scanner);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.modality_;
   }
 }
 
@@ -2540,6 +2681,94 @@ Expr psExpr7(const char *str)
   else
   { /* Success */
     return result.expr_;
+  }
+}
+
+/* Entrypoint: parse Handler from file. */
+Handler pHandler(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.handler_;
+  }
+}
+
+/* Entrypoint: parse Handler from string. */
+Handler psHandler(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = syntax__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  syntax__delete_buffer(buf, scanner);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.handler_;
+  }
+}
+
+/* Entrypoint: parse ListHandler from file. */
+ListHandler pListHandler(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.listhandler_;
+  }
+}
+
+/* Entrypoint: parse ListHandler from string. */
+ListHandler psListHandler(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = syntax__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = syntax__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  syntax__delete_buffer(buf, scanner);
+  syntax_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.listhandler_;
   }
 }
 

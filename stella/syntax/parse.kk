@@ -115,8 +115,14 @@ pub extern parseExpr2(str : string) : maybe<expr>
 pub extern parseExpr2List(str : string) : maybe<list<expr>>
   c "kk_parse_ListExpr2"
 
-pub extern parseMod(str : string) : maybe<mod>
-  c "kk_parse_Mod"
+pub extern parseLabelledEffect(str : string) : maybe<labelledEffect>
+  c "kk_parse_LabelledEffect"
+
+pub extern parseLabelledEffectList(str : string) : maybe<list<labelledEffect>>
+  c "kk_parse_ListLabelledEffect"
+
+pub extern parseModality(str : string) : maybe<modality>
+  c "kk_parse_Modality"
 
 pub extern parseExpr3(str : string) : maybe<expr>
   c "kk_parse_Expr3"
@@ -132,6 +138,12 @@ pub extern parseExpr6(str : string) : maybe<expr>
 
 pub extern parseExpr7(str : string) : maybe<expr>
   c "kk_parse_Expr7"
+
+pub extern parseHandler(str : string) : maybe<handler_>
+  c "kk_parse_Handler"
+
+pub extern parseHandlerList(str : string) : maybe<list<handler_>>
+  c "kk_parse_ListHandler"
 
 pub extern parseType(str : string) : maybe<type_>
   c "kk_parse_Type"

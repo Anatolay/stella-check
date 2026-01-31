@@ -23,7 +23,7 @@ pub type extension
 pub type decl
   DeclFun (annotationList : list<annotation>, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
   DeclFunGeneric (annotationList : list<annotation>, stellaIdent : stellaIdent, stellaIdentList : list<stellaIdent>, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
-  DeclFunMod (annotationList : list<annotation>, mod : mod, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
+  DeclFunMod (annotationList : list<annotation>, modality : modality, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
   DeclTypeAlias (stellaIdent : stellaIdent, type_ : type_)
   DeclExceptionType (type_ : type_)
   DeclExceptionVariant (stellaIdent : stellaIdent, type_ : type_)
@@ -46,6 +46,7 @@ pub type throwType
   SomeThrowType (type_List : list<type_>)
 
 pub type type_
+  TypeMod (modality : modality, type_ : type_)
   TypeAuto
   TypeFun (type_List : list<type_>, type_ : type_)
   TypeForAll (stellaIdentList : list<stellaIdent>, type_ : type_)
@@ -117,7 +118,7 @@ pub type expr
   TypeAsc (expr : expr, type_ : type_)
   TypeCast (expr : expr, type_ : type_)
   Abstraction (paramDeclList : list<paramDecl>, expr : expr)
-  Mod (mod : mod, expr : expr)
+  ModBox (modality : modality, expr : expr)
   Variant (stellaIdent : stellaIdent, exprData : exprData)
   Match (expr : expr, matchCaseList : list<matchCase>)
   List (exprList : list<expr>)
@@ -150,6 +151,7 @@ pub type expr
   LogicNot (expr : expr)
   Pred (expr : expr)
   IsZero (expr : expr)
+  Handle (expr : expr, handler_List : list<handler_>)
   Fix (expr : expr)
   NatRec (expr_1 : expr, expr_2 : expr, expr_3 : expr)
   Fold (type_ : type_, expr : expr)
@@ -164,8 +166,17 @@ pub type expr
 pub type patternBinding
   APatternBinding (pattern : pattern, expr : expr)
 
-pub type mod
-  ModLock
+pub type labelledEffect
+  ALabelledEffect (stellaIdent : stellaIdent, type_ : type_)
+
+pub type modality
+  ModalityLock
+  ModalityAbs (labelledEffectList : list<labelledEffect>)
+  ModalityRel (stellaIdentList : list<stellaIdent>, labelledEffectList : list<labelledEffect>)
+
+pub type handler_
+  HandlerReturn (pattern : pattern, expr : expr)
+  HandlerLabel (labelledEffect : labelledEffect, expr_1 : expr, stellaIdent : stellaIdent, expr_2 : expr)
 
 pub type variantFieldType
   AVariantFieldType (stellaIdent : stellaIdent, optionalTyping : optionalTyping)

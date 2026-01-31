@@ -61,7 +61,11 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx);
 kk_std_core_types__list convert_ListExpr(ListExpr listExpr, kk_context_t* _ctx);
 kk_stella_syntax_ast__patternBinding convert_PatternBinding(PatternBinding patternBinding, kk_context_t* _ctx);
 kk_std_core_types__list convert_ListPatternBinding(ListPatternBinding listPatternBinding, kk_context_t* _ctx);
-kk_stella_syntax_ast__mod convert_Mod(Mod mod, kk_context_t* _ctx);
+kk_stella_syntax_ast__labelledEffect convert_LabelledEffect(LabelledEffect labelledEffect, kk_context_t* _ctx);
+kk_std_core_types__list convert_ListLabelledEffect(ListLabelledEffect listLabelledEffect, kk_context_t* _ctx);
+kk_stella_syntax_ast__modality convert_Modality(Modality modality, kk_context_t* _ctx);
+kk_stella_syntax_ast__handler__ convert_Handler(Handler handler, kk_context_t* _ctx);
+kk_std_core_types__list convert_ListHandler(ListHandler listHandler, kk_context_t* _ctx);
 kk_stella_syntax_ast__variantFieldType convert_VariantFieldType(VariantFieldType variantFieldType, kk_context_t* _ctx);
 kk_std_core_types__list convert_ListVariantFieldType(ListVariantFieldType listVariantFieldType, kk_context_t* _ctx);
 kk_stella_syntax_ast__recordFieldType convert_RecordFieldType(RecordFieldType recordFieldType, kk_context_t* _ctx);
@@ -202,8 +206,8 @@ kk_stella_syntax_ast__decl convert_Decl(Decl decl, kk_context_t* _ctx) {
     case is_DeclFunMod:
       ListAnnotation c2_1 = decl->u.declFunMod_.listannotation_;
       kk_std_core_types__list k2_1 = convert_ListAnnotation(c2_1, _ctx);
-      Mod c2_2 = decl->u.declFunMod_.mod_;
-      kk_stella_syntax_ast__mod k2_2 = convert_Mod(c2_2, _ctx);
+      Modality c2_2 = decl->u.declFunMod_.modality_;
+      kk_stella_syntax_ast__modality k2_2 = convert_Modality(c2_2, _ctx);
       StellaIdent c2_3 = decl->u.declFunMod_.stellaident_;
       kk_stella_syntax_ast__stellaIdent k2_3 = convert_StellaIdent(c2_3, _ctx);
       ListParamDecl c2_4 = decl->u.declFunMod_.listparamdecl_;
@@ -363,56 +367,63 @@ kk_stella_syntax_ast__throwType convert_ThrowType(ThrowType throwType, kk_contex
 
 kk_stella_syntax_ast__type__ convert_Type(Type type, kk_context_t* _ctx) {
   switch(type->kind) {
+    case is_TypeMod:
+      Modality c0_1 = type->u.typeMod_.modality_;
+      kk_stella_syntax_ast__modality k0_1 = convert_Modality(c0_1, _ctx);
+      Type c0_2 = type->u.typeMod_.type_;
+      kk_stella_syntax_ast__type__ k0_2 = convert_Type(c0_2, _ctx);
+
+      return kk_stella_syntax_ast__new_TypeMod(kk_reuse_null, 0, k0_1, k0_2, _ctx);
     case is_TypeAuto:
       return kk_stella_syntax_ast__new_TypeAuto(_ctx);
     case is_TypeFun:
-      ListType c1_1 = type->u.typeFun_.listtype_;
-      kk_std_core_types__list k1_1 = convert_ListType(c1_1, _ctx);
-      Type c1_2 = type->u.typeFun_.type_;
-      kk_stella_syntax_ast__type__ k1_2 = convert_Type(c1_2, _ctx);
-
-      return kk_stella_syntax_ast__new_TypeFun(kk_reuse_null, 0, k1_1, k1_2, _ctx);
-    case is_TypeForAll:
-      ListStellaIdent c2_1 = type->u.typeForAll_.liststellaident_;
-      kk_std_core_types__list k2_1 = convert_ListStellaIdent(c2_1, _ctx);
-      Type c2_2 = type->u.typeForAll_.type_;
+      ListType c2_1 = type->u.typeFun_.listtype_;
+      kk_std_core_types__list k2_1 = convert_ListType(c2_1, _ctx);
+      Type c2_2 = type->u.typeFun_.type_;
       kk_stella_syntax_ast__type__ k2_2 = convert_Type(c2_2, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeForAll(kk_reuse_null, 0, k2_1, k2_2, _ctx);
-    case is_TypeRec:
-      StellaIdent c3_1 = type->u.typeRec_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k3_1 = convert_StellaIdent(c3_1, _ctx);
-      Type c3_2 = type->u.typeRec_.type_;
+      return kk_stella_syntax_ast__new_TypeFun(kk_reuse_null, 0, k2_1, k2_2, _ctx);
+    case is_TypeForAll:
+      ListStellaIdent c3_1 = type->u.typeForAll_.liststellaident_;
+      kk_std_core_types__list k3_1 = convert_ListStellaIdent(c3_1, _ctx);
+      Type c3_2 = type->u.typeForAll_.type_;
       kk_stella_syntax_ast__type__ k3_2 = convert_Type(c3_2, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeRec(kk_reuse_null, 0, k3_1, k3_2, _ctx);
-    case is_TypeSum:
-      Type c4_1 = type->u.typeSum_.type_1;
-      kk_stella_syntax_ast__type__ k4_1 = convert_Type(c4_1, _ctx);
-      Type c4_2 = type->u.typeSum_.type_2;
+      return kk_stella_syntax_ast__new_TypeForAll(kk_reuse_null, 0, k3_1, k3_2, _ctx);
+    case is_TypeRec:
+      StellaIdent c4_1 = type->u.typeRec_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k4_1 = convert_StellaIdent(c4_1, _ctx);
+      Type c4_2 = type->u.typeRec_.type_;
       kk_stella_syntax_ast__type__ k4_2 = convert_Type(c4_2, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeSum(kk_reuse_null, 0, k4_1, k4_2, _ctx);
+      return kk_stella_syntax_ast__new_TypeRec(kk_reuse_null, 0, k4_1, k4_2, _ctx);
+    case is_TypeSum:
+      Type c5_1 = type->u.typeSum_.type_1;
+      kk_stella_syntax_ast__type__ k5_1 = convert_Type(c5_1, _ctx);
+      Type c5_2 = type->u.typeSum_.type_2;
+      kk_stella_syntax_ast__type__ k5_2 = convert_Type(c5_2, _ctx);
+
+      return kk_stella_syntax_ast__new_TypeSum(kk_reuse_null, 0, k5_1, k5_2, _ctx);
     case is_TypeTuple:
-      ListType c5_1 = type->u.typeTuple_.listtype_;
-      kk_std_core_types__list k5_1 = convert_ListType(c5_1, _ctx);
+      ListType c6_1 = type->u.typeTuple_.listtype_;
+      kk_std_core_types__list k6_1 = convert_ListType(c6_1, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeTuple(kk_reuse_null, 0, k5_1, _ctx);
+      return kk_stella_syntax_ast__new_TypeTuple(kk_reuse_null, 0, k6_1, _ctx);
     case is_TypeRecord:
-      ListRecordFieldType c6_1 = type->u.typeRecord_.listrecordfieldtype_;
-      kk_std_core_types__list k6_1 = convert_ListRecordFieldType(c6_1, _ctx);
+      ListRecordFieldType c7_1 = type->u.typeRecord_.listrecordfieldtype_;
+      kk_std_core_types__list k7_1 = convert_ListRecordFieldType(c7_1, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeRecord(kk_reuse_null, 0, k6_1, _ctx);
+      return kk_stella_syntax_ast__new_TypeRecord(kk_reuse_null, 0, k7_1, _ctx);
     case is_TypeVariant:
-      ListVariantFieldType c7_1 = type->u.typeVariant_.listvariantfieldtype_;
-      kk_std_core_types__list k7_1 = convert_ListVariantFieldType(c7_1, _ctx);
+      ListVariantFieldType c8_1 = type->u.typeVariant_.listvariantfieldtype_;
+      kk_std_core_types__list k8_1 = convert_ListVariantFieldType(c8_1, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeVariant(kk_reuse_null, 0, k7_1, _ctx);
+      return kk_stella_syntax_ast__new_TypeVariant(kk_reuse_null, 0, k8_1, _ctx);
     case is_TypeList:
-      Type c8_1 = type->u.typeList_.type_;
-      kk_stella_syntax_ast__type__ k8_1 = convert_Type(c8_1, _ctx);
+      Type c9_1 = type->u.typeList_.type_;
+      kk_stella_syntax_ast__type__ k9_1 = convert_Type(c9_1, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeList(kk_reuse_null, 0, k8_1, _ctx);
+      return kk_stella_syntax_ast__new_TypeList(kk_reuse_null, 0, k9_1, _ctx);
     case is_TypeBool:
       return kk_stella_syntax_ast__new_TypeBool(_ctx);
     case is_TypeNat:
@@ -424,15 +435,15 @@ kk_stella_syntax_ast__type__ convert_Type(Type type, kk_context_t* _ctx) {
     case is_TypeBottom:
       return kk_stella_syntax_ast__new_TypeBottom(_ctx);
     case is_TypeRef:
-      Type c14_1 = type->u.typeRef_.type_;
-      kk_stella_syntax_ast__type__ k14_1 = convert_Type(c14_1, _ctx);
+      Type c15_1 = type->u.typeRef_.type_;
+      kk_stella_syntax_ast__type__ k15_1 = convert_Type(c15_1, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeRef(kk_reuse_null, 0, k14_1, _ctx);
+      return kk_stella_syntax_ast__new_TypeRef(kk_reuse_null, 0, k15_1, _ctx);
     case is_TypeVar:
-      StellaIdent c15_1 = type->u.typeVar_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k15_1 = convert_StellaIdent(c15_1, _ctx);
+      StellaIdent c16_1 = type->u.typeVar_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k16_1 = convert_StellaIdent(c16_1, _ctx);
 
-      return kk_stella_syntax_ast__new_TypeVar(kk_reuse_null, 0, k15_1, _ctx);
+      return kk_stella_syntax_ast__new_TypeVar(kk_reuse_null, 0, k16_1, _ctx);
 
   }
 
@@ -782,13 +793,13 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
       kk_stella_syntax_ast__expr k14_2 = convert_Expr(c14_2, _ctx);
 
       return kk_stella_syntax_ast__new_Abstraction(kk_reuse_null, 0, k14_1, k14_2, _ctx);
-    case is_Mod:
-      Mod c15_1 = expr->u.mod_.mod_;
-      kk_stella_syntax_ast__mod k15_1 = convert_Mod(c15_1, _ctx);
-      Expr c15_2 = expr->u.mod_.expr_;
+    case is_ModBox:
+      Modality c15_1 = expr->u.modBox_.modality_;
+      kk_stella_syntax_ast__modality k15_1 = convert_Modality(c15_1, _ctx);
+      Expr c15_2 = expr->u.modBox_.expr_;
       kk_stella_syntax_ast__expr k15_2 = convert_Expr(c15_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Mod(kk_reuse_null, 0, k15_1, k15_2, _ctx);
+      return kk_stella_syntax_ast__new_ModBox(kk_reuse_null, 0, k15_1, k15_2, _ctx);
     case is_Variant:
       StellaIdent c16_1 = expr->u.variant_.stellaident_;
       kk_stella_syntax_ast__stellaIdent k16_1 = convert_StellaIdent(c16_1, _ctx);
@@ -986,34 +997,41 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
       kk_stella_syntax_ast__expr k47_1 = convert_Expr(c47_1, _ctx);
 
       return kk_stella_syntax_ast__new_IsZero(kk_reuse_null, 0, k47_1, _ctx);
-    case is_Fix:
-      Expr c48_1 = expr->u.fix_.expr_;
+    case is_Handle:
+      Expr c48_1 = expr->u.handle_.expr_;
       kk_stella_syntax_ast__expr k48_1 = convert_Expr(c48_1, _ctx);
+      ListHandler c48_2 = expr->u.handle_.listhandler_;
+      kk_std_core_types__list k48_2 = convert_ListHandler(c48_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Fix(kk_reuse_null, 0, k48_1, _ctx);
-    case is_NatRec:
-      Expr c49_1 = expr->u.natRec_.expr_1;
+      return kk_stella_syntax_ast__new_Handle(kk_reuse_null, 0, k48_1, k48_2, _ctx);
+    case is_Fix:
+      Expr c49_1 = expr->u.fix_.expr_;
       kk_stella_syntax_ast__expr k49_1 = convert_Expr(c49_1, _ctx);
-      Expr c49_2 = expr->u.natRec_.expr_2;
-      kk_stella_syntax_ast__expr k49_2 = convert_Expr(c49_2, _ctx);
-      Expr c49_3 = expr->u.natRec_.expr_3;
-      kk_stella_syntax_ast__expr k49_3 = convert_Expr(c49_3, _ctx);
 
-      return kk_stella_syntax_ast__new_NatRec(kk_reuse_null, 0, k49_1, k49_2, k49_3, _ctx);
-    case is_Fold:
-      Type c50_1 = expr->u.fold_.type_;
-      kk_stella_syntax_ast__type__ k50_1 = convert_Type(c50_1, _ctx);
-      Expr c50_2 = expr->u.fold_.expr_;
+      return kk_stella_syntax_ast__new_Fix(kk_reuse_null, 0, k49_1, _ctx);
+    case is_NatRec:
+      Expr c50_1 = expr->u.natRec_.expr_1;
+      kk_stella_syntax_ast__expr k50_1 = convert_Expr(c50_1, _ctx);
+      Expr c50_2 = expr->u.natRec_.expr_2;
       kk_stella_syntax_ast__expr k50_2 = convert_Expr(c50_2, _ctx);
+      Expr c50_3 = expr->u.natRec_.expr_3;
+      kk_stella_syntax_ast__expr k50_3 = convert_Expr(c50_3, _ctx);
 
-      return kk_stella_syntax_ast__new_Fold(kk_reuse_null, 0, k50_1, k50_2, _ctx);
-    case is_Unfold:
-      Type c51_1 = expr->u.unfold_.type_;
+      return kk_stella_syntax_ast__new_NatRec(kk_reuse_null, 0, k50_1, k50_2, k50_3, _ctx);
+    case is_Fold:
+      Type c51_1 = expr->u.fold_.type_;
       kk_stella_syntax_ast__type__ k51_1 = convert_Type(c51_1, _ctx);
-      Expr c51_2 = expr->u.unfold_.expr_;
+      Expr c51_2 = expr->u.fold_.expr_;
       kk_stella_syntax_ast__expr k51_2 = convert_Expr(c51_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Unfold(kk_reuse_null, 0, k51_1, k51_2, _ctx);
+      return kk_stella_syntax_ast__new_Fold(kk_reuse_null, 0, k51_1, k51_2, _ctx);
+    case is_Unfold:
+      Type c52_1 = expr->u.unfold_.type_;
+      kk_stella_syntax_ast__type__ k52_1 = convert_Type(c52_1, _ctx);
+      Expr c52_2 = expr->u.unfold_.expr_;
+      kk_stella_syntax_ast__expr k52_2 = convert_Expr(c52_2, _ctx);
+
+      return kk_stella_syntax_ast__new_Unfold(kk_reuse_null, 0, k52_1, k52_2, _ctx);
     case is_ConstTrue:
       return kk_stella_syntax_ast__new_ConstTrue(_ctx);
     case is_ConstFalse:
@@ -1021,20 +1039,20 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
     case is_ConstUnit:
       return kk_stella_syntax_ast__new_ConstUnit(_ctx);
     case is_ConstInt:
-      Integer c55_1 = expr->u.constInt_.integer_;
-      kk_integer_t k55_1 = convert_Integer(c55_1, _ctx);
+      Integer c56_1 = expr->u.constInt_.integer_;
+      kk_integer_t k56_1 = convert_Integer(c56_1, _ctx);
 
-      return kk_stella_syntax_ast__new_ConstInt(kk_reuse_null, 0, k55_1, _ctx);
+      return kk_stella_syntax_ast__new_ConstInt(kk_reuse_null, 0, k56_1, _ctx);
     case is_ConstMemory:
-      MemoryAddress c56_1 = expr->u.constMemory_.memoryaddress_;
-      kk_stella_syntax_ast__memoryAddress k56_1 = convert_MemoryAddress(c56_1, _ctx);
+      MemoryAddress c57_1 = expr->u.constMemory_.memoryaddress_;
+      kk_stella_syntax_ast__memoryAddress k57_1 = convert_MemoryAddress(c57_1, _ctx);
 
-      return kk_stella_syntax_ast__new_ConstMemory(kk_reuse_null, 0, k56_1, _ctx);
+      return kk_stella_syntax_ast__new_ConstMemory(kk_reuse_null, 0, k57_1, _ctx);
     case is_Var:
-      StellaIdent c57_1 = expr->u.var_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k57_1 = convert_StellaIdent(c57_1, _ctx);
+      StellaIdent c58_1 = expr->u.var_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k58_1 = convert_StellaIdent(c58_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Var(kk_reuse_null, 0, k57_1, _ctx);
+      return kk_stella_syntax_ast__new_Var(kk_reuse_null, 0, k58_1, _ctx);
 
   }
 
@@ -1082,13 +1100,92 @@ kk_std_core_types__list convert_ListPatternBinding(ListPatternBinding listPatter
   }
 }
 
-kk_stella_syntax_ast__mod convert_Mod(Mod mod, kk_context_t* _ctx) {
-  switch(mod->kind) {
-    case is_ModLock:
-      return kk_stella_syntax_ast__new_ModLock(_ctx);
+kk_stella_syntax_ast__labelledEffect convert_LabelledEffect(LabelledEffect labelledEffect, kk_context_t* _ctx) {
+  switch(labelledEffect->kind) {
+    case is_ALabelledEffect:
+      StellaIdent c0_1 = labelledEffect->u.aLabelledEffect_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k0_1 = convert_StellaIdent(c0_1, _ctx);
+      Type c0_2 = labelledEffect->u.aLabelledEffect_.type_;
+      kk_stella_syntax_ast__type__ k0_2 = convert_Type(c0_2, _ctx);
+
+      return kk_stella_syntax_ast__new_ALabelledEffect(kk_reuse_null, 0, k0_1, k0_2, _ctx);
 
   }
 
+}
+
+kk_std_core_types__list convert_ListLabelledEffect(ListLabelledEffect listLabelledEffect, kk_context_t* _ctx) {
+  if (listLabelledEffect) {
+    LabelledEffect labelledEffect = listLabelledEffect->labelledeffect_;
+    kk_stella_syntax_ast__labelledEffect k1 = convert_LabelledEffect(labelledEffect, _ctx);
+    kk_box_t k2 = kk_stella_syntax_ast__labelledEffect_box(k1, _ctx);
+    listLabelledEffect = listLabelledEffect->listlabelledeffect_;
+    kk_std_core_types__list k3 = convert_ListLabelledEffect(listLabelledEffect, _ctx);
+    return kk_std_core_types__new_Cons(kk_reuse_null, 0, k2, k3, _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nil(_ctx);
+  }
+}
+
+kk_stella_syntax_ast__modality convert_Modality(Modality modality, kk_context_t* _ctx) {
+  switch(modality->kind) {
+    case is_ModalityLock:
+      return kk_stella_syntax_ast__new_ModalityLock(_ctx);
+    case is_ModalityAbs:
+      ListLabelledEffect c1_1 = modality->u.modalityAbs_.listlabelledeffect_;
+      kk_std_core_types__list k1_1 = convert_ListLabelledEffect(c1_1, _ctx);
+
+      return kk_stella_syntax_ast__new_ModalityAbs(kk_reuse_null, 0, k1_1, _ctx);
+    case is_ModalityRel:
+      ListStellaIdent c2_1 = modality->u.modalityRel_.liststellaident_;
+      kk_std_core_types__list k2_1 = convert_ListStellaIdent(c2_1, _ctx);
+      ListLabelledEffect c2_2 = modality->u.modalityRel_.listlabelledeffect_;
+      kk_std_core_types__list k2_2 = convert_ListLabelledEffect(c2_2, _ctx);
+
+      return kk_stella_syntax_ast__new_ModalityRel(kk_reuse_null, 0, k2_1, k2_2, _ctx);
+
+  }
+
+}
+
+kk_stella_syntax_ast__handler__ convert_Handler(Handler handler, kk_context_t* _ctx) {
+  switch(handler->kind) {
+    case is_HandlerReturn:
+      Pattern c0_1 = handler->u.handlerReturn_.pattern_;
+      kk_stella_syntax_ast__pattern k0_1 = convert_Pattern(c0_1, _ctx);
+      Expr c0_2 = handler->u.handlerReturn_.expr_;
+      kk_stella_syntax_ast__expr k0_2 = convert_Expr(c0_2, _ctx);
+
+      return kk_stella_syntax_ast__new_HandlerReturn(kk_reuse_null, 0, k0_1, k0_2, _ctx);
+    case is_HandlerLabel:
+      LabelledEffect c1_1 = handler->u.handlerLabel_.labelledeffect_;
+      kk_stella_syntax_ast__labelledEffect k1_1 = convert_LabelledEffect(c1_1, _ctx);
+      Expr c1_2 = handler->u.handlerLabel_.expr_1;
+      kk_stella_syntax_ast__expr k1_2 = convert_Expr(c1_2, _ctx);
+      StellaIdent c1_3 = handler->u.handlerLabel_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k1_3 = convert_StellaIdent(c1_3, _ctx);
+      Expr c1_4 = handler->u.handlerLabel_.expr_2;
+      kk_stella_syntax_ast__expr k1_4 = convert_Expr(c1_4, _ctx);
+
+      return kk_stella_syntax_ast__new_HandlerLabel(kk_reuse_null, 0, k1_1, k1_2, k1_3, k1_4, _ctx);
+
+  }
+
+}
+
+kk_std_core_types__list convert_ListHandler(ListHandler listHandler, kk_context_t* _ctx) {
+  if (listHandler) {
+    Handler handler = listHandler->handler_;
+    kk_stella_syntax_ast__handler__ k1 = convert_Handler(handler, _ctx);
+    kk_box_t k2 = kk_stella_syntax_ast__handler___box(k1, _ctx);
+    listHandler = listHandler->listhandler_;
+    kk_std_core_types__list k3 = convert_ListHandler(listHandler, _ctx);
+    return kk_std_core_types__new_Cons(kk_reuse_null, 0, k2, k3, _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nil(_ctx);
+  }
 }
 
 kk_stella_syntax_ast__variantFieldType convert_VariantFieldType(VariantFieldType variantFieldType, kk_context_t* _ctx) {
@@ -1594,13 +1691,37 @@ kk_std_core_types__maybe kk_parse_ListExpr2(kk_string_t kstr, kk_context_t* _ctx
     return kk_std_core_types__new_Nothing(_ctx);
   }
 }
-kk_std_core_types__maybe kk_parse_Mod(kk_string_t kstr, kk_context_t* _ctx) {
+kk_std_core_types__maybe kk_parse_LabelledEffect(kk_string_t kstr, kk_context_t* _ctx) {
   const uint8_t* cstr = string_to_chars(kstr, _ctx);
-  Mod parse_tree;
-  parse_tree = psMod(cstr);
+  LabelledEffect parse_tree;
+  parse_tree = psLabelledEffect(cstr);
   if (parse_tree) {
-    kk_stella_syntax_ast__mod converted = convert_Mod(parse_tree, _ctx);
-    return kk_std_core_types__new_Just(kk_stella_syntax_ast__mod_box(converted, _ctx), _ctx);
+    kk_stella_syntax_ast__labelledEffect converted = convert_LabelledEffect(parse_tree, _ctx);
+    return kk_std_core_types__new_Just(kk_stella_syntax_ast__labelledEffect_box(converted, _ctx), _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nothing(_ctx);
+  }
+}
+kk_std_core_types__maybe kk_parse_ListLabelledEffect(kk_string_t kstr, kk_context_t* _ctx) {
+  const uint8_t* cstr = string_to_chars(kstr, _ctx);
+  ListLabelledEffect parse_tree;
+  parse_tree = psListLabelledEffect(cstr);
+  if (parse_tree) {
+    kk_std_core_types__list converted = convert_ListLabelledEffect(parse_tree, _ctx);
+    return kk_std_core_types__new_Just(kk_std_core_types__list_box(converted, _ctx), _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nothing(_ctx);
+  }
+}
+kk_std_core_types__maybe kk_parse_Modality(kk_string_t kstr, kk_context_t* _ctx) {
+  const uint8_t* cstr = string_to_chars(kstr, _ctx);
+  Modality parse_tree;
+  parse_tree = psModality(cstr);
+  if (parse_tree) {
+    kk_stella_syntax_ast__modality converted = convert_Modality(parse_tree, _ctx);
+    return kk_std_core_types__new_Just(kk_stella_syntax_ast__modality_box(converted, _ctx), _ctx);
   }
   else {
     return kk_std_core_types__new_Nothing(_ctx);
@@ -1661,6 +1782,30 @@ kk_std_core_types__maybe kk_parse_Expr7(kk_string_t kstr, kk_context_t* _ctx) {
   if (parse_tree) {
     kk_stella_syntax_ast__expr converted = convert_Expr(parse_tree, _ctx);
     return kk_std_core_types__new_Just(kk_stella_syntax_ast__expr_box(converted, _ctx), _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nothing(_ctx);
+  }
+}
+kk_std_core_types__maybe kk_parse_Handler(kk_string_t kstr, kk_context_t* _ctx) {
+  const uint8_t* cstr = string_to_chars(kstr, _ctx);
+  Handler parse_tree;
+  parse_tree = psHandler(cstr);
+  if (parse_tree) {
+    kk_stella_syntax_ast__handler__ converted = convert_Handler(parse_tree, _ctx);
+    return kk_std_core_types__new_Just(kk_stella_syntax_ast__handler___box(converted, _ctx), _ctx);
+  }
+  else {
+    return kk_std_core_types__new_Nothing(_ctx);
+  }
+}
+kk_std_core_types__maybe kk_parse_ListHandler(kk_string_t kstr, kk_context_t* _ctx) {
+  const uint8_t* cstr = string_to_chars(kstr, _ctx);
+  ListHandler parse_tree;
+  parse_tree = psListHandler(cstr);
+  if (parse_tree) {
+    kk_std_core_types__list converted = convert_ListHandler(parse_tree, _ctx);
+    return kk_std_core_types__new_Just(kk_std_core_types__list_box(converted, _ctx), _ctx);
   }
   else {
     return kk_std_core_types__new_Nothing(_ctx);

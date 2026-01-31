@@ -85,6 +85,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"Nat"      	 return _KW_Nat;
 <INITIAL>"Top"      	 return _KW_Top;
 <INITIAL>"Unit"      	 return _KW_Unit;
+<INITIAL>"abs"      	 return _KW_abs;
 <INITIAL>"and"      	 return _KW_and;
 <INITIAL>"as"      	 return _KW_as;
 <INITIAL>"auto"      	 return _KW_auto;
@@ -101,6 +102,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"fold"      	 return _KW_fold;
 <INITIAL>"forall"      	 return _KW_forall;
 <INITIAL>"generic"      	 return _KW_generic;
+<INITIAL>"handle"      	 return _KW_handle;
 <INITIAL>"if"      	 return _KW_if;
 <INITIAL>"in"      	 return _KW_in;
 <INITIAL>"inl"      	 return _KW_inl;
@@ -115,6 +117,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"new"      	 return _KW_new;
 <INITIAL>"not"      	 return _KW_not;
 <INITIAL>"or"      	 return _KW_or;
+<INITIAL>"rel"      	 return _KW_rel;
 <INITIAL>"return"      	 return _KW_return;
 <INITIAL>"succ"      	 return _KW_succ;
 <INITIAL>"then"      	 return _KW_then;
@@ -127,7 +130,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"unit"      	 return _KW_unit;
 <INITIAL>"variant"      	 return _KW_variant;
 <INITIAL>"with"      	 return _KW_with;
-<INITIAL>"µ"      	 return _KW_82;
+<INITIAL>"µ"      	 return _KW_85;
 
 <INITIAL>"//"[^\n]* /* skip */; /* BNFC: comment "//" */
 <INITIAL>"/*" BEGIN COMMENT;

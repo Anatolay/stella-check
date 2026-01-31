@@ -142,7 +142,7 @@ Decl make_DeclFunGeneric(ListAnnotation p1, StellaIdent p2, ListStellaIdent p3, 
 
 /********************   DeclFunMod    ********************/
 
-Decl make_DeclFunMod(ListAnnotation p1, Mod p2, StellaIdent p3, ListParamDecl p4, ReturnType p5, ThrowType p6, ListDecl p7, Expr p8)
+Decl make_DeclFunMod(ListAnnotation p1, Modality p2, StellaIdent p3, ListParamDecl p4, ReturnType p5, ThrowType p6, ListDecl p7, Expr p8)
 {
     Decl tmp = (Decl) malloc(sizeof(*tmp));
     if (!tmp)
@@ -152,7 +152,7 @@ Decl make_DeclFunMod(ListAnnotation p1, Mod p2, StellaIdent p3, ListParamDecl p4
     }
     tmp->kind = is_DeclFunMod;
     tmp->u.declFunMod_.listannotation_ = p1;
-    tmp->u.declFunMod_.mod_ = p2;
+    tmp->u.declFunMod_.modality_ = p2;
     tmp->u.declFunMod_.stellaident_ = p3;
     tmp->u.declFunMod_.listparamdecl_ = p4;
     tmp->u.declFunMod_.returntype_ = p5;
@@ -369,6 +369,22 @@ ThrowType make_SomeThrowType(ListType p1)
     }
     tmp->kind = is_SomeThrowType;
     tmp->u.someThrowType_.listtype_ = p1;
+    return tmp;
+}
+
+/********************   TypeMod    ********************/
+
+Type make_TypeMod(Modality p1, Type p2)
+{
+    Type tmp = (Type) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating TypeMod!\n");
+        exit(1);
+    }
+    tmp->kind = is_TypeMod;
+    tmp->u.typeMod_.modality_ = p1;
+    tmp->u.typeMod_.type_ = p2;
     return tmp;
 }
 
@@ -1287,19 +1303,19 @@ Expr make_Abstraction(ListParamDecl p1, Expr p2)
     return tmp;
 }
 
-/********************   Mod    ********************/
+/********************   ModBox    ********************/
 
-Expr make_Mod(Mod p1, Expr p2)
+Expr make_ModBox(Modality p1, Expr p2)
 {
     Expr tmp = (Expr) malloc(sizeof(*tmp));
     if (!tmp)
     {
-        fprintf(stderr, "Error: out of memory when allocating Mod!\n");
+        fprintf(stderr, "Error: out of memory when allocating ModBox!\n");
         exit(1);
     }
-    tmp->kind = is_Mod;
-    tmp->u.mod_.mod_ = p1;
-    tmp->u.mod_.expr_ = p2;
+    tmp->kind = is_ModBox;
+    tmp->u.modBox_.modality_ = p1;
+    tmp->u.modBox_.expr_ = p2;
     return tmp;
 }
 
@@ -1802,6 +1818,22 @@ Expr make_IsZero(Expr p1)
     return tmp;
 }
 
+/********************   Handle    ********************/
+
+Expr make_Handle(Expr p1, ListHandler p2)
+{
+    Expr tmp = (Expr) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating Handle!\n");
+        exit(1);
+    }
+    tmp->kind = is_Handle;
+    tmp->u.handle_.expr_ = p1;
+    tmp->u.handle_.listhandler_ = p2;
+    return tmp;
+}
+
 /********************   Fix    ********************/
 
 Expr make_Fix(Expr p1)
@@ -1999,17 +2031,128 @@ ListPatternBinding make_ListPatternBinding(PatternBinding p1, ListPatternBinding
     return tmp;
 }
 
-/********************   ModLock    ********************/
+/********************   ALabelledEffect    ********************/
 
-Mod make_ModLock()
+LabelledEffect make_ALabelledEffect(StellaIdent p1, Type p2)
 {
-    Mod tmp = (Mod) malloc(sizeof(*tmp));
+    LabelledEffect tmp = (LabelledEffect) malloc(sizeof(*tmp));
     if (!tmp)
     {
-        fprintf(stderr, "Error: out of memory when allocating ModLock!\n");
+        fprintf(stderr, "Error: out of memory when allocating ALabelledEffect!\n");
         exit(1);
     }
-    tmp->kind = is_ModLock;
+    tmp->kind = is_ALabelledEffect;
+    tmp->u.aLabelledEffect_.stellaident_ = p1;
+    tmp->u.aLabelledEffect_.type_ = p2;
+    return tmp;
+}
+
+/********************   ListLabelledEffect    ********************/
+
+ListLabelledEffect make_ListLabelledEffect(LabelledEffect p1, ListLabelledEffect p2)
+{
+    ListLabelledEffect tmp = (ListLabelledEffect) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ListLabelledEffect!\n");
+        exit(1);
+    }
+    tmp->labelledeffect_ = p1;
+    tmp->listlabelledeffect_ = p2;
+    return tmp;
+}
+
+/********************   ModalityLock    ********************/
+
+Modality make_ModalityLock()
+{
+    Modality tmp = (Modality) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ModalityLock!\n");
+        exit(1);
+    }
+    tmp->kind = is_ModalityLock;
+    return tmp;
+}
+
+/********************   ModalityAbs    ********************/
+
+Modality make_ModalityAbs(ListLabelledEffect p1)
+{
+    Modality tmp = (Modality) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ModalityAbs!\n");
+        exit(1);
+    }
+    tmp->kind = is_ModalityAbs;
+    tmp->u.modalityAbs_.listlabelledeffect_ = p1;
+    return tmp;
+}
+
+/********************   ModalityRel    ********************/
+
+Modality make_ModalityRel(ListStellaIdent p1, ListLabelledEffect p2)
+{
+    Modality tmp = (Modality) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ModalityRel!\n");
+        exit(1);
+    }
+    tmp->kind = is_ModalityRel;
+    tmp->u.modalityRel_.liststellaident_ = p1;
+    tmp->u.modalityRel_.listlabelledeffect_ = p2;
+    return tmp;
+}
+
+/********************   HandlerReturn    ********************/
+
+Handler make_HandlerReturn(Pattern p1, Expr p2)
+{
+    Handler tmp = (Handler) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating HandlerReturn!\n");
+        exit(1);
+    }
+    tmp->kind = is_HandlerReturn;
+    tmp->u.handlerReturn_.pattern_ = p1;
+    tmp->u.handlerReturn_.expr_ = p2;
+    return tmp;
+}
+
+/********************   HandlerLabel    ********************/
+
+Handler make_HandlerLabel(LabelledEffect p1, Expr p2, StellaIdent p3, Expr p4)
+{
+    Handler tmp = (Handler) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating HandlerLabel!\n");
+        exit(1);
+    }
+    tmp->kind = is_HandlerLabel;
+    tmp->u.handlerLabel_.labelledeffect_ = p1;
+    tmp->u.handlerLabel_.expr_1 = p2;
+    tmp->u.handlerLabel_.stellaident_ = p3;
+    tmp->u.handlerLabel_.expr_2 = p4;
+    return tmp;
+}
+
+/********************   ListHandler    ********************/
+
+ListHandler make_ListHandler(Handler p1, ListHandler p2)
+{
+    ListHandler tmp = (ListHandler) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ListHandler!\n");
+        exit(1);
+    }
+    tmp->handler_ = p1;
+    tmp->listhandler_ = p2;
     return tmp;
 }
 
@@ -2205,7 +2348,7 @@ Decl clone_Decl(Decl p)
   case is_DeclFunMod:
     return make_DeclFunMod
       ( clone_ListAnnotation(p->u.declFunMod_.listannotation_)
-      , clone_Mod(p->u.declFunMod_.mod_)
+      , clone_Modality(p->u.declFunMod_.modality_)
       , strdup(p->u.declFunMod_.stellaident_)
       , clone_ListParamDecl(p->u.declFunMod_.listparamdecl_)
       , clone_ReturnType(p->u.declFunMod_.returntype_)
@@ -2365,6 +2508,12 @@ Type clone_Type(Type p)
 {
   switch(p->kind)
   {
+  case is_TypeMod:
+    return make_TypeMod
+      ( clone_Modality(p->u.typeMod_.modality_)
+      , clone_Type(p->u.typeMod_.type_)
+      );
+
   case is_TypeAuto:
     return make_TypeAuto ();
 
@@ -2754,10 +2903,10 @@ Expr clone_Expr(Expr p)
       , clone_Expr(p->u.abstraction_.expr_)
       );
 
-  case is_Mod:
-    return make_Mod
-      ( clone_Mod(p->u.mod_.mod_)
-      , clone_Expr(p->u.mod_.expr_)
+  case is_ModBox:
+    return make_ModBox
+      ( clone_Modality(p->u.modBox_.modality_)
+      , clone_Expr(p->u.modBox_.expr_)
       );
 
   case is_Variant:
@@ -2908,6 +3057,12 @@ Expr clone_Expr(Expr p)
   case is_IsZero:
     return make_IsZero (clone_Expr(p->u.isZero_.expr_));
 
+  case is_Handle:
+    return make_Handle
+      ( clone_Expr(p->u.handle_.expr_)
+      , clone_ListHandler(p->u.handle_.listhandler_)
+      );
+
   case is_Fix:
     return make_Fix (clone_Expr(p->u.fix_.expr_));
 
@@ -2996,17 +3151,92 @@ ListPatternBinding clone_ListPatternBinding(ListPatternBinding listpatternbindin
   else return NULL; /* clone of empty list */
 }
 
-Mod clone_Mod(Mod p)
+LabelledEffect clone_LabelledEffect(LabelledEffect p)
 {
   switch(p->kind)
   {
-  case is_ModLock:
-    return make_ModLock ();
+  case is_ALabelledEffect:
+    return make_ALabelledEffect
+      ( strdup(p->u.aLabelledEffect_.stellaident_)
+      , clone_Type(p->u.aLabelledEffect_.type_)
+      );
 
   default:
-    fprintf(stderr, "Error: bad kind field when cloning Mod!\n");
+    fprintf(stderr, "Error: bad kind field when cloning LabelledEffect!\n");
     exit(1);
   }
+}
+
+ListLabelledEffect clone_ListLabelledEffect(ListLabelledEffect listlabelledeffect)
+{
+  if (listlabelledeffect)
+  {
+    /* clone of non-empty list */
+    return make_ListLabelledEffect
+      ( clone_LabelledEffect(listlabelledeffect->labelledeffect_)
+      , clone_ListLabelledEffect(listlabelledeffect->listlabelledeffect_)
+      );
+  }
+  else return NULL; /* clone of empty list */
+}
+
+Modality clone_Modality(Modality p)
+{
+  switch(p->kind)
+  {
+  case is_ModalityLock:
+    return make_ModalityLock ();
+
+  case is_ModalityAbs:
+    return make_ModalityAbs (clone_ListLabelledEffect(p->u.modalityAbs_.listlabelledeffect_));
+
+  case is_ModalityRel:
+    return make_ModalityRel
+      ( clone_ListStellaIdent(p->u.modalityRel_.liststellaident_)
+      , clone_ListLabelledEffect(p->u.modalityRel_.listlabelledeffect_)
+      );
+
+  default:
+    fprintf(stderr, "Error: bad kind field when cloning Modality!\n");
+    exit(1);
+  }
+}
+
+Handler clone_Handler(Handler p)
+{
+  switch(p->kind)
+  {
+  case is_HandlerReturn:
+    return make_HandlerReturn
+      ( clone_Pattern(p->u.handlerReturn_.pattern_)
+      , clone_Expr(p->u.handlerReturn_.expr_)
+      );
+
+  case is_HandlerLabel:
+    return make_HandlerLabel
+      ( clone_LabelledEffect(p->u.handlerLabel_.labelledeffect_)
+      , clone_Expr(p->u.handlerLabel_.expr_1)
+      , strdup(p->u.handlerLabel_.stellaident_)
+      , clone_Expr(p->u.handlerLabel_.expr_2)
+      );
+
+  default:
+    fprintf(stderr, "Error: bad kind field when cloning Handler!\n");
+    exit(1);
+  }
+}
+
+ListHandler clone_ListHandler(ListHandler listhandler)
+{
+  if (listhandler)
+  {
+    /* clone of non-empty list */
+    return make_ListHandler
+      ( clone_Handler(listhandler->handler_)
+      , clone_ListHandler(listhandler->listhandler_)
+      );
+  }
+  else return NULL; /* clone of empty list */
 }
 
 VariantFieldType clone_VariantFieldType(VariantFieldType p)
@@ -3196,7 +3426,7 @@ void free_Decl(Decl p)
 
   case is_DeclFunMod:
     free_ListAnnotation(p->u.declFunMod_.listannotation_);
-    free_Mod(p->u.declFunMod_.mod_);
+    free_Modality(p->u.declFunMod_.modality_);
     free(p->u.declFunMod_.stellaident_);
     free_ListParamDecl(p->u.declFunMod_.listparamdecl_);
     free_ReturnType(p->u.declFunMod_.returntype_);
@@ -3351,6 +3581,11 @@ void free_Type(Type p)
 {
   switch(p->kind)
   {
+  case is_TypeMod:
+    free_Modality(p->u.typeMod_.modality_);
+    free_Type(p->u.typeMod_.type_);
+    break;
+
   case is_TypeAuto:
     break;
 
@@ -3723,9 +3958,9 @@ void free_Expr(Expr p)
     free_Expr(p->u.abstraction_.expr_);
     break;
 
-  case is_Mod:
-    free_Mod(p->u.mod_.mod_);
-    free_Expr(p->u.mod_.expr_);
+  case is_ModBox:
+    free_Modality(p->u.modBox_.modality_);
+    free_Expr(p->u.modBox_.expr_);
     break;
 
   case is_Variant:
@@ -3874,6 +4109,11 @@ void free_Expr(Expr p)
     free_Expr(p->u.isZero_.expr_);
     break;
 
+  case is_Handle:
+    free_Expr(p->u.handle_.expr_);
+    free_ListHandler(p->u.handle_.listhandler_);
+    break;
+
   case is_Fix:
     free_Expr(p->u.fix_.expr_);
     break;
@@ -3957,18 +4197,86 @@ void free_ListPatternBinding(ListPatternBinding listpatternbinding)
   }
 }
 
-void free_Mod(Mod p)
+void free_LabelledEffect(LabelledEffect p)
 {
   switch(p->kind)
   {
-  case is_ModLock:
+  case is_ALabelledEffect:
+    free(p->u.aLabelledEffect_.stellaident_);
+    free_Type(p->u.aLabelledEffect_.type_);
     break;
 
   default:
-    fprintf(stderr, "Error: bad kind field when freeing Mod!\n");
+    fprintf(stderr, "Error: bad kind field when freeing LabelledEffect!\n");
     exit(1);
   }
   free(p);
+}
+
+void free_ListLabelledEffect(ListLabelledEffect listlabelledeffect)
+{
+  if (listlabelledeffect)
+  {
+    free_LabelledEffect(listlabelledeffect->labelledeffect_);
+    free_ListLabelledEffect(listlabelledeffect->listlabelledeffect_);
+    free(listlabelledeffect);
+  }
+}
+
+void free_Modality(Modality p)
+{
+  switch(p->kind)
+  {
+  case is_ModalityLock:
+    break;
+
+  case is_ModalityAbs:
+    free_ListLabelledEffect(p->u.modalityAbs_.listlabelledeffect_);
+    break;
+
+  case is_ModalityRel:
+    free_ListStellaIdent(p->u.modalityRel_.liststellaident_);
+    free_ListLabelledEffect(p->u.modalityRel_.listlabelledeffect_);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when freeing Modality!\n");
+    exit(1);
+  }
+  free(p);
+}
+
+void free_Handler(Handler p)
+{
+  switch(p->kind)
+  {
+  case is_HandlerReturn:
+    free_Pattern(p->u.handlerReturn_.pattern_);
+    free_Expr(p->u.handlerReturn_.expr_);
+    break;
+
+  case is_HandlerLabel:
+    free_LabelledEffect(p->u.handlerLabel_.labelledeffect_);
+    free_Expr(p->u.handlerLabel_.expr_1);
+    free(p->u.handlerLabel_.stellaident_);
+    free_Expr(p->u.handlerLabel_.expr_2);
+    break;
+
+  default:
+    fprintf(stderr, "Error: bad kind field when freeing Handler!\n");
+    exit(1);
+  }
+  free(p);
+}
+
+void free_ListHandler(ListHandler listhandler)
+{
+  if (listhandler)
+  {
+    free_Handler(listhandler->handler_);
+    free_ListHandler(listhandler->listhandler_);
+    free(listhandler);
+  }
 }
 
 void free_VariantFieldType(VariantFieldType p)

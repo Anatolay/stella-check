@@ -125,8 +125,20 @@ typedef struct PatternBinding_ *PatternBinding;
 struct ListPatternBinding_;
 typedef struct ListPatternBinding_ *ListPatternBinding;
 
-struct Mod_;
-typedef struct Mod_ *Mod;
+struct LabelledEffect_;
+typedef struct LabelledEffect_ *LabelledEffect;
+
+struct ListLabelledEffect_;
+typedef struct ListLabelledEffect_ *ListLabelledEffect;
+
+struct Modality_;
+typedef struct Modality_ *Modality;
+
+struct Handler_;
+typedef struct Handler_ *Handler;
+
+struct ListHandler_;
+typedef struct ListHandler_ *ListHandler;
 
 struct VariantFieldType_;
 typedef struct VariantFieldType_ *VariantFieldType;
@@ -208,7 +220,7 @@ struct Decl_
   {
     struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFun_;
     struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; ListStellaIdent liststellaident_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunGeneric_;
-    struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; Mod mod_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunMod_;
+    struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; Modality modality_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunMod_;
     struct { StellaIdent stellaident_; Type type_; } declTypeAlias_;
     struct { Type type_; } declExceptionType_;
     struct { StellaIdent stellaident_; Type type_; } declExceptionVariant_;
@@ -217,7 +229,7 @@ struct Decl_
 
 Decl make_DeclFun(ListAnnotation p0, StellaIdent p1, ListParamDecl p2, ReturnType p3, ThrowType p4, ListDecl p5, Expr p6);
 Decl make_DeclFunGeneric(ListAnnotation p0, StellaIdent p1, ListStellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
-Decl make_DeclFunMod(ListAnnotation p0, Mod p1, StellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
+Decl make_DeclFunMod(ListAnnotation p0, Modality p1, StellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
 Decl make_DeclTypeAlias(StellaIdent p0, Type p1);
 Decl make_DeclExceptionType(Type p0);
 Decl make_DeclExceptionVariant(StellaIdent p0, Type p1);
@@ -312,9 +324,10 @@ ThrowType make_SomeThrowType(ListType p0);
 
 struct Type_
 {
-  enum { is_TypeAuto, is_TypeFun, is_TypeForAll, is_TypeRec, is_TypeSum, is_TypeTuple, is_TypeRecord, is_TypeVariant, is_TypeList, is_TypeBool, is_TypeNat, is_TypeUnit, is_TypeTop, is_TypeBottom, is_TypeRef, is_TypeVar } kind;
+  enum { is_TypeMod, is_TypeAuto, is_TypeFun, is_TypeForAll, is_TypeRec, is_TypeSum, is_TypeTuple, is_TypeRecord, is_TypeVariant, is_TypeList, is_TypeBool, is_TypeNat, is_TypeUnit, is_TypeTop, is_TypeBottom, is_TypeRef, is_TypeVar } kind;
   union
   {
+    struct { Modality modality_; Type type_; } typeMod_;
     struct { ListType listtype_; Type type_; } typeFun_;
     struct { ListStellaIdent liststellaident_; Type type_; } typeForAll_;
     struct { StellaIdent stellaident_; Type type_; } typeRec_;
@@ -328,6 +341,7 @@ struct Type_
   } u;
 };
 
+Type make_TypeMod(Modality p0, Type p1);
 Type make_TypeAuto(void);
 Type make_TypeFun(ListType p0, Type p1);
 Type make_TypeForAll(ListStellaIdent p0, Type p1);
@@ -492,7 +506,7 @@ ListBinding make_ListBinding(Binding p1, ListBinding p2);
 
 struct Expr_
 {
-  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_Mod, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
+  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_ModBox, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_Handle, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
   union
   {
     struct { Expr expr_1, expr_2; } sequence_;
@@ -510,7 +524,7 @@ struct Expr_
     struct { Expr expr_; Type type_; } typeAsc_;
     struct { Expr expr_; Type type_; } typeCast_;
     struct { Expr expr_; ListParamDecl listparamdecl_; } abstraction_;
-    struct { Expr expr_; Mod mod_; } mod_;
+    struct { Expr expr_; Modality modality_; } modBox_;
     struct { ExprData exprdata_; StellaIdent stellaident_; } variant_;
     struct { Expr expr_; ListMatchCase listmatchcase_; } match_;
     struct { ListExpr listexpr_; } list_;
@@ -542,6 +556,7 @@ struct Expr_
     struct { Expr expr_; } logicNot_;
     struct { Expr expr_; } pred_;
     struct { Expr expr_; } isZero_;
+    struct { Expr expr_; ListHandler listhandler_; } handle_;
     struct { Expr expr_; } fix_;
     struct { Expr expr_1, expr_2, expr_3; } natRec_;
     struct { Expr expr_; Type type_; } fold_;
@@ -567,7 +582,7 @@ Expr make_NotEqual(Expr p0, Expr p1);
 Expr make_TypeAsc(Expr p0, Type p1);
 Expr make_TypeCast(Expr p0, Type p1);
 Expr make_Abstraction(ListParamDecl p0, Expr p1);
-Expr make_Mod(Mod p0, Expr p1);
+Expr make_ModBox(Modality p0, Expr p1);
 Expr make_Variant(StellaIdent p0, ExprData p1);
 Expr make_Match(Expr p0, ListMatchCase p1);
 Expr make_List(ListExpr p0);
@@ -600,6 +615,7 @@ Expr make_Succ(Expr p0);
 Expr make_LogicNot(Expr p0);
 Expr make_Pred(Expr p0);
 Expr make_IsZero(Expr p0);
+Expr make_Handle(Expr p0, ListHandler p1);
 Expr make_Fix(Expr p0);
 Expr make_NatRec(Expr p0, Expr p1, Expr p2);
 Expr make_Fold(Type p0, Expr p1);
@@ -638,15 +654,59 @@ struct ListPatternBinding_
 
 ListPatternBinding make_ListPatternBinding(PatternBinding p1, ListPatternBinding p2);
 
-struct Mod_
+struct LabelledEffect_
 {
-  enum { is_ModLock } kind;
+  enum { is_ALabelledEffect } kind;
   union
   {
+    struct { StellaIdent stellaident_; Type type_; } aLabelledEffect_;
   } u;
 };
 
-Mod make_ModLock(void);
+LabelledEffect make_ALabelledEffect(StellaIdent p0, Type p1);
+
+struct ListLabelledEffect_
+{
+  LabelledEffect labelledeffect_;
+  ListLabelledEffect listlabelledeffect_;
+};
+
+ListLabelledEffect make_ListLabelledEffect(LabelledEffect p1, ListLabelledEffect p2);
+
+struct Modality_
+{
+  enum { is_ModalityLock, is_ModalityAbs, is_ModalityRel } kind;
+  union
+  {
+    struct { ListLabelledEffect listlabelledeffect_; } modalityAbs_;
+    struct { ListLabelledEffect listlabelledeffect_; ListStellaIdent liststellaident_; } modalityRel_;
+  } u;
+};
+
+Modality make_ModalityLock(void);
+Modality make_ModalityAbs(ListLabelledEffect p0);
+Modality make_ModalityRel(ListStellaIdent p0, ListLabelledEffect p1);
+
+struct Handler_
+{
+  enum { is_HandlerReturn, is_HandlerLabel } kind;
+  union
+  {
+    struct { Expr expr_; Pattern pattern_; } handlerReturn_;
+    struct { Expr expr_1, expr_2; LabelledEffect labelledeffect_; StellaIdent stellaident_; } handlerLabel_;
+  } u;
+};
+
+Handler make_HandlerReturn(Pattern p0, Expr p1);
+Handler make_HandlerLabel(LabelledEffect p0, Expr p1, StellaIdent p2, Expr p3);
+
+struct ListHandler_
+{
+  Handler handler_;
+  ListHandler listhandler_;
+};
+
+ListHandler make_ListHandler(Handler p1, ListHandler p2);
 
 struct VariantFieldType_
 {
@@ -732,7 +792,11 @@ Expr clone_Expr(Expr p);
 ListExpr clone_ListExpr(ListExpr p);
 PatternBinding clone_PatternBinding(PatternBinding p);
 ListPatternBinding clone_ListPatternBinding(ListPatternBinding p);
-Mod clone_Mod(Mod p);
+LabelledEffect clone_LabelledEffect(LabelledEffect p);
+ListLabelledEffect clone_ListLabelledEffect(ListLabelledEffect p);
+Modality clone_Modality(Modality p);
+Handler clone_Handler(Handler p);
+ListHandler clone_ListHandler(ListHandler p);
 VariantFieldType clone_VariantFieldType(VariantFieldType p);
 ListVariantFieldType clone_ListVariantFieldType(ListVariantFieldType p);
 RecordFieldType clone_RecordFieldType(RecordFieldType p);
@@ -782,7 +846,11 @@ void free_Expr(Expr p);
 void free_ListExpr(ListExpr p);
 void free_PatternBinding(PatternBinding p);
 void free_ListPatternBinding(ListPatternBinding p);
-void free_Mod(Mod p);
+void free_LabelledEffect(LabelledEffect p);
+void free_ListLabelledEffect(ListLabelledEffect p);
+void free_Modality(Modality p);
+void free_Handler(Handler p);
+void free_ListHandler(ListHandler p);
 void free_VariantFieldType(VariantFieldType p);
 void free_ListVariantFieldType(ListVariantFieldType p);
 void free_RecordFieldType(RecordFieldType p);

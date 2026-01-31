@@ -19,7 +19,7 @@ terminator Extension ";" ;
 
 DeclFun.    Decl ::= [Annotation] "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
 DeclFunGeneric. Decl ::= [Annotation] "generic" "fn" StellaIdent "[" [StellaIdent] "]" "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
-DeclFunMod. Decl ::= [Annotation] "mod" "[" Mod "]" "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
+DeclFunMod. Decl ::= [Annotation] "mod" "[" Modality "]" "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
 DeclTypeAlias.  Decl ::= "type" StellaIdent "=" Type ;
 DeclExceptionType. Decl ::= "exception" "type" "=" Type ;
 DeclExceptionVariant. Decl ::= "exception" "variant" StellaIdent ":" Type ;
@@ -103,17 +103,17 @@ Equal.              Expr2 ::= Expr3 "==" Expr3 ;
 NotEqual.           Expr2 ::= Expr3 "!=" Expr3 ;
 terminator nonempty Expr2 ";" ;
 
-LabelledEffect. LabelledEffect ::= StellaIdent ":" Type ;
+ALabelledEffect. LabelledEffect ::= StellaIdent ":" Type ;
 separator LabelledEffect "," ;
 
-ModLock. Mod ::= "lock" ;
-ModAbs.  Mod ::= "abs" "<" [LabelledEffect] ">" ;
-ModRel.  Mod ::= "rel" "<" [StellaIdent] "|" [LabelledEffect] ">" ;
+ModalityLock. Modality ::= "lock" ;
+ModalityAbs.  Modality ::= "abs" "<" [LabelledEffect] ">" ;
+ModalityRel.  Modality ::= "rel" "<" [StellaIdent] "|" [LabelledEffect] ">" ;
 
 TypeAsc.      Expr3 ::= Expr3 "as" Type2 ;
 TypeCast.     Expr3 ::= Expr3 "cast" "as" Type2 ;
 Abstraction.  Expr3 ::= "fn" "(" [ParamDecl] ")" "{" "return" Expr "}" ;
-Mod.          Expr3 ::= "mod" "[" Mod "]" "{" Expr "}" ;
+ModBox.       Expr3 ::= "mod" "[" Modality "]" "{" Expr "}" ;
 Variant.      Expr3 ::= "<|" StellaIdent ExprData "|>" ;
 Match.        Expr3 ::= "match" Expr2 "{" [MatchCase] "}" ;
 List.         Expr3 ::= "[" [Expr] "]" ;
@@ -172,7 +172,7 @@ HandlerReturn. Handler ::= "return" Pattern "->" Expr ;
 HandlerLabel.  Handler ::= "(" LabelledEffect "," Expr "," StellaIdent ")" "->" Expr ;
 terminator nonempty Handler ";" ;
 
-TypeMod.      Type ::= "[" Mod "]" Type ;
+TypeMod.      Type ::= "[" Modality "]" Type ;
 TypeAuto.     Type ::= "auto" ;
 TypeFun.      Type ::= "fn" "(" [Type] ")" "->" Type ;
 TypeForAll.   Type ::= "forall" [StellaIdent] "." Type ;
