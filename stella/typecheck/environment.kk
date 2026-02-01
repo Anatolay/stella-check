@@ -13,6 +13,8 @@ type env-item
   Lock(modality : modality)
   Dict(dict : dict<stellaIdent, (modalities, type_)>)
 
+pub val environment/empty : environment = Environment([])
+
 pub type environment-lookup
   Found(modalities : modalities, type_ : type_)
   // Locked(locks : modality, mod : modality, type_ : type_)
@@ -37,7 +39,7 @@ pub fun environment/lookup-ignore-locks(environment : environment, ident : stell
   fun traverse-vars(vars : list<env-item>, modalities : modalities) : maybe<(modalities, type_)>
     match vars
       [] -> Nothing
-      Cons(Lock, tail) -> traverse-vars(tail, modalities)
+      Cons(Lock, tail) -> traverse-vars(tail, modalities) // The Lock is ignored
       Cons(Dict(d), tail) -> match d.lookup(ident)
         Nothing -> traverse-vars(tail, modalities)
         Just(res) -> Just(res)
@@ -52,3 +54,15 @@ pub fun environment/add(environment : environment, ident : stellaIdent, modaliti
       val dict = Dict(singleton(ident, (modalities, type_))) 
       Environment(Cons(dict, Cons(Lock(mod), tail)))
     Environment(Cons(Dict(d), tail)) -> Environment(Cons(Dict(d.insert(ident, (modalities, type_))), tail))
+
+pub fun environment/add-var(environment : environment, ident : stellaIdent, type_ : type_) : environment
+  environment.add(ident, identity, type_)
+
+pub fun environment/add-many-vars(environment : environment, vars : list<(stellaIdent, type_)>) : environment
+  vars.foldl(environment, fn (e, (ident, type_)) e.add-var(ident, type_))
+
+
+pub fun environment/has-ident(environment : environment, ident : stellaIdent) : bool
+  match environment.lookup-ignore-locks(ident)
+    Nothing -> False
+    Just -> True

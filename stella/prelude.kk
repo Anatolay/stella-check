@@ -6,7 +6,7 @@ import stella/syntax/ast
 /* EFFECTS */
 
 pub effect error<a>
-  final ctl error(a : a) : ()
+  final ctl error(a : a) : b
 
 pub effect log<a>
   fun log(a : a) : ()

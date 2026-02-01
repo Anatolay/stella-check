@@ -4,25 +4,26 @@ import std/core/undiv
 
 import stella/syntax/ast
 import stella/prelude
-// import stella/utils
+import stella/utils
 
 import stella/typecheck/environment
 import stella/typecheck/modal-effects
 import stella/typecheck/modalities
 
 
+/* UTILITY FUNCTIONS */
+
 pub fun collect-param-decls(param-decls : list<paramDecl>) : list<(stellaIdent, type_)>
   param-decls.map(fn (AParamDecl(name, typ)) -> (name, typ))
 
-// pub fun varify(l : list<(stellaIdent, type_)>) : list<env-item>
-//   l.map(fn ((n,t)) Var(n, t, Identity))
+fun environment/add-param-decls(environment : environment, param-decls : list<paramDecl>) : environment
+  environment.add-many-vars(param-decls.map(fn (AParamDecl(ident, type_)) (ident, type_)))
 
 pub fun list/all(bs : list<bool>) : bool
   bs.foldl(True,(&&))
 
+
 /* CONTEXT AND ESSENTIALS */
-
-
 
 alias typechecker = <prelude/error<stella-error>, log<string>>
 
@@ -113,45 +114,47 @@ pub type stella-error
   UnexpectedTupleLength
   TupleIndexOutOfBounds
 
-
+// pub fun list/has-key(lst : list<(a,b)>, key : a, @implicit/a/(==) : (a,a) -> bool) : bool
+//   match lst
+//     [] -> False
+//     Cons(Var(name), rest) -> if name == k then True else rest.has-key(k)
+//     Cons(_, rest) -> rest.has-key(k)
 /* TYPECHECKING */
 
 pub fun collect-decls(declarations : list<decl>) : typechecker environment
-  fun helper(decls, acc)
-    match decls
-      Nil -> acc.reverse
-      Cons(DeclFun(_, _, _, NoReturnType)) ->
+  fun handle-decl(environment : environment, decl : decl) : typechecker environment
+    match decl
+      DeclFun(_, _, _, NoReturnType) ->
         // TODO: Properly support omitted return types
-        error(NoReturn)
-        []
-      Cons(DeclFun(_, ident, params, SomeReturnType(return-type)), ds) ->
-        if acc.has-key(ident) then error(FunAlreadyDefined(ident.string))
+        prelude/error(NoReturn)
+      DeclFun(_, ident, params, SomeReturnType(return-type)) ->
+        if environment.has-ident(ident) then error(FunAlreadyDefined(ident.string))
         val input-types = params.map(fn (AParamDecl(_, t)) t)
         val fun-type = TypeFun(input-types, return-type)
-        helper(ds, Cons(Var(ident, fun-type, Identity), acc))
+        environment.add-var(ident, fun-type)
       // TODO: Handle other declarations
-      Cons(_, ds) -> helper(ds, acc)
-  helper(declarations, [])
+      _ -> environment
+  declarations.foldl(empty, handle-decl)
 
 pub fun unit(_ : a) : ()
   ()
 
 pub fun typecheck(AProgram(LanguageCore, _extensions, declarations) : program) : typechecker ()
   val environment = collect-decls(declarations)
-  if not(environment.has-key(StellaIdent("main"))) then error(NoMain)
+  if not(environment.has-ident(StellaIdent("main"))) then error(NoMain)
   declarations.foreach(fn (d) unit(typecheck-decl(environment, d)))
 
 pub fun typecheck-decl(environment : environment, declaration : decl) : typechecker maybe<(stellaIdent, type_)>
   pretend-no-div(fn () -> typecheck-decl-div(environment, declaration))
 
 pub fun typecheck-decl-div(environment : environment, declaration : decl) : <typechecker, div> maybe<(stellaIdent, type_)>
+  // TODO: support other declarations
   match declaration
     DeclFun(_, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
-      val params = collect-param-decls(param-decls)
-      val new-environment = params.varify.append(environment)
+      val new-environment = environment.add-param-decls(param-decls)
       val new-new-environment = typecheck-decls-div(new-environment, decls)
       typecheck-expr(new-new-environment, expression, return-type)
-      Just((fname, TypeFun(params.map(snd), return-type)))
+      Just((fname, TypeFun(param-decls.map(fn (AParamDecl(_,t)) t), return-type)))
     _ -> Nothing
 
 pub fun typecheck-decls-div(environment : environment, declarations : list<decl>) : <typechecker, div> environment
@@ -160,7 +163,7 @@ pub fun typecheck-decls-div(environment : environment, declarations : list<decl>
       val mb-ident = typecheck-decl-div(environment, d)
       val new-environment = match mb-ident
         Nothing -> environment
-        Just((n,t)) -> Cons(Var(n,t,Identity), environment)
+        Just((ident,type_)) -> environment.add-var(ident, type_)
       typecheck-decls-div(new-environment, ds)
     Nil -> environment
 
@@ -170,21 +173,21 @@ fun typecheck-expr(environment : environment, expression : expr, expected-type :
 fun typecheck-expr-div(environment : environment, expression : expr, expected-type : type_) : <typechecker, div> ()
   match expression
     // FUNCTIONS AND VARIABLES (lambda-calculi)
-    // TODO: vars
-    Var(ident) -> match environment.get-item(ident)
+    // TODO: do not ignore locks
+    Var(ident) -> match environment.lookup-ignore-locks(ident)
       Nothing ->
         log("Why?")
-        if environment.has-key(ident) then error(LockedVariable(ident.string)) else error(UndefinedVariable(ident.string))
-      Just(typ) ->
+        // TODO: rework errors for locked variables
+        if environment.has-ident(ident) then error(LockedVariable(ident.string)) else error(UndefinedVariable(ident.string))
+      Just((_, typ)) ->
         log("Why?")
         if typ == expected-type then () else error(UnexpectedTypeForExpressions)
     Abstraction(param-decls, body) -> match expected-type
       TypeFun(expected-arg-types, expected-return-type) ->
-        val params = collect-param-decls(param-decls)
-        if expected-arg-types.length != params.length then error(UnexpectedNumberOfParametersInLambda)
-        val are-equal = expected-arg-types.zipwith(params, fn (e-type, (_, a-type)) -> e-type == a-type)
+        if expected-arg-types.length != param-decls.length then error(UnexpectedNumberOfParametersInLambda)
+        val are-equal = expected-arg-types.zipwith(param-decls, fn (e-type, AParamDecl(_, a-type)) -> e-type == a-type)
         if not(all(are-equal)) then error(UnexpectedTypeForParameter)
-        typecheck-expr-div(params.varify.append(environment), body, expected-return-type)
+        typecheck-expr-div(environment.add-param-decls(param-decls), body, expected-return-type)
       _ -> error(UnexpectedLambda)
     Application(callee, args) ->
       val fun-type = infer-expr-div(environment, callee)
@@ -239,21 +242,26 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
             Just(elem-type) -> if elem-type == expected-type then () else error(UnexpectedTypeForExpressions)
         _ -> error(NotATuple)
     
-    // LET-BINDING
-    Let(patterns, expr) ->
-      // TODO: support more patterns than just variables
-      val extra-environment = infer-pattern-bindings-div(environment, patterns)
-      typecheck-expr-div(extra-environment.append(environment), expr, expected-type)
+    // // LET-BINDING
+    // Let(patterns, expr) ->
+    //   // TODO: support more patterns than just variables
+    //   val extra-environment = infer-pattern-bindings-div(environment, patterns)
+    //   typecheck-expr-div(extra-environment.append(environment), expr, expected-type)
 
-    // Modalities
-    Mod(ModLock, expr) -> typecheck-expr-div(Cons(Lock(ModLock), environment), expr, expected-type)
+    // // Modalities
+    // Mod(ModLock, expr) -> typecheck-expr-div(Cons(Lock(ModLock), environment), expr, expected-type)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
   ()
 
 
-pub fun infer-pattern-bindings-div(environment : environment, patterns : list<patternBinding>) : <typechecker, div> environment
+// TODO: pattern bindings appear in let expresisons. Probably there could be
+// issues related to modalities/effects/anything appearing in the process,
+// right now this might be incorrect.
+//
+// Moreover, at the moment it only supports variable patterns.
+pub fun infer-pattern-bindings-div(environment : environment, patterns : list<patternBinding>) : <typechecker, div> list<(stellaIdent, type_)>
   fun get-ident(APatternBinding(pat))
     match pat
       PatternVar(ident) -> ident
@@ -267,7 +275,7 @@ pub fun infer-pattern-bindings-div(environment : environment, patterns : list<pa
   // If there are several variables of the same name,
   // the latter should (probably) take the precedence,
   // hence we reverse the list
-  idents.zip(types).varify.reverse
+  idents.zip(types).reverse
 
 
 pub fun infer-expr(environment : environment, expression : expr) : typechecker type_
@@ -283,16 +291,20 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
     TypeBottom
 
   match expression
-    // FUNCTIONS AND VARIABLES (lambda-calculi)
-    Var(ident) -> match environment.get-item(ident)
+    // FUNCTIONS AND VARIABLES
+    // TODO: do not ignore locks
+    Var(ident) -> match environment.lookup-ignore-locks(ident)
       Nothing ->
         log("Why?")
-        if environment.has-key(ident) then err(LockedVariable(ident.string)) else err(UndefinedVariable(ident.string))
-      Just(typ) -> typ
+        if environment.has-ident(ident) then err(LockedVariable(ident.string)) else err(UndefinedVariable(ident.string))
+      Just((_, typ)) -> typ
     Abstraction(param-decls, body) ->
-      val params = collect-param-decls(param-decls)
-      val return-type = infer-expr-div(params.map(fn ((n, t)) Var(n,t,Identity)).append(environment), body)
-      TypeFun(params.map(snd), return-type)
+      val extended-environment = environment.add-param-decls(param-decls)
+      val return-type = infer-expr-div(extended-environment, body)
+      TypeFun(
+        param-decls.map(fn (AParamDecl(_, t)) t),
+        return-type
+      )
     Application(callee, args) ->
       val fun-type = infer-expr-div(environment, callee)
       match fun-type
@@ -339,14 +351,14 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
             Just(elem-type) -> elem-type
         _ -> err(NotATuple)
 
-    // LET-BINDING
-    Let(patterns, expr) ->
-      // TODO: support more patterns than just variables
-      val extra-environment = infer-pattern-bindings-div(environment, patterns)
-      infer-expr-div(extra-environment.append(environment), expr)
-    
-    // Modalities
-    Mod(ModLock, expr) -> infer-expr-div(Cons(Lock(ModLock), environment), expr)
+    // // LET-BINDING
+    // Let(patterns, expr) ->
+    //   // TODO: support more patterns than just variables
+    //   val extra-environment = infer-pattern-bindings-div(environment, patterns)
+    //   infer-expr-div(extra-environment.append(environment), expr)
+
+    // // Modalities
+    // Mod(ModLock, expr) -> infer-expr-div(Cons(Lock(ModLock), environment), expr)
 
     // OTHERWISE
     _ -> err(UnhandledExpression)

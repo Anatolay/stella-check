@@ -5,7 +5,7 @@ import std/os/readline
 import stella/syntax/ast
 import stella/syntax/parse
 import stella/core/typecheck
-import stella/typecheck
+import stella/typecheck/typecheck
 import stella/utils
 
 // God knows if this works
