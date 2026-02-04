@@ -114,7 +114,7 @@ void visitDecl(Decl p)
   case is_DeclFunMod:
     /* Code for DeclFunMod Goes Here */
     visitListAnnotation(p->u.declFunMod_.listannotation_);
-    visitModality(p->u.declFunMod_.modality_);
+    visitListModality(p->u.declFunMod_.listmodality_);
     visitStellaIdent(p->u.declFunMod_.stellaident_);
     visitListParamDecl(p->u.declFunMod_.listparamdecl_);
     visitReturnType(p->u.declFunMod_.returntype_);
@@ -933,6 +933,16 @@ void visitModality(Modality p)
   default:
     fprintf(stderr, "Error: bad kind field when printing Modality!\n");
     exit(1);
+  }
+}
+
+void visitListModality(ListModality listmodality)
+{
+  while(listmodality  != 0)
+  {
+    /* Code For ListModality Goes Here */
+    visitModality(listmodality->modality_);
+    listmodality = listmodality->listmodality_;
   }
 }
 

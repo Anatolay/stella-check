@@ -124,6 +124,9 @@ pub extern parseLabelledEffectList(str : string) : maybe<list<labelledEffect>>
 pub extern parseModality(str : string) : maybe<modality>
   c "kk_parse_Modality"
 
+pub extern parseModalityList(str : string) : maybe<list<modality>>
+  c "kk_parse_ListModality"
+
 pub extern parseExpr3(str : string) : maybe<expr>
   c "kk_parse_Expr3"
 

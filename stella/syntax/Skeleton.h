@@ -43,6 +43,7 @@ void visitListPatternBinding(ListPatternBinding p);
 void visitLabelledEffect(LabelledEffect p);
 void visitListLabelledEffect(ListLabelledEffect p);
 void visitModality(Modality p);
+void visitListModality(ListModality p);
 void visitHandler(Handler p);
 void visitListHandler(ListHandler p);
 void visitVariantFieldType(VariantFieldType p);

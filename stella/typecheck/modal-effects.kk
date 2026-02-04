@@ -2,8 +2,8 @@ module stella/typecheck/modal-effects
 
 import stella/prelude
 import stella/syntax/ast
-import prelude/dict
-import prelude/multiset
+import utils/dict
+import utils/multiset
 
 /*
 Since effect contexts are identified up to reordering of distinct labels,

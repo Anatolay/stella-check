@@ -134,6 +134,9 @@ typedef struct ListLabelledEffect_ *ListLabelledEffect;
 struct Modality_;
 typedef struct Modality_ *Modality;
 
+struct ListModality_;
+typedef struct ListModality_ *ListModality;
+
 struct Handler_;
 typedef struct Handler_ *Handler;
 
@@ -220,7 +223,7 @@ struct Decl_
   {
     struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFun_;
     struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; ListStellaIdent liststellaident_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunGeneric_;
-    struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListParamDecl listparamdecl_; Modality modality_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunMod_;
+    struct { Expr expr_; ListAnnotation listannotation_; ListDecl listdecl_; ListModality listmodality_; ListParamDecl listparamdecl_; ReturnType returntype_; StellaIdent stellaident_; ThrowType throwtype_; } declFunMod_;
     struct { StellaIdent stellaident_; Type type_; } declTypeAlias_;
     struct { Type type_; } declExceptionType_;
     struct { StellaIdent stellaident_; Type type_; } declExceptionVariant_;
@@ -229,7 +232,7 @@ struct Decl_
 
 Decl make_DeclFun(ListAnnotation p0, StellaIdent p1, ListParamDecl p2, ReturnType p3, ThrowType p4, ListDecl p5, Expr p6);
 Decl make_DeclFunGeneric(ListAnnotation p0, StellaIdent p1, ListStellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
-Decl make_DeclFunMod(ListAnnotation p0, Modality p1, StellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
+Decl make_DeclFunMod(ListAnnotation p0, ListModality p1, StellaIdent p2, ListParamDecl p3, ReturnType p4, ThrowType p5, ListDecl p6, Expr p7);
 Decl make_DeclTypeAlias(StellaIdent p0, Type p1);
 Decl make_DeclExceptionType(Type p0);
 Decl make_DeclExceptionVariant(StellaIdent p0, Type p1);
@@ -687,6 +690,14 @@ Modality make_ModalityLock(void);
 Modality make_ModalityAbs(ListLabelledEffect p0);
 Modality make_ModalityRel(ListStellaIdent p0, ListLabelledEffect p1);
 
+struct ListModality_
+{
+  Modality modality_;
+  ListModality listmodality_;
+};
+
+ListModality make_ListModality(Modality p1, ListModality p2);
+
 struct Handler_
 {
   enum { is_HandlerReturn, is_HandlerLabel } kind;
@@ -795,6 +806,7 @@ ListPatternBinding clone_ListPatternBinding(ListPatternBinding p);
 LabelledEffect clone_LabelledEffect(LabelledEffect p);
 ListLabelledEffect clone_ListLabelledEffect(ListLabelledEffect p);
 Modality clone_Modality(Modality p);
+ListModality clone_ListModality(ListModality p);
 Handler clone_Handler(Handler p);
 ListHandler clone_ListHandler(ListHandler p);
 VariantFieldType clone_VariantFieldType(VariantFieldType p);
@@ -849,6 +861,7 @@ void free_ListPatternBinding(ListPatternBinding p);
 void free_LabelledEffect(LabelledEffect p);
 void free_ListLabelledEffect(ListLabelledEffect p);
 void free_Modality(Modality p);
+void free_ListModality(ListModality p);
 void free_Handler(Handler p);
 void free_ListHandler(ListHandler p);
 void free_VariantFieldType(VariantFieldType p);

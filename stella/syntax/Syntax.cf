@@ -19,7 +19,7 @@ terminator Extension ";" ;
 
 DeclFun.    Decl ::= [Annotation] "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
 DeclFunGeneric. Decl ::= [Annotation] "generic" "fn" StellaIdent "[" [StellaIdent] "]" "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
-DeclFunMod. Decl ::= [Annotation] "mod" "[" Modality "]" "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
+DeclFunMod. Decl ::= [Annotation] "mod" "[" [Modality] "]" "fn" StellaIdent "(" [ParamDecl] ")" ReturnType ThrowType "{" [Decl] "return" Expr "}" ;
 DeclTypeAlias.  Decl ::= "type" StellaIdent "=" Type ;
 DeclExceptionType. Decl ::= "exception" "type" "=" Type ;
 DeclExceptionVariant. Decl ::= "exception" "variant" StellaIdent ":" Type ;
@@ -109,6 +109,7 @@ separator LabelledEffect "," ;
 ModalityLock. Modality ::= "lock" ;
 ModalityAbs.  Modality ::= "abs" "<" [LabelledEffect] ">" ;
 ModalityRel.  Modality ::= "rel" "<" [StellaIdent] "|" [LabelledEffect] ">" ;
+separator nonempty Modality "," ;
 
 TypeAsc.      Expr3 ::= Expr3 "as" Type2 ;
 TypeCast.     Expr3 ::= Expr3 "cast" "as" Type2 ;

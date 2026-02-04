@@ -2,7 +2,7 @@ module stella/typecheck/environment
 
 import stella/syntax/ast
 import stella/prelude
-import prelude/dict
+import utils/dict
 
 import stella/typecheck/modalities
 

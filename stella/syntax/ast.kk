@@ -23,7 +23,7 @@ pub type extension
 pub type decl
   DeclFun (annotationList : list<annotation>, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
   DeclFunGeneric (annotationList : list<annotation>, stellaIdent : stellaIdent, stellaIdentList : list<stellaIdent>, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
-  DeclFunMod (annotationList : list<annotation>, modality : modality, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
+  DeclFunMod (annotationList : list<annotation>, modalityList : list<modality>, stellaIdent : stellaIdent, paramDeclList : list<paramDecl>, returnType : returnType, throwType : throwType, declList : list<decl>, expr : expr)
   DeclTypeAlias (stellaIdent : stellaIdent, type_ : type_)
   DeclExceptionType (type_ : type_)
   DeclExceptionVariant (stellaIdent : stellaIdent, type_ : type_)

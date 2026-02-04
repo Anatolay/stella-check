@@ -84,6 +84,8 @@ ListLabelledEffect  pListLabelledEffect(FILE *inp);
 ListLabelledEffect psListLabelledEffect(const char *str);
 Modality  pModality(FILE *inp);
 Modality psModality(const char *str);
+ListModality  pListModality(FILE *inp);
+ListModality psListModality(const char *str);
 Expr  pExpr3(FILE *inp);
 Expr psExpr3(const char *str);
 Expr  pExpr4(FILE *inp);

@@ -4,12 +4,13 @@ import std/core/undiv
 
 import stella/syntax/ast
 import stella/prelude
-import stella/utils
 
 import stella/typecheck/environment
 import stella/typecheck/modal-effects
 import stella/typecheck/modalities
+import stella/typecheck/mode
 
+import utils/dict
 
 /* UTILITY FUNCTIONS */
 
@@ -119,6 +120,8 @@ pub type stella-error
 //     [] -> False
 //     Cons(Var(name), rest) -> if name == k then True else rest.has-key(k)
 //     Cons(_, rest) -> rest.has-key(k)
+
+
 /* TYPECHECKING */
 
 pub fun collect-decls(declarations : list<decl>) : typechecker environment
@@ -142,35 +145,53 @@ pub fun unit(_ : a) : ()
 pub fun typecheck(AProgram(LanguageCore, _extensions, declarations) : program) : typechecker ()
   val environment = collect-decls(declarations)
   if not(environment.has-ident(StellaIdent("main"))) then error(NoMain)
-  declarations.foreach(fn (d) unit(typecheck-decl(environment, d)))
+  declarations.foreach(fn (d) unit(typecheck-decl(environment, d, min)))
 
-pub fun typecheck-decl(environment : environment, declaration : decl) : typechecker maybe<(stellaIdent, type_)>
-  pretend-no-div(fn () -> typecheck-decl-div(environment, declaration))
+pub fun typecheck-decl(environment : environment, declaration : decl, mode : mode) : typechecker maybe<(stellaIdent, type_)>
+  pretend-no-div(fn () -> typecheck-decl-div(environment, declaration, mode))
 
-pub fun typecheck-decl-div(environment : environment, declaration : decl) : <typechecker, div> maybe<(stellaIdent, type_)>
+pub fun typecheck-decl-div(environment : environment, declaration : decl, mode : mode) : <typechecker, div> maybe<(stellaIdent, type_)>
   // TODO: support other declarations
   match declaration
-    DeclFun(_, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
+    DeclFunMod(_, modalities, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
+      // TODO: throw errors on repeated/conflicting modalities
+      fun apply-modality(effects : dict<stellaIdent, type_>, modality : modality) : dict<stellaIdent, type_>
+        match modality
+          ModalityAbs(efs) -> from-list(efs.map(fn (ALabelledEffect(ident, type_)) (ident, type_)))
+          ModalityRel(masks, additions) ->
+            val new-effects = masks.foldl(effects, fn(es, ident) es.remove(ident))
+            additions.foldl(new-effects, fn(es, (ALabelledEffect(i, t))) es.insert(i, t))
+          _ -> effects
+      val effects = mode.effects()
+      val new-effects = modalities.foldl(effects, apply-modality)
+      val new-mode = mode.update-effects(new-effects)
       val new-environment = environment.add-param-decls(param-decls)
-      val new-new-environment = typecheck-decls-div(new-environment, decls)
-      typecheck-expr(new-new-environment, expression, return-type)
+      val new-new-environment = typecheck-decls-div(new-environment, decls, new-mode)
+      typecheck-expr(new-new-environment, expression, return-type, new-mode)
       Just((fname, TypeFun(param-decls.map(fn (AParamDecl(_,t)) t), return-type)))
+    // Treat function declaration as a case of modal declaration without modalities
+    DeclFun(annotations, fname, param-decls, SomeReturnType(return-type), throw, decls, expression) ->
+      typecheck-decl-div(
+        environment,
+        DeclFunMod(annotations, [], fname, param-decls, SomeReturnType(return-type), throw, decls, expression),
+        mode
+      )
     _ -> Nothing
 
-pub fun typecheck-decls-div(environment : environment, declarations : list<decl>) : <typechecker, div> environment
+pub fun typecheck-decls-div(environment : environment, declarations : list<decl>, mode : mode) : <typechecker, div> environment
   match declarations
     Cons(d, ds) ->
-      val mb-ident = typecheck-decl-div(environment, d)
+      val mb-ident = typecheck-decl-div(environment, d, mode)
       val new-environment = match mb-ident
         Nothing -> environment
         Just((ident,type_)) -> environment.add-var(ident, type_)
-      typecheck-decls-div(new-environment, ds)
+      typecheck-decls-div(new-environment, ds, mode)
     Nil -> environment
 
-fun typecheck-expr(environment : environment, expression : expr, expected-type : type_) : typechecker ()
-  pretend-no-div(fn () -> typecheck-expr-div(environment,expression,expected-type))
+fun typecheck-expr(environment : environment, expression : expr, expected-type : type_, mode : mode) : typechecker ()
+  pretend-no-div(fn () -> typecheck-expr-div(environment, expression, expected-type, mode))
 
-fun typecheck-expr-div(environment : environment, expression : expr, expected-type : type_) : <typechecker, div> ()
+fun typecheck-expr-div(environment : environment, expression : expr, expected-type : type_, mode : mode) : <typechecker, div> ()
   match expression
     // FUNCTIONS AND VARIABLES (lambda-calculi)
     // TODO: do not ignore locks
@@ -187,10 +208,10 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
         if expected-arg-types.length != param-decls.length then error(UnexpectedNumberOfParametersInLambda)
         val are-equal = expected-arg-types.zipwith(param-decls, fn (e-type, AParamDecl(_, a-type)) -> e-type == a-type)
         if not(all(are-equal)) then error(UnexpectedTypeForParameter)
-        typecheck-expr-div(environment.add-param-decls(param-decls), body, expected-return-type)
+        typecheck-expr-div(environment.add-param-decls(param-decls), body, expected-return-type, mode)
       _ -> error(UnexpectedLambda)
     Application(callee, args) ->
-      val fun-type = infer-expr-div(environment, callee)
+      val fun-type = infer-expr-div(environment, callee, mode)
       match fun-type
         TypeFun(params, return-type) ->
           if params.length != args.length then error(IncorrectNumberOfArguments)
@@ -205,9 +226,9 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
       log("Why?")
       if expected-type == TypeBool then () else error(UnexpectedTypeForExpressions)
     If(b, t, f) ->
-      typecheck-expr-div(environment, b, TypeBool)
-      typecheck-expr-div(environment, t, expected-type)
-      typecheck-expr-div(environment, f, expected-type)
+      typecheck-expr-div(environment, b, TypeBool, mode)
+      typecheck-expr-div(environment, t, expected-type, mode)
+      typecheck-expr-div(environment, f, expected-type, mode)
 
     // NATURALS
     ConstInt ->
@@ -215,15 +236,15 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
       if expected-type == TypeNat then () else error(UnexpectedTypeForExpressions)
     Succ(expr) ->
       if expected-type != TypeNat then error(UnexpectedTypeForExpressions)
-      typecheck-expr-div(environment, expr, TypeNat)
+      typecheck-expr-div(environment, expr, TypeNat, mode)
     IsZero(expr) ->
       if expected-type != TypeBool then error(UnexpectedTypeForExpressions)
-      typecheck-expr-div(environment, expr, TypeNat)
+      typecheck-expr-div(environment, expr, TypeNat, mode)
     NatRec(n, z, s) ->
-      typecheck-expr-div(environment, n, TypeNat)
-      typecheck-expr-div(environment, z, expected-type)
+      typecheck-expr-div(environment, n, TypeNat, mode)
+      typecheck-expr-div(environment, z, expected-type, mode)
       val operator-type = TypeFun([TypeNat], TypeFun([expected-type], expected-type))
-      typecheck-expr-div(environment, s, operator-type)
+      typecheck-expr-div(environment, s, operator-type, mode)
 
     // UNIT
     ConstUnit -> if expected-type == TypeUnit then () else error(UnexpectedTypeForExpressions)
@@ -232,10 +253,10 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
     Tuple(elems) -> match expected-type
       TypeTuple(expected-types) ->
         if elems.length != expected-types.length then error(UnexpectedTupleLength)
-        elems.zip(expected-types).foreach(fn ((el, et)) -> typecheck-expr-div(environment, el, et))
+        elems.zip(expected-types).foreach(fn ((el, et)) -> typecheck-expr-div(environment, el, et, mode))
       _ -> error(UnexpectedTuple)
     DotTuple(tuple, ind) ->
-      match infer-expr-div(environment, tuple)
+      match infer-expr-div(environment, tuple, mode)
         TypeTuple(elem-types) ->
           match elem-types[ind]
             Nothing -> error(TupleIndexOutOfBounds)
@@ -261,7 +282,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
 // right now this might be incorrect.
 //
 // Moreover, at the moment it only supports variable patterns.
-pub fun infer-pattern-bindings-div(environment : environment, patterns : list<patternBinding>) : <typechecker, div> list<(stellaIdent, type_)>
+pub fun infer-pattern-bindings-div(environment : environment, patterns : list<patternBinding>, mode : mode) : <typechecker, div> list<(stellaIdent, type_)>
   fun get-ident(APatternBinding(pat))
     match pat
       PatternVar(ident) -> ident
@@ -271,24 +292,19 @@ pub fun infer-pattern-bindings-div(environment : environment, patterns : list<pa
         StellaIdent("")
   val idents = patterns.map(get-ident)
   val exprs = patterns.map(fn (APatternBinding(_, e)) e)
-  val types = exprs.map(fn (e) infer-expr-div(environment, e))
+  val types = exprs.map(fn (e) infer-expr-div(environment, e, mode))
   // If there are several variables of the same name,
   // the latter should (probably) take the precedence,
   // hence we reverse the list
   idents.zip(types).reverse
 
 
-pub fun infer-expr(environment : environment, expression : expr) : typechecker type_
-  pretend-no-div(fn () infer-expr-div(environment, expression))
+pub fun infer-expr(environment : environment, expression : expr, mode : mode) : typechecker type_
+  pretend-no-div(fn () infer-expr-div(environment, expression, mode))
 
-fun infer-expr-div(environment : environment, expression : expr) : <typechecker, div> type_
-  // Koka is not smart enough to understand that `final ctl` is not
-  // meant to ever be continued. Thus, the return type of `error`
-  // is not the expected `type_`
+fun infer-expr-div(environment : environment, expression : expr, mode : mode) : <typechecker, div> type_
   fun err(e : stella-error) : prelude/error<stella-error> type_
     error(e)
-    // TypeBottom never returns
-    TypeBottom
 
   match expression
     // FUNCTIONS AND VARIABLES
@@ -300,13 +316,13 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
       Just((_, typ)) -> typ
     Abstraction(param-decls, body) ->
       val extended-environment = environment.add-param-decls(param-decls)
-      val return-type = infer-expr-div(extended-environment, body)
+      val return-type = infer-expr-div(extended-environment, body, mode)
       TypeFun(
         param-decls.map(fn (AParamDecl(_, t)) t),
         return-type
       )
     Application(callee, args) ->
-      val fun-type = infer-expr-div(environment, callee)
+      val fun-type = infer-expr-div(environment, callee, mode)
       match fun-type
         TypeFun(params, return-type) ->
           if params.length != args.length then error(IncorrectNumberOfArguments)
@@ -317,23 +333,23 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
     ConstTrue -> TypeBool
     ConstFalse -> TypeBool
     If(b, t, f) ->
-      typecheck-expr-div(environment, b, TypeBool)
-      val expected-type = infer-expr-div(environment, t)
-      typecheck-expr-div(environment, f, expected-type)
+      typecheck-expr-div(environment, b, TypeBool, mode)
+      val expected-type = infer-expr-div(environment, t, mode)
+      typecheck-expr-div(environment, f, expected-type, mode)
       expected-type
 
     // NATURALS
     ConstInt -> TypeNat
     Succ(expr) ->
-      typecheck-expr-div(environment, expr, TypeNat)
+      typecheck-expr-div(environment, expr, TypeNat, mode)
       TypeNat
     IsZero(expr) ->
-      typecheck-expr-div(environment, expr, TypeNat)
+      typecheck-expr-div(environment, expr, TypeNat, mode)
       TypeBool
     NatRec(n, z, s) ->
-      typecheck-expr-div(environment, n, TypeNat)
-      val expected-type = infer-expr-div(environment, z)
-      typecheck-expr-div(environment, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)))
+      typecheck-expr-div(environment, n, TypeNat, mode)
+      val expected-type = infer-expr-div(environment, z, mode)
+      typecheck-expr-div(environment, s, TypeFun([TypeNat], TypeFun([expected-type], expected-type)), mode)
       expected-type
 
     // UNIT
@@ -341,10 +357,10 @@ fun infer-expr-div(environment : environment, expression : expr) : <typechecker,
 
     // TUPLES
     Tuple(elems) ->
-      val elem-types = elems.map(fn (e) infer-expr-div(environment, e))
+      val elem-types = elems.map(fn (e) infer-expr-div(environment, e, mode))
       TypeTuple(elem-types)
     DotTuple(tuple, ind) ->
-      match infer-expr-div(environment, tuple)
+      match infer-expr-div(environment, tuple, mode)
         TypeTuple(elem-types) ->
           match elem-types[ind]
             Nothing -> err(TupleIndexOutOfBounds)

@@ -142,7 +142,7 @@ Decl make_DeclFunGeneric(ListAnnotation p1, StellaIdent p2, ListStellaIdent p3, 
 
 /********************   DeclFunMod    ********************/
 
-Decl make_DeclFunMod(ListAnnotation p1, Modality p2, StellaIdent p3, ListParamDecl p4, ReturnType p5, ThrowType p6, ListDecl p7, Expr p8)
+Decl make_DeclFunMod(ListAnnotation p1, ListModality p2, StellaIdent p3, ListParamDecl p4, ReturnType p5, ThrowType p6, ListDecl p7, Expr p8)
 {
     Decl tmp = (Decl) malloc(sizeof(*tmp));
     if (!tmp)
@@ -152,7 +152,7 @@ Decl make_DeclFunMod(ListAnnotation p1, Modality p2, StellaIdent p3, ListParamDe
     }
     tmp->kind = is_DeclFunMod;
     tmp->u.declFunMod_.listannotation_ = p1;
-    tmp->u.declFunMod_.modality_ = p2;
+    tmp->u.declFunMod_.listmodality_ = p2;
     tmp->u.declFunMod_.stellaident_ = p3;
     tmp->u.declFunMod_.listparamdecl_ = p4;
     tmp->u.declFunMod_.returntype_ = p5;
@@ -2107,6 +2107,21 @@ Modality make_ModalityRel(ListStellaIdent p1, ListLabelledEffect p2)
     return tmp;
 }
 
+/********************   ListModality    ********************/
+
+ListModality make_ListModality(Modality p1, ListModality p2)
+{
+    ListModality tmp = (ListModality) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ListModality!\n");
+        exit(1);
+    }
+    tmp->modality_ = p1;
+    tmp->listmodality_ = p2;
+    return tmp;
+}
+
 /********************   HandlerReturn    ********************/
 
 Handler make_HandlerReturn(Pattern p1, Expr p2)
@@ -2348,7 +2363,7 @@ Decl clone_Decl(Decl p)
   case is_DeclFunMod:
     return make_DeclFunMod
       ( clone_ListAnnotation(p->u.declFunMod_.listannotation_)
-      , clone_Modality(p->u.declFunMod_.modality_)
+      , clone_ListModality(p->u.declFunMod_.listmodality_)
       , strdup(p->u.declFunMod_.stellaident_)
       , clone_ListParamDecl(p->u.declFunMod_.listparamdecl_)
       , clone_ReturnType(p->u.declFunMod_.returntype_)
@@ -3202,6 +3217,19 @@ Modality clone_Modality(Modality p)
   }
 }
 
+ListModality clone_ListModality(ListModality listmodality)
+{
+  if (listmodality)
+  {
+    /* clone of non-empty list */
+    return make_ListModality
+      ( clone_Modality(listmodality->modality_)
+      , clone_ListModality(listmodality->listmodality_)
+      );
+  }
+  else return NULL; /* clone of empty list */
+}
+
 Handler clone_Handler(Handler p)
 {
   switch(p->kind)
@@ -3426,7 +3454,7 @@ void free_Decl(Decl p)
 
   case is_DeclFunMod:
     free_ListAnnotation(p->u.declFunMod_.listannotation_);
-    free_Modality(p->u.declFunMod_.modality_);
+    free_ListModality(p->u.declFunMod_.listmodality_);
     free(p->u.declFunMod_.stellaident_);
     free_ListParamDecl(p->u.declFunMod_.listparamdecl_);
     free_ReturnType(p->u.declFunMod_.returntype_);
@@ -4244,6 +4272,16 @@ void free_Modality(Modality p)
     exit(1);
   }
   free(p);
+}
+
+void free_ListModality(ListModality listmodality)
+{
+  if (listmodality)
+  {
+    free_Modality(listmodality->modality_);
+    free_ListModality(listmodality->listmodality_);
+    free(listmodality);
+  }
 }
 
 void free_Handler(Handler p)

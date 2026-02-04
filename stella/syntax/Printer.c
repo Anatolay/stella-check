@@ -370,6 +370,13 @@ char *printModality(Modality p)
   ppModality(p, 0);
   return buf_;
 }
+char *printListModality(ListModality p)
+{
+  _n_ = 0;
+  bufReset();
+  ppListModality(p, 0);
+  return buf_;
+}
 char *printHandler(Handler p)
 {
   _n_ = 0;
@@ -671,6 +678,13 @@ char *showModality(Modality p)
   shModality(p);
   return buf_;
 }
+char *showListModality(ListModality p)
+{
+  _n_ = 0;
+  bufReset();
+  shListModality(p);
+  return buf_;
+}
 char *showHandler(Handler p)
 {
   _n_ = 0;
@@ -870,7 +884,7 @@ void ppDecl(Decl p, int _i_)
     ppListAnnotation(p->u.declFunMod_.listannotation_, 0);
     renderS("mod");
     renderC('[');
-    ppModality(p->u.declFunMod_.modality_, 0);
+    ppListModality(p->u.declFunMod_.listmodality_, 0);
     renderC(']');
     renderS("fn");
     ppIdent(p->u.declFunMod_.stellaident_, 0);
@@ -2224,6 +2238,23 @@ void ppModality(Modality p, int _i_)
   }
 }
 
+void ppListModality(ListModality listmodality, int i)
+{
+  if (listmodality == 0)
+  { /* nil */
+  }
+  else if (listmodality->listmodality_ == 0)
+  { /* last */
+    ppModality(listmodality->modality_, 0);
+  }
+  else
+  { /* cons */
+    ppModality(listmodality->modality_, 0);
+    renderC(',');
+    ppListModality(listmodality->listmodality_, 0);
+  }
+}
+
 void ppHandler(Handler p, int _i_)
 {
   switch(p->kind)
@@ -2602,7 +2633,7 @@ void shDecl(Decl p)
 
     shListAnnotation(p->u.declFunMod_.listannotation_);
   bufAppendC(' ');
-    shModality(p->u.declFunMod_.modality_);
+    shListModality(p->u.declFunMod_.listmodality_);
   bufAppendC(' ');
     shIdent(p->u.declFunMod_.stellaident_);
   bufAppendC(' ');
@@ -4471,6 +4502,26 @@ void shModality(Modality p)
     fprintf(stderr, "Error: bad kind field when showing Modality!\n");
     exit(1);
   }
+}
+
+void shListModality(ListModality listmodality)
+{
+  bufAppendC('[');
+  while(listmodality != 0)
+  {
+    if (listmodality->listmodality_)
+    {
+      shModality(listmodality->modality_);
+      bufAppendS(", ");
+      listmodality = listmodality->listmodality_;
+    }
+    else
+    {
+      shModality(listmodality->modality_);
+      listmodality = 0;
+    }
+  }
+  bufAppendC(']');
 }
 
 void shHandler(Handler p)

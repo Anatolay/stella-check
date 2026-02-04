@@ -1,4 +1,4 @@
-module prelude/dict
+module utils/dict
 
 // DICTIONARY
 // A custom and inefficient dictionary that uses a list of pairs internally.
@@ -20,6 +20,9 @@ pub fun dict/keys(dict : dict<a, b>) : list<a>
 pub fun dict/to-list(dict : dict<a, b>) : list<(a, b)>
   match dict
     Dict(l) -> l
+
+pub fun dict/from-list(lst : list<(a, b)>, @implicit/a/(==) : (a,a) -> bool) : dict<a, b>
+  lst.foldl(empty, fn (dict, (a, b)) dict.insert(a, b))
 
 // pub fun dict/from-list(lst : list<(a, b)>) : dict<a, b>
   // match
