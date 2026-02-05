@@ -26,9 +26,9 @@ koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax
 
 ### Test
 
-One day I will add some proper testing...
-
-For now refer to the `test.py` script.
+```sh
+koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e test/test.kk
+```
 
 ### Update grammar
 
