@@ -215,6 +215,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
       match fun-type
         TypeFun(params, return-type) ->
           if params.length != args.length then error(IncorrectNumberOfArguments)
+          args.zip(params).foreach(fn ((arg, param)) typecheck-expr-div(environment, arg, param, mode))
           if return-type == expected-type then () else error(UnexpectedTypeForExpressions)
         _ -> error(NotAFunction)
 
@@ -258,7 +259,8 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
     DotTuple(tuple, ind) ->
       match infer-expr-div(environment, tuple, mode)
         TypeTuple(elem-types) ->
-          match elem-types[ind]
+          // Tuple indices start with 1 in Stella
+          match elem-types[ind - 1]
             Nothing -> error(TupleIndexOutOfBounds)
             Just(elem-type) -> if elem-type == expected-type then () else error(UnexpectedTypeForExpressions)
         _ -> error(NotATuple)
@@ -326,6 +328,7 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
       match fun-type
         TypeFun(params, return-type) ->
           if params.length != args.length then error(IncorrectNumberOfArguments)
+          args.zip(params).foreach(fn ((arg, param)) typecheck-expr-div(environment, arg, param, mode))
           return-type
         _ -> err(NotAFunction)
 
@@ -362,7 +365,8 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
     DotTuple(tuple, ind) ->
       match infer-expr-div(environment, tuple, mode)
         TypeTuple(elem-types) ->
-          match elem-types[ind]
+          // Tuple indices start with 1 in Stella
+          match elem-types[ind - 1]
             Nothing -> err(TupleIndexOutOfBounds)
             Just(elem-type) -> elem-type
         _ -> err(NotATuple)
