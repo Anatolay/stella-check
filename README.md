@@ -40,3 +40,14 @@ cd stella/syntax/
 make
 rm *.bak
 ```
+
+## Troubleshooting
+
+- Error when updating grammar:
+  ```
+  bnfc: stella/syntax/Syntax.cf: hGetContents: invalid argument (cannot decode byte sequence starting from ...
+  ```
+  Solution:
+  ```sh
+  export LANG=C.UTF-8
+  ```
