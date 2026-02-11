@@ -98,53 +98,54 @@ extern int syntax_debug;
     _KW_catch = 299,               /* _KW_catch  */
     _KW_cons = 300,                /* _KW_cons  */
     _KW_core = 301,                /* _KW_core  */
-    _KW_else = 302,                /* _KW_else  */
-    _KW_exception = 303,           /* _KW_exception  */
-    _KW_extend = 304,              /* _KW_extend  */
-    _KW_false = 305,               /* _KW_false  */
-    _KW_fix = 306,                 /* _KW_fix  */
-    _KW_fn = 307,                  /* _KW_fn  */
-    _KW_fold = 308,                /* _KW_fold  */
-    _KW_forall = 309,              /* _KW_forall  */
-    _KW_generic = 310,             /* _KW_generic  */
-    _KW_handle = 311,              /* _KW_handle  */
-    _KW_if = 312,                  /* _KW_if  */
-    _KW_in = 313,                  /* _KW_in  */
-    _KW_inl = 314,                 /* _KW_inl  */
-    _KW_inline = 315,              /* _KW_inline  */
-    _KW_inr = 316,                 /* _KW_inr  */
-    _KW_language = 317,            /* _KW_language  */
-    _KW_let = 318,                 /* _KW_let  */
-    _KW_letrec = 319,              /* _KW_letrec  */
-    _KW_lock = 320,                /* _KW_lock  */
-    _KW_match = 321,               /* _KW_match  */
-    _KW_mod = 322,                 /* _KW_mod  */
-    _KW_new = 323,                 /* _KW_new  */
-    _KW_not = 324,                 /* _KW_not  */
-    _KW_or = 325,                  /* _KW_or  */
-    _SYMB_30 = 326,                /* _SYMB_30  */
-    _KW_rel = 327,                 /* _KW_rel  */
-    _KW_return = 328,              /* _KW_return  */
-    _KW_succ = 329,                /* _KW_succ  */
-    _KW_then = 330,                /* _KW_then  */
-    _KW_throw = 331,               /* _KW_throw  */
-    _KW_throws = 332,              /* _KW_throws  */
-    _KW_true = 333,                /* _KW_true  */
-    _KW_try = 334,                 /* _KW_try  */
-    _KW_type = 335,                /* _KW_type  */
-    _KW_unfold = 336,              /* _KW_unfold  */
-    _KW_unit = 337,                /* _KW_unit  */
-    _KW_variant = 338,             /* _KW_variant  */
-    _KW_with = 339,                /* _KW_with  */
-    _LBRACE = 340,                 /* _LBRACE  */
-    _BAR = 341,                    /* _BAR  */
-    _SYMB_14 = 342,                /* _SYMB_14  */
-    _RBRACE = 343,                 /* _RBRACE  */
-    _KW_85 = 344,                  /* _KW_85  */
-    T_ExtensionName = 345,         /* T_ExtensionName  */
-    T_MemoryAddress = 346,         /* T_MemoryAddress  */
-    T_StellaIdent = 347,           /* T_StellaIdent  */
-    _INTEGER_ = 348                /* _INTEGER_  */
+    _KW_do = 302,                  /* _KW_do  */
+    _KW_else = 303,                /* _KW_else  */
+    _KW_exception = 304,           /* _KW_exception  */
+    _KW_extend = 305,              /* _KW_extend  */
+    _KW_false = 306,               /* _KW_false  */
+    _KW_fix = 307,                 /* _KW_fix  */
+    _KW_fn = 308,                  /* _KW_fn  */
+    _KW_fold = 309,                /* _KW_fold  */
+    _KW_forall = 310,              /* _KW_forall  */
+    _KW_generic = 311,             /* _KW_generic  */
+    _KW_handle = 312,              /* _KW_handle  */
+    _KW_if = 313,                  /* _KW_if  */
+    _KW_in = 314,                  /* _KW_in  */
+    _KW_inl = 315,                 /* _KW_inl  */
+    _KW_inline = 316,              /* _KW_inline  */
+    _KW_inr = 317,                 /* _KW_inr  */
+    _KW_language = 318,            /* _KW_language  */
+    _KW_let = 319,                 /* _KW_let  */
+    _KW_letrec = 320,              /* _KW_letrec  */
+    _KW_lock = 321,                /* _KW_lock  */
+    _KW_match = 322,               /* _KW_match  */
+    _KW_mod = 323,                 /* _KW_mod  */
+    _KW_new = 324,                 /* _KW_new  */
+    _KW_not = 325,                 /* _KW_not  */
+    _KW_or = 326,                  /* _KW_or  */
+    _SYMB_30 = 327,                /* _SYMB_30  */
+    _KW_rel = 328,                 /* _KW_rel  */
+    _KW_return = 329,              /* _KW_return  */
+    _KW_succ = 330,                /* _KW_succ  */
+    _KW_then = 331,                /* _KW_then  */
+    _KW_throw = 332,               /* _KW_throw  */
+    _KW_throws = 333,              /* _KW_throws  */
+    _KW_true = 334,                /* _KW_true  */
+    _KW_try = 335,                 /* _KW_try  */
+    _KW_type = 336,                /* _KW_type  */
+    _KW_unfold = 337,              /* _KW_unfold  */
+    _KW_unit = 338,                /* _KW_unit  */
+    _KW_variant = 339,             /* _KW_variant  */
+    _KW_with = 340,                /* _KW_with  */
+    _LBRACE = 341,                 /* _LBRACE  */
+    _BAR = 342,                    /* _BAR  */
+    _SYMB_14 = 343,                /* _SYMB_14  */
+    _RBRACE = 344,                 /* _RBRACE  */
+    _KW_86 = 345,                  /* _KW_86  */
+    T_ExtensionName = 346,         /* T_ExtensionName  */
+    T_MemoryAddress = 347,         /* T_MemoryAddress  */
+    T_StellaIdent = 348,           /* T_StellaIdent  */
+    _INTEGER_ = 349                /* _INTEGER_  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -204,7 +205,7 @@ union YYSTYPE
   ListRecordFieldType listrecordfieldtype_;
   Typing typing_;
 
-#line 208 "Bison.h"
+#line 209 "Bison.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

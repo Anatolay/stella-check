@@ -43,10 +43,10 @@ pub fun type_/(==)(a : type_, b : type_) : bool
 pub fun stellaIdent/show(i : stellaIdent) : string
   i.string
 
-pub fun type_/show(t : type_) : _ string
+pub fun type_/show(t : type_) : string
   match t
     TypeAuto -> "auto"
-    TypeFun(args, return-type) -> "(" ++ args.show ++ ") -> " ++ return-type.show
+    TypeFun(args, return-type) -> "(" ++ args.map(fn (a) pretend-decreasing(a).show).join(", ") ++ ") -> " ++ return-type.show
     // TypeForAll (stellaIdentList : list<stellaIdent>, type_ : type_)
     // TypeRec (stellaIdent : stellaIdent, type_ : type_)
     // TypeSum (type__1 : type_, type__2 : type_)
@@ -66,3 +66,13 @@ pub fun type_/show(t : type_) : _ string
 pub fun list/show(?a/show : (a) -> string, l : list<a>) : string
   val ss = l.map(a/show)
   "[" ++ ss.join(", ") ++ "]"
+
+
+pub fun list/span-map( xs : list<a>, predicate : a -> e either<b, c> ) : e (list<b>,list<c>)
+  fun go(ys, acc-b, acc-c)
+    match ys
+      Cons(y,yy) -> match predicate(y)
+        Left(b) -> yy.go(Cons(b, acc-b), acc-c)
+        Right(c) -> yy.go(acc-b, Cons(c, acc-c))
+      _ -> (acc-b.reverse(), acc-c.reverse())
+  go(xs, [], [])

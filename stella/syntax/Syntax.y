@@ -402,6 +402,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_catch        /* catch */
 %token          _KW_cons         /* cons */
 %token          _KW_core         /* core */
+%token          _KW_do           /* do */
 %token          _KW_else         /* else */
 %token          _KW_exception    /* exception */
 %token          _KW_extend       /* extend */
@@ -444,7 +445,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _BAR             /* | */
 %token          _SYMB_14         /* |> */
 %token          _RBRACE          /* } */
-%token          _KW_85           /* µ */
+%token          _KW_86           /* µ */
 %token<_string> T_ExtensionName  /* ExtensionName */
 %token<_string> T_MemoryAddress  /* MemoryAddress */
 %token<_string> T_StellaIdent    /* StellaIdent */
@@ -699,7 +700,8 @@ Expr6 : Expr6 _LPAREN ListExpr _RPAREN { $$ = make_Application($1, $3); result->
   | _KW_not _LPAREN Expr _RPAREN { $$ = make_LogicNot($3); result->expr_ = $$; }
   | _SYMB_31 _LPAREN Expr _RPAREN { $$ = make_Pred($3); result->expr_ = $$; }
   | _SYMB_32 _LPAREN Expr _RPAREN { $$ = make_IsZero($3); result->expr_ = $$; }
-  | _KW_handle _LBRACE Expr _RBRACE _KW_with _LBRACE ListHandler _RBRACE { $$ = make_Handle($3, $7); result->expr_ = $$; }
+  | _KW_do T_StellaIdent _LPAREN Expr _RPAREN { $$ = make_ModDo($2, $4); result->expr_ = $$; }
+  | _KW_handle _LBRACE Expr _RBRACE _KW_with _LBRACE ListHandler _RBRACE { $$ = make_ModHandle($3, $7); result->expr_ = $$; }
   | _KW_fix _LPAREN Expr _RPAREN { $$ = make_Fix($3); result->expr_ = $$; }
   | _SYMB_33 _LPAREN Expr _COMMA Expr _COMMA Expr _RPAREN { $$ = make_NatRec($3, $5, $7); result->expr_ = $$; }
   | _KW_fold _LBRACK Type _RBRACK Expr7 { $$ = make_Fold($3, $5); result->expr_ = $$; }
@@ -715,7 +717,7 @@ Expr7 : _KW_true { $$ = make_ConstTrue(); result->expr_ = $$; }
   | _LPAREN Expr _RPAREN { $$ = $2; result->expr_ = $$; }
 ;
 Handler : _KW_return Pattern _RARROW Expr { $$ = make_HandlerReturn($2, $4); result->handler_ = $$; }
-  | _LPAREN LabelledEffect _COMMA Expr _COMMA T_StellaIdent _RPAREN _RARROW Expr { $$ = make_HandlerLabel($2, $4, $6, $9); result->handler_ = $$; }
+  | _LPAREN LabelledEffect _COMMA Pattern _COMMA T_StellaIdent _RPAREN _RARROW Expr { $$ = make_HandlerLabel($2, $4, $6, $9); result->handler_ = $$; }
 ;
 ListHandler : Handler _SEMI { $$ = make_ListHandler($1, 0); result->listhandler_ = $$; }
   | Handler _SEMI ListHandler { $$ = make_ListHandler($1, $3); result->listhandler_ = $$; }
@@ -724,7 +726,7 @@ Type : _LBRACK Modality _RBRACK Type { $$ = make_TypeMod($2, $4); result->type_ 
   | _KW_auto { $$ = make_TypeAuto(); result->type_ = $$; }
   | _KW_fn _LPAREN ListType _RPAREN _RARROW Type { $$ = make_TypeFun($3, $6); result->type_ = $$; }
   | _KW_forall ListStellaIdent _DOT Type { $$ = make_TypeForAll($2, $4); result->type_ = $$; }
-  | _KW_85 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
+  | _KW_86 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
   | Type1 { $$ = $1; result->type_ = $$; }
 ;
 Type1 : Type2 _PLUS Type2 { $$ = make_TypeSum($1, $3); result->type_ = $$; }

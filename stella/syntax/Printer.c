@@ -2008,15 +2008,25 @@ void ppExpr(Expr p, int _i_)
     if (_i_ > 6) renderC(_R_PAREN);
     break;
 
-  case is_Handle:
+  case is_ModDo:
+    if (_i_ > 6) renderC(_L_PAREN);
+    renderS("do");
+    ppIdent(p->u.modDo_.stellaident_, 0);
+    renderC('(');
+    ppExpr(p->u.modDo_.expr_, 0);
+    renderC(')');
+    if (_i_ > 6) renderC(_R_PAREN);
+    break;
+
+  case is_ModHandle:
     if (_i_ > 6) renderC(_L_PAREN);
     renderS("handle");
     renderC('{');
-    ppExpr(p->u.handle_.expr_, 0);
+    ppExpr(p->u.modHandle_.expr_, 0);
     renderC('}');
     renderS("with");
     renderC('{');
-    ppListHandler(p->u.handle_.listhandler_, 0);
+    ppListHandler(p->u.modHandle_.listhandler_, 0);
     renderC('}');
     if (_i_ > 6) renderC(_R_PAREN);
     break;
@@ -2273,12 +2283,12 @@ void ppHandler(Handler p, int _i_)
     renderC('(');
     ppLabelledEffect(p->u.handlerLabel_.labelledeffect_, 0);
     renderC(',');
-    ppExpr(p->u.handlerLabel_.expr_1, 0);
+    ppPattern(p->u.handlerLabel_.pattern_, 0);
     renderC(',');
     ppIdent(p->u.handlerLabel_.stellaident_, 0);
     renderC(')');
     renderS("->");
-    ppExpr(p->u.handlerLabel_.expr_2, 0);
+    ppExpr(p->u.handlerLabel_.expr_, 0);
     if (_i_ > 0) renderC(_R_PAREN);
     break;
 
@@ -4212,16 +4222,30 @@ void shExpr(Expr p)
     bufAppendC(')');
 
     break;
-  case is_Handle:
+  case is_ModDo:
     bufAppendC('(');
 
-    bufAppendS("Handle");
+    bufAppendS("ModDo");
 
     bufAppendC(' ');
 
-    shExpr(p->u.handle_.expr_);
+    shIdent(p->u.modDo_.stellaident_);
   bufAppendC(' ');
-    shListHandler(p->u.handle_.listhandler_);
+    shExpr(p->u.modDo_.expr_);
+
+    bufAppendC(')');
+
+    break;
+  case is_ModHandle:
+    bufAppendC('(');
+
+    bufAppendS("ModHandle");
+
+    bufAppendC(' ');
+
+    shExpr(p->u.modHandle_.expr_);
+  bufAppendC(' ');
+    shListHandler(p->u.modHandle_.listhandler_);
 
     bufAppendC(')');
 
@@ -4551,11 +4575,11 @@ void shHandler(Handler p)
 
     shLabelledEffect(p->u.handlerLabel_.labelledeffect_);
   bufAppendC(' ');
-    shExpr(p->u.handlerLabel_.expr_1);
+    shPattern(p->u.handlerLabel_.pattern_);
   bufAppendC(' ');
     shIdent(p->u.handlerLabel_.stellaident_);
   bufAppendC(' ');
-    shExpr(p->u.handlerLabel_.expr_2);
+    shExpr(p->u.handlerLabel_.expr_);
 
     bufAppendC(')');
 

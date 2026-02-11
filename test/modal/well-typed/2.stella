@@ -1,0 +1,9 @@
+language core;
+
+fn zero(n : Nat) -> Nat {
+  return mod [lock] { 0 }
+}
+
+fn main(x : Nat) -> Nat {
+  return zero(x)
+}

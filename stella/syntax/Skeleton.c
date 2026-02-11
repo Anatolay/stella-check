@@ -798,10 +798,15 @@ void visitExpr(Expr p)
     /* Code for IsZero Goes Here */
     visitExpr(p->u.isZero_.expr_);
     break;
-  case is_Handle:
-    /* Code for Handle Goes Here */
-    visitExpr(p->u.handle_.expr_);
-    visitListHandler(p->u.handle_.listhandler_);
+  case is_ModDo:
+    /* Code for ModDo Goes Here */
+    visitStellaIdent(p->u.modDo_.stellaident_);
+    visitExpr(p->u.modDo_.expr_);
+    break;
+  case is_ModHandle:
+    /* Code for ModHandle Goes Here */
+    visitExpr(p->u.modHandle_.expr_);
+    visitListHandler(p->u.modHandle_.listhandler_);
     break;
   case is_Fix:
     /* Code for Fix Goes Here */
@@ -958,9 +963,9 @@ void visitHandler(Handler p)
   case is_HandlerLabel:
     /* Code for HandlerLabel Goes Here */
     visitLabelledEffect(p->u.handlerLabel_.labelledeffect_);
-    visitExpr(p->u.handlerLabel_.expr_1);
+    visitPattern(p->u.handlerLabel_.pattern_);
     visitStellaIdent(p->u.handlerLabel_.stellaident_);
-    visitExpr(p->u.handlerLabel_.expr_2);
+    visitExpr(p->u.handlerLabel_.expr_);
     break;
 
   default:

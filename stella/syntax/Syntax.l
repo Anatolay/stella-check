@@ -93,6 +93,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"catch"      	 return _KW_catch;
 <INITIAL>"cons"      	 return _KW_cons;
 <INITIAL>"core"      	 return _KW_core;
+<INITIAL>"do"      	 return _KW_do;
 <INITIAL>"else"      	 return _KW_else;
 <INITIAL>"exception"      	 return _KW_exception;
 <INITIAL>"extend"      	 return _KW_extend;
@@ -130,7 +131,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"unit"      	 return _KW_unit;
 <INITIAL>"variant"      	 return _KW_variant;
 <INITIAL>"with"      	 return _KW_with;
-<INITIAL>"µ"      	 return _KW_85;
+<INITIAL>"µ"      	 return _KW_86;
 
 <INITIAL>"//"[^\n]* /* skip */; /* BNFC: comment "//" */
 <INITIAL>"/*" BEGIN COMMENT;

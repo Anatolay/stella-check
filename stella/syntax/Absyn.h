@@ -509,7 +509,7 @@ ListBinding make_ListBinding(Binding p1, ListBinding p2);
 
 struct Expr_
 {
-  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_ModBox, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_Handle, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
+  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_ModBox, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_ModDo, is_ModHandle, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
   union
   {
     struct { Expr expr_1, expr_2; } sequence_;
@@ -559,7 +559,8 @@ struct Expr_
     struct { Expr expr_; } logicNot_;
     struct { Expr expr_; } pred_;
     struct { Expr expr_; } isZero_;
-    struct { Expr expr_; ListHandler listhandler_; } handle_;
+    struct { Expr expr_; StellaIdent stellaident_; } modDo_;
+    struct { Expr expr_; ListHandler listhandler_; } modHandle_;
     struct { Expr expr_; } fix_;
     struct { Expr expr_1, expr_2, expr_3; } natRec_;
     struct { Expr expr_; Type type_; } fold_;
@@ -618,7 +619,8 @@ Expr make_Succ(Expr p0);
 Expr make_LogicNot(Expr p0);
 Expr make_Pred(Expr p0);
 Expr make_IsZero(Expr p0);
-Expr make_Handle(Expr p0, ListHandler p1);
+Expr make_ModDo(StellaIdent p0, Expr p1);
+Expr make_ModHandle(Expr p0, ListHandler p1);
 Expr make_Fix(Expr p0);
 Expr make_NatRec(Expr p0, Expr p1, Expr p2);
 Expr make_Fold(Type p0, Expr p1);
@@ -704,12 +706,12 @@ struct Handler_
   union
   {
     struct { Expr expr_; Pattern pattern_; } handlerReturn_;
-    struct { Expr expr_1, expr_2; LabelledEffect labelledeffect_; StellaIdent stellaident_; } handlerLabel_;
+    struct { Expr expr_; LabelledEffect labelledeffect_; Pattern pattern_; StellaIdent stellaident_; } handlerLabel_;
   } u;
 };
 
 Handler make_HandlerReturn(Pattern p0, Expr p1);
-Handler make_HandlerLabel(LabelledEffect p0, Expr p1, StellaIdent p2, Expr p3);
+Handler make_HandlerLabel(LabelledEffect p0, Pattern p1, StellaIdent p2, Expr p3);
 
 struct ListHandler_
 {

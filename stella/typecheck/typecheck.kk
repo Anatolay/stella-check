@@ -114,6 +114,12 @@ pub type stella-error
   NotATuple
   UnexpectedTupleLength
   TupleIndexOutOfBounds
+  // Modal effects
+  UnknownEffect(ident : stellaIdent)
+  NonFunctionEffect(ident : stellaIdent, type_ : type_)
+  NoReturnInHandler
+  SeveralReturnsInHandler
+  MultipleHandlersForOneLabel
 
 // pub fun list/has-key(lst : list<(a,b)>, key : a, @implicit/a/(==) : (a,a) -> bool) : bool
 //   match lst
@@ -271,13 +277,43 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
     //   val extra-environment = infer-pattern-bindings-div(environment, patterns)
     //   typecheck-expr-div(extra-environment.append(environment), expr, expected-type)
 
-    // // Modalities
-    // Mod(ModLock, expr) -> typecheck-expr-div(Cons(Lock(ModLock), environment), expr, expected-type)
+    // MODAL
+    ModDo(eff-ident, expr) ->
+      match mode.effects.lookup(eff-ident)
+        Nothing -> error(UnknownEffect(eff-ident))
+        Just(TypeFun([arg-type], return-type)) ->
+          typecheck-expr-div(environment, expr, arg-type, mode)
+          if return-type == expected-type
+          then ()
+          else error(UnexpectedTypeForExpressions)
+        Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
+    ModHandle(expr, handlers) -> ()
+    // ModBox(ModalityLock, expr) -> typecheck-expr-div(Cons(Lock(ModalityLock), environment), expr, expected-type)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
   ()
 
+fun typecheck-handlers-div(environment : environment, handlers : list<handler_>, type_ : type_, mode : mode) : <typechecker> ()
+  fun split-handlers(h)
+    match h
+      HandlerReturn(p, e) -> Left((p, e))
+      HandlerLabel(le, p, i, e) -> Right((le, p, i, e))
+  val (returns, label-handlers) = handlers.span-map(split-handlers)
+  fun collect-labels(labels, acc) : <typechecker> dict<stellaIdent, list<type_>>
+    match labels
+      [] -> acc
+      Cons(ALabelledEffect(ident, effect-type), labels-tail) -> match acc.dict/lookup(ident)
+        Just -> error(MultipleHandlersForOneLabel)
+        Nothing -> match effect-type
+          TypeFun -> collect-labels(labels-tail, acc.insert(ident, [effect-type]))
+          _ -> error(NonFunctionEffect(ident, effect-type))
+  val extension : effect-extension = collect-labels(label-handlers.map(fst), empty)
+  match returns
+    [] -> error(NoReturnInHandler)
+    [(pattern, expr)] -> ()
+    _ -> error(SeveralReturnsInHandler)
+  
 
 // TODO: pattern bindings appear in let expresisons. Probably there could be
 // issues related to modalities/effects/anything appearing in the process,
@@ -405,6 +441,11 @@ pub fun stella-error-to-string(err : stella-error) : string
     NotATuple -> "FAILURE!!! ERROR_NOT_A_TUPLE"
     UnexpectedTupleLength -> "FAILURE!!! ERROR_UNEXPECTED_TUPLE_LENGTH"
     TupleIndexOutOfBounds -> "FAILURE!!! ERROR_TUPLE_INDEX_OUT_OF_BOUNDS"
+    UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! UNKNOWN_EFFECT"
+    NonFunctionEffect(ident, type_) -> "FAILURE!!! Effect labels should have function types, but " ++ ident.string ++ " has type " ++ type_.show ++ ". NON_FUNCTION_EFFECT"
+    NoReturnInHandler -> "FAILURE!!! Handle expressions has to have a `return` case! NO_RETURN_IN_HANDLER"
+    SeveralReturnsInHandler -> "FAILURE!!! Handler expression must have exactly one `return` case! SEBERAL_RETURNS_IN_HANDLER"
+    MultipleHandlersForOneLabel -> "Failure!!! MULTIPLE_HANDLERS_FOR_ONE_LABEL"
 
 pub fun typecheck-modal(prog : program) : <console, div> ()
   with final ctl error(e : stella-error)

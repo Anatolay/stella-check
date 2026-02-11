@@ -1818,19 +1818,35 @@ Expr make_IsZero(Expr p1)
     return tmp;
 }
 
-/********************   Handle    ********************/
+/********************   ModDo    ********************/
 
-Expr make_Handle(Expr p1, ListHandler p2)
+Expr make_ModDo(StellaIdent p1, Expr p2)
 {
     Expr tmp = (Expr) malloc(sizeof(*tmp));
     if (!tmp)
     {
-        fprintf(stderr, "Error: out of memory when allocating Handle!\n");
+        fprintf(stderr, "Error: out of memory when allocating ModDo!\n");
         exit(1);
     }
-    tmp->kind = is_Handle;
-    tmp->u.handle_.expr_ = p1;
-    tmp->u.handle_.listhandler_ = p2;
+    tmp->kind = is_ModDo;
+    tmp->u.modDo_.stellaident_ = p1;
+    tmp->u.modDo_.expr_ = p2;
+    return tmp;
+}
+
+/********************   ModHandle    ********************/
+
+Expr make_ModHandle(Expr p1, ListHandler p2)
+{
+    Expr tmp = (Expr) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ModHandle!\n");
+        exit(1);
+    }
+    tmp->kind = is_ModHandle;
+    tmp->u.modHandle_.expr_ = p1;
+    tmp->u.modHandle_.listhandler_ = p2;
     return tmp;
 }
 
@@ -2140,7 +2156,7 @@ Handler make_HandlerReturn(Pattern p1, Expr p2)
 
 /********************   HandlerLabel    ********************/
 
-Handler make_HandlerLabel(LabelledEffect p1, Expr p2, StellaIdent p3, Expr p4)
+Handler make_HandlerLabel(LabelledEffect p1, Pattern p2, StellaIdent p3, Expr p4)
 {
     Handler tmp = (Handler) malloc(sizeof(*tmp));
     if (!tmp)
@@ -2150,9 +2166,9 @@ Handler make_HandlerLabel(LabelledEffect p1, Expr p2, StellaIdent p3, Expr p4)
     }
     tmp->kind = is_HandlerLabel;
     tmp->u.handlerLabel_.labelledeffect_ = p1;
-    tmp->u.handlerLabel_.expr_1 = p2;
+    tmp->u.handlerLabel_.pattern_ = p2;
     tmp->u.handlerLabel_.stellaident_ = p3;
-    tmp->u.handlerLabel_.expr_2 = p4;
+    tmp->u.handlerLabel_.expr_ = p4;
     return tmp;
 }
 
@@ -3072,10 +3088,16 @@ Expr clone_Expr(Expr p)
   case is_IsZero:
     return make_IsZero (clone_Expr(p->u.isZero_.expr_));
 
-  case is_Handle:
-    return make_Handle
-      ( clone_Expr(p->u.handle_.expr_)
-      , clone_ListHandler(p->u.handle_.listhandler_)
+  case is_ModDo:
+    return make_ModDo
+      ( strdup(p->u.modDo_.stellaident_)
+      , clone_Expr(p->u.modDo_.expr_)
+      );
+
+  case is_ModHandle:
+    return make_ModHandle
+      ( clone_Expr(p->u.modHandle_.expr_)
+      , clone_ListHandler(p->u.modHandle_.listhandler_)
       );
 
   case is_Fix:
@@ -3243,9 +3265,9 @@ Handler clone_Handler(Handler p)
   case is_HandlerLabel:
     return make_HandlerLabel
       ( clone_LabelledEffect(p->u.handlerLabel_.labelledeffect_)
-      , clone_Expr(p->u.handlerLabel_.expr_1)
+      , clone_Pattern(p->u.handlerLabel_.pattern_)
       , strdup(p->u.handlerLabel_.stellaident_)
-      , clone_Expr(p->u.handlerLabel_.expr_2)
+      , clone_Expr(p->u.handlerLabel_.expr_)
       );
 
   default:
@@ -4137,9 +4159,14 @@ void free_Expr(Expr p)
     free_Expr(p->u.isZero_.expr_);
     break;
 
-  case is_Handle:
-    free_Expr(p->u.handle_.expr_);
-    free_ListHandler(p->u.handle_.listhandler_);
+  case is_ModDo:
+    free(p->u.modDo_.stellaident_);
+    free_Expr(p->u.modDo_.expr_);
+    break;
+
+  case is_ModHandle:
+    free_Expr(p->u.modHandle_.expr_);
+    free_ListHandler(p->u.modHandle_.listhandler_);
     break;
 
   case is_Fix:
@@ -4295,9 +4322,9 @@ void free_Handler(Handler p)
 
   case is_HandlerLabel:
     free_LabelledEffect(p->u.handlerLabel_.labelledeffect_);
-    free_Expr(p->u.handlerLabel_.expr_1);
+    free_Pattern(p->u.handlerLabel_.pattern_);
     free(p->u.handlerLabel_.stellaident_);
-    free_Expr(p->u.handlerLabel_.expr_2);
+    free_Expr(p->u.handlerLabel_.expr_);
     break;
 
   default:

@@ -1,5 +1,6 @@
 module test/test
 
+import std/os/env
 import std/os/file
 import std/os/dir
 import std/os/path
@@ -61,8 +62,27 @@ pub fun main() : _ ()
   val root-path = run-dir-path/".."/".."/".."/".."
   val test-dir-path = root-path/"test"
 
-  val well-typed-dir-path = test-dir-path/"well-typed"
-  val errors-dir-path = test-dir-path/"fail"
+  val vanilla-test-path = test-dir-path/"vanilla"
+  val modal-test-path = test-dir-path/"modal"
 
-  execute-tests(well-typed-dir-path, "SUCCESS")
-  errors-dir-path.list-directory().filter(is-directory).foreach(fn (p) execute-tests(p, path-to-error(p)))
+  val args = get-args()
+
+  fun run-vanilla()
+    val well-typed-dir-path = vanilla-test-path/"well-typed"
+    val errors-dir-path = vanilla-test-path/"fail"
+    execute-tests(well-typed-dir-path, "SUCCESS")
+    errors-dir-path.list-directory().filter(is-directory).foreach(fn (p) execute-tests(p, path-to-error(p)))
+  
+  fun run-modal()
+    val well-typed-dir-path = modal-test-path/"well-typed"
+    val errors-dir-path = modal-test-path/"fail"
+    execute-tests(well-typed-dir-path, "SUCCESS")
+    errors-dir-path.list-directory().filter(is-directory).foreach(fn (p) execute-tests(p, path-to-error(p)))
+
+  match args
+    ["vanilla"] -> run-vanilla()
+    ["modal"] -> run-modal()
+    _ ->
+      run-vanilla()
+      run-modal()
+  

@@ -1,0 +1,17 @@
+language core;
+
+// eff Gen a = yield : a -> 1
+
+// asList : [](<Gen Int>(1 -> 1) -> List Int)
+fn asList(f : [rel<| yield : fn(Nat) -> Unit >] fn(Unit)->Unit) -> [Nat] {
+  return handle { f(unit) } with {
+    return unit -> [] ;
+    (yield : fn(Nat) -> Unit, x, r) -> cons(x, r(unit)) ;
+    return unit -> [0] ;
+  }
+}
+
+
+fn main(x : Nat) -> [Nat] {
+  return asList(fn (u : Unit) { return do yield(0) })
+}

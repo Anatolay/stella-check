@@ -151,7 +151,8 @@ pub type expr
   LogicNot (expr : expr)
   Pred (expr : expr)
   IsZero (expr : expr)
-  Handle (expr : expr, handler_List : list<handler_>)
+  ModDo (stellaIdent : stellaIdent, expr : expr)
+  ModHandle (expr : expr, handler_List : list<handler_>)
   Fix (expr : expr)
   NatRec (expr_1 : expr, expr_2 : expr, expr_3 : expr)
   Fold (type_ : type_, expr : expr)
@@ -176,7 +177,7 @@ pub type modality
 
 pub type handler_
   HandlerReturn (pattern : pattern, expr : expr)
-  HandlerLabel (labelledEffect : labelledEffect, expr_1 : expr, stellaIdent : stellaIdent, expr_2 : expr)
+  HandlerLabel (labelledEffect : labelledEffect, pattern : pattern, stellaIdent : stellaIdent, expr : expr)
 
 pub type variantFieldType
   AVariantFieldType (stellaIdent : stellaIdent, optionalTyping : optionalTyping)

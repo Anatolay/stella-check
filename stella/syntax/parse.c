@@ -998,41 +998,48 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
       kk_stella_syntax_ast__expr k47_1 = convert_Expr(c47_1, _ctx);
 
       return kk_stella_syntax_ast__new_IsZero(kk_reuse_null, 0, k47_1, _ctx);
-    case is_Handle:
-      Expr c48_1 = expr->u.handle_.expr_;
-      kk_stella_syntax_ast__expr k48_1 = convert_Expr(c48_1, _ctx);
-      ListHandler c48_2 = expr->u.handle_.listhandler_;
-      kk_std_core_types__list k48_2 = convert_ListHandler(c48_2, _ctx);
+    case is_ModDo:
+      StellaIdent c48_1 = expr->u.modDo_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k48_1 = convert_StellaIdent(c48_1, _ctx);
+      Expr c48_2 = expr->u.modDo_.expr_;
+      kk_stella_syntax_ast__expr k48_2 = convert_Expr(c48_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Handle(kk_reuse_null, 0, k48_1, k48_2, _ctx);
-    case is_Fix:
-      Expr c49_1 = expr->u.fix_.expr_;
+      return kk_stella_syntax_ast__new_ModDo(kk_reuse_null, 0, k48_1, k48_2, _ctx);
+    case is_ModHandle:
+      Expr c49_1 = expr->u.modHandle_.expr_;
       kk_stella_syntax_ast__expr k49_1 = convert_Expr(c49_1, _ctx);
+      ListHandler c49_2 = expr->u.modHandle_.listhandler_;
+      kk_std_core_types__list k49_2 = convert_ListHandler(c49_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Fix(kk_reuse_null, 0, k49_1, _ctx);
-    case is_NatRec:
-      Expr c50_1 = expr->u.natRec_.expr_1;
+      return kk_stella_syntax_ast__new_ModHandle(kk_reuse_null, 0, k49_1, k49_2, _ctx);
+    case is_Fix:
+      Expr c50_1 = expr->u.fix_.expr_;
       kk_stella_syntax_ast__expr k50_1 = convert_Expr(c50_1, _ctx);
-      Expr c50_2 = expr->u.natRec_.expr_2;
-      kk_stella_syntax_ast__expr k50_2 = convert_Expr(c50_2, _ctx);
-      Expr c50_3 = expr->u.natRec_.expr_3;
-      kk_stella_syntax_ast__expr k50_3 = convert_Expr(c50_3, _ctx);
 
-      return kk_stella_syntax_ast__new_NatRec(kk_reuse_null, 0, k50_1, k50_2, k50_3, _ctx);
-    case is_Fold:
-      Type c51_1 = expr->u.fold_.type_;
-      kk_stella_syntax_ast__type__ k51_1 = convert_Type(c51_1, _ctx);
-      Expr c51_2 = expr->u.fold_.expr_;
+      return kk_stella_syntax_ast__new_Fix(kk_reuse_null, 0, k50_1, _ctx);
+    case is_NatRec:
+      Expr c51_1 = expr->u.natRec_.expr_1;
+      kk_stella_syntax_ast__expr k51_1 = convert_Expr(c51_1, _ctx);
+      Expr c51_2 = expr->u.natRec_.expr_2;
       kk_stella_syntax_ast__expr k51_2 = convert_Expr(c51_2, _ctx);
+      Expr c51_3 = expr->u.natRec_.expr_3;
+      kk_stella_syntax_ast__expr k51_3 = convert_Expr(c51_3, _ctx);
 
-      return kk_stella_syntax_ast__new_Fold(kk_reuse_null, 0, k51_1, k51_2, _ctx);
-    case is_Unfold:
-      Type c52_1 = expr->u.unfold_.type_;
+      return kk_stella_syntax_ast__new_NatRec(kk_reuse_null, 0, k51_1, k51_2, k51_3, _ctx);
+    case is_Fold:
+      Type c52_1 = expr->u.fold_.type_;
       kk_stella_syntax_ast__type__ k52_1 = convert_Type(c52_1, _ctx);
-      Expr c52_2 = expr->u.unfold_.expr_;
+      Expr c52_2 = expr->u.fold_.expr_;
       kk_stella_syntax_ast__expr k52_2 = convert_Expr(c52_2, _ctx);
 
-      return kk_stella_syntax_ast__new_Unfold(kk_reuse_null, 0, k52_1, k52_2, _ctx);
+      return kk_stella_syntax_ast__new_Fold(kk_reuse_null, 0, k52_1, k52_2, _ctx);
+    case is_Unfold:
+      Type c53_1 = expr->u.unfold_.type_;
+      kk_stella_syntax_ast__type__ k53_1 = convert_Type(c53_1, _ctx);
+      Expr c53_2 = expr->u.unfold_.expr_;
+      kk_stella_syntax_ast__expr k53_2 = convert_Expr(c53_2, _ctx);
+
+      return kk_stella_syntax_ast__new_Unfold(kk_reuse_null, 0, k53_1, k53_2, _ctx);
     case is_ConstTrue:
       return kk_stella_syntax_ast__new_ConstTrue(_ctx);
     case is_ConstFalse:
@@ -1040,20 +1047,20 @@ kk_stella_syntax_ast__expr convert_Expr(Expr expr, kk_context_t* _ctx) {
     case is_ConstUnit:
       return kk_stella_syntax_ast__new_ConstUnit(_ctx);
     case is_ConstInt:
-      Integer c56_1 = expr->u.constInt_.integer_;
-      kk_integer_t k56_1 = convert_Integer(c56_1, _ctx);
+      Integer c57_1 = expr->u.constInt_.integer_;
+      kk_integer_t k57_1 = convert_Integer(c57_1, _ctx);
 
-      return kk_stella_syntax_ast__new_ConstInt(kk_reuse_null, 0, k56_1, _ctx);
+      return kk_stella_syntax_ast__new_ConstInt(kk_reuse_null, 0, k57_1, _ctx);
     case is_ConstMemory:
-      MemoryAddress c57_1 = expr->u.constMemory_.memoryaddress_;
-      kk_stella_syntax_ast__memoryAddress k57_1 = convert_MemoryAddress(c57_1, _ctx);
+      MemoryAddress c58_1 = expr->u.constMemory_.memoryaddress_;
+      kk_stella_syntax_ast__memoryAddress k58_1 = convert_MemoryAddress(c58_1, _ctx);
 
-      return kk_stella_syntax_ast__new_ConstMemory(kk_reuse_null, 0, k57_1, _ctx);
+      return kk_stella_syntax_ast__new_ConstMemory(kk_reuse_null, 0, k58_1, _ctx);
     case is_Var:
-      StellaIdent c58_1 = expr->u.var_.stellaident_;
-      kk_stella_syntax_ast__stellaIdent k58_1 = convert_StellaIdent(c58_1, _ctx);
+      StellaIdent c59_1 = expr->u.var_.stellaident_;
+      kk_stella_syntax_ast__stellaIdent k59_1 = convert_StellaIdent(c59_1, _ctx);
 
-      return kk_stella_syntax_ast__new_Var(kk_reuse_null, 0, k58_1, _ctx);
+      return kk_stella_syntax_ast__new_Var(kk_reuse_null, 0, k59_1, _ctx);
 
   }
 
@@ -1176,11 +1183,11 @@ kk_stella_syntax_ast__handler__ convert_Handler(Handler handler, kk_context_t* _
     case is_HandlerLabel:
       LabelledEffect c1_1 = handler->u.handlerLabel_.labelledeffect_;
       kk_stella_syntax_ast__labelledEffect k1_1 = convert_LabelledEffect(c1_1, _ctx);
-      Expr c1_2 = handler->u.handlerLabel_.expr_1;
-      kk_stella_syntax_ast__expr k1_2 = convert_Expr(c1_2, _ctx);
+      Pattern c1_2 = handler->u.handlerLabel_.pattern_;
+      kk_stella_syntax_ast__pattern k1_2 = convert_Pattern(c1_2, _ctx);
       StellaIdent c1_3 = handler->u.handlerLabel_.stellaident_;
       kk_stella_syntax_ast__stellaIdent k1_3 = convert_StellaIdent(c1_3, _ctx);
-      Expr c1_4 = handler->u.handlerLabel_.expr_2;
+      Expr c1_4 = handler->u.handlerLabel_.expr_;
       kk_stella_syntax_ast__expr k1_4 = convert_Expr(c1_4, _ctx);
 
       return kk_stella_syntax_ast__new_HandlerLabel(kk_reuse_null, 0, k1_1, k1_2, k1_3, k1_4, _ctx);

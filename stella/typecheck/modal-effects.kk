@@ -32,7 +32,7 @@ fun add-label(ec : effect-extension, label : stellaIdent, type_ : type_) : effec
 // D + E  =  D,E
 fun extend(d : effect-extension, e : effect-context) : effect-context
   d.merge(e)
-// . -- L  =  .         (l:P, E) -- L  =  ...
+// . - L  =  .         (l:P, E) - L  =  ...
 fun remove(c : effect-context, l : effect-mask) : effect-context
   val lbls = c.keys()
   fun diff(labels : list<stellaIdent>, effect-context : effect-context, effect-mask : effect-mask) : effect-context
