@@ -154,8 +154,8 @@ LogicNot.     Expr6 ::= "not" "(" Expr ")" ;
 Pred.         Expr6 ::= "Nat::pred" "(" Expr ")" ;
 IsZero.       Expr6 ::= "Nat::iszero" "(" Expr ")" ;
 
-ModDo.           Expr6 ::= "do" StellaIdent "(" Expr ")" ;
-ModHandle.       Expr6 ::= "handle" "{" Expr "}" "with" "{" [Handler] "}" ;
+ModDo.        Expr6 ::= "do" StellaIdent "(" Expr ")" ;
+ModHandle.    Expr6 ::= "handle" "{" Expr "}" "with" "{" [Handler] "}" ;
 
 Fix.          Expr6 ::= "fix" "(" Expr ")" ;
 NatRec.       Expr6 ::= "Nat::rec" "(" Expr "," Expr "," Expr ")" ;
@@ -172,7 +172,7 @@ Var.          Expr7 ::= StellaIdent ;
 
 HandlerReturn. Handler ::= "return" Pattern "->" Expr ;
 HandlerLabel.  Handler ::= "(" LabelledEffect "," Pattern "," StellaIdent ")" "->" Expr ;
-terminator nonempty Handler ";" ;
+separator Handler "|" ;
 
 TypeMod.      Type ::= "[" Modality "]" Type ;
 TypeAuto.     Type ::= "auto" ;

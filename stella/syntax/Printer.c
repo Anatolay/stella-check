@@ -2305,12 +2305,12 @@ void ppListHandler(ListHandler listhandler, int i)
   }
   else if (listhandler->listhandler_ == 0)
   { /* last */
-    ppHandler(listhandler->handler_, 0); renderC(';');
+    ppHandler(listhandler->handler_, 0);
   }
   else
   { /* cons */
     ppHandler(listhandler->handler_, 0);
-    renderC(';');
+    renderC('|');
     ppListHandler(listhandler->listhandler_, 0);
   }
 }

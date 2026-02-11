@@ -27,7 +27,12 @@ koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax
 ### Test
 
 ```sh
+# run all tests
 koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e test/test.kk
+
+# you can also run either modal or core tests
+koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e test/test.kk -- vanilla
+koka --ccincdir=stella/syntax --cclinkopts="stella/syntax/Parser.o stella/syntax/Absyn.o stella/syntax/Lexer.o" -e test/test.kk -- modal
 ```
 
 ### Update grammar

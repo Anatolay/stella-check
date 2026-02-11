@@ -287,7 +287,9 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
           then ()
           else error(UnexpectedTypeForExpressions)
         Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
-    ModHandle(expr, handlers) -> typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
+    ModHandle(expr, handlers) ->
+      typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
+
     // ModBox(ModalityLock, expr) -> typecheck-expr-div(Cons(Lock(ModalityLock), environment), expr, expected-type)
 
     // OTHERWISE
@@ -341,7 +343,9 @@ fun typecheck-handle-expr-div(environment : environment, expr : expr, handlers :
     [(_, _)] -> error(UnsupportedNode("non-var pattern in return handler"))
     _ -> error(SeveralReturnsInHandler)
   // (4)
-  fun typecheck-handler(ALabelledEffect(ident, effect-type), pattern, continuation-ident, handler-expr) : _ ()
+  /*
+  // One day I will issue it.......
+  fun typecheck-handler(ALabelledEffect(ident, effect-type) : labelledEffect, pattern : pattern, continuation-ident : stellaIdent, handler-expr : expr) : _ ()
     val (arg-type, return-type) = match effect-type
       TypeFun([a], b) -> (a, b)
       _ -> error(NonFunctionEffect(ident, effect-type))
@@ -355,8 +359,31 @@ fun typecheck-handle-expr-div(environment : environment, expr : expr, handlers :
       expected-type,
       mode
     )
-    ()
+
   label-handlers.foreach(fn ((le, p, i, e)) -> typecheck-handler(le, p, i, e))
+  // ^
+  // here it generates incorrect C code
+  */
+  fun go(lst)
+    match lst
+      [] -> ()
+      Cons((ALabelledEffect(ident, effect-type) : labelledEffect, pattern : pattern, continuation-ident : stellaIdent, handler-expr : expr), tail) ->
+        val (arg-type, return-type) = match effect-type
+          TypeFun([a], b) -> (a, b)
+          _ -> error(NonFunctionEffect(ident, effect-type))
+        // TODO: support more patterns
+        val pattern-ident = match pattern
+          PatternVar(i) -> i
+          _ -> error(UnsupportedNode("non-var pattern"))
+        typecheck-expr-div(
+          environment.add-var(pattern-ident, arg-type).add-var(continuation-ident, TypeFun([return-type], expected-type)),
+          handler-expr,
+          expected-type,
+          mode
+        )
+        go(tail)
+  go(label-handlers)
+
 
 // TODO: pattern bindings appear in let expresisons. Probably there could be
 // issues related to modalities/effects/anything appearing in the process,

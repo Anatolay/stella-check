@@ -1,0 +1,20 @@
+language core;
+
+// eff Check = check : Nat -> Nat
+
+// work : [](<Check>(Nat -> Nat) -> Nat -> Nat)
+
+fn work(f : [rel< | check : fn(Nat) -> Nat >] fn(Nat)->Nat, x : Nat) -> Nat {
+  return handle { f(x) } with {
+      return n -> n
+    | (check : fn(Nat) -> Nat, n, r) -> r(n)
+  }
+}
+
+fn identity(n : Nat) -> Nat {
+  return n
+}
+
+fn main(x : Nat) -> [Nat] {
+  return work(fn (m : Nat) {return check(x)}, x)
+}

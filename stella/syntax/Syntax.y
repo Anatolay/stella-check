@@ -719,8 +719,9 @@ Expr7 : _KW_true { $$ = make_ConstTrue(); result->expr_ = $$; }
 Handler : _KW_return Pattern _RARROW Expr { $$ = make_HandlerReturn($2, $4); result->handler_ = $$; }
   | _LPAREN LabelledEffect _COMMA Pattern _COMMA T_StellaIdent _RPAREN _RARROW Expr { $$ = make_HandlerLabel($2, $4, $6, $9); result->handler_ = $$; }
 ;
-ListHandler : Handler _SEMI { $$ = make_ListHandler($1, 0); result->listhandler_ = $$; }
-  | Handler _SEMI ListHandler { $$ = make_ListHandler($1, $3); result->listhandler_ = $$; }
+ListHandler : /* empty */ { $$ = 0; result->listhandler_ = $$; }
+  | Handler { $$ = make_ListHandler($1, 0); result->listhandler_ = $$; }
+  | Handler _BAR ListHandler { $$ = make_ListHandler($1, $3); result->listhandler_ = $$; }
 ;
 Type : _LBRACK Modality _RBRACK Type { $$ = make_TypeMod($2, $4); result->type_ = $$; }
   | _KW_auto { $$ = make_TypeAuto(); result->type_ = $$; }

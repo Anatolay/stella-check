@@ -877,7 +877,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  54
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  189
+#define YYNRULES  190
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  498
 
@@ -952,10 +952,11 @@ static const yytype_int16 yyrline[] =
      682,   683,   684,   685,   686,   687,   688,   689,   690,   691,
      692,   693,   694,   695,   696,   697,   698,   699,   700,   701,
      702,   703,   704,   705,   706,   707,   708,   709,   711,   712,
-     713,   714,   715,   716,   717,   719,   720,   722,   723,   725,
-     726,   727,   728,   729,   730,   732,   733,   735,   736,   737,
-     738,   739,   741,   742,   743,   744,   745,   746,   747,   748,
-     750,   751,   752,   754,   756,   757,   758,   760,   762,   763
+     713,   714,   715,   716,   717,   719,   720,   722,   723,   724,
+     726,   727,   728,   729,   730,   731,   733,   734,   736,   737,
+     738,   739,   740,   742,   743,   744,   745,   746,   747,   748,
+     749,   751,   752,   753,   755,   757,   758,   759,   761,   763,
+     764
 };
 #endif
 
@@ -1068,10 +1069,10 @@ static const yytype_int16 yypact[] =
      439,  -350,  -350,   685,  -350,   321,   321,   477,   437,   444,
     -350,   433,   446,   321,  -350,   321,    13,  -350,  -350,    58,
     -350,  -350,   449,   672,   685,   321,  -350,  -350,   506,   452,
-     169,   685,   503,   453,  -350,  -350,   461,   161,   455,  -350,
-    -350,   518,   158,    13,  -350,   685,   321,  -350,   685,   321,
-    -350,   162,   459,   136,  -350,   321,  -350,   463,   474,   539,
-     467,   548,   475,   321,   321,  -350,   476,  -350
+     169,   685,   455,   459,  -350,  -350,   461,   161,   463,  -350,
+    -350,   510,   158,    13,  -350,   685,   321,  -350,   685,   321,
+    -350,   162,   467,   136,  -350,   321,  -350,   453,   474,   521,
+     475,   532,   478,   321,   321,  -350,   476,  -350
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -1082,18 +1083,18 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,    11,     0,     1,    19,     6,     0,     0,
       22,     8,    12,     0,     0,    20,     0,     9,     7,     0,
        0,     0,     0,     0,    21,     0,    23,     8,     0,     0,
-       0,     0,     0,     0,    10,     0,     0,   184,   172,   176,
-     173,   175,   174,     0,   160,     0,     3,   180,     0,   178,
-      17,   164,   166,   171,     0,    16,    25,     0,     0,    97,
-       0,   100,     0,     0,   177,     0,    39,   185,     0,     0,
-       0,   180,     4,     0,   178,   181,     0,   188,     0,     0,
+       0,     0,     0,     0,    10,     0,     0,   185,   173,   177,
+     174,   176,   175,     0,   161,     0,     3,   181,     0,   179,
+      17,   165,   167,   172,     0,    16,    25,     0,     0,    97,
+       0,   100,     0,     0,   178,     0,    39,   186,     0,     0,
+       0,   181,     4,     0,   179,   182,     0,   189,     0,     0,
        0,    18,     0,    26,     0,     3,    94,     3,     0,     0,
-     179,     0,   183,   184,   169,     0,   170,     0,     3,     0,
-       0,   180,   167,     0,   168,     0,   165,     0,    25,    28,
-       0,     0,    95,     0,     0,   101,     0,    40,   186,   159,
-       0,     5,   162,   187,   182,     0,   189,   163,    24,    27,
+     180,     0,   184,   185,   170,     0,   171,     0,     3,     0,
+       0,   181,   168,     0,   169,     0,   166,     0,    25,    28,
+       0,     0,    95,     0,     0,   101,     0,    40,   187,   160,
+       0,     5,   163,   188,   183,     0,   190,   164,    24,    27,
        0,    30,     0,     0,    94,    98,    94,     0,     0,    29,
-       0,     0,    25,    93,    96,     0,    25,   161,    33,    31,
+       0,     0,    25,    93,    96,     0,    25,   162,    33,    31,
       32,    19,     0,    99,     0,     0,    22,    28,    28,    34,
        0,    30,    30,     0,     0,     0,     0,     0,     0,     0,
        0,     0,    77,     0,     0,   149,     0,     0,     0,     0,
@@ -1107,7 +1108,7 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,     0,     0,     0,     0,   153,    69,     0,
        0,    13,    72,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,    77,     0,
-     180,    19,    19,   154,     0,     0,     0,     0,     0,     0,
+     181,    19,    19,   154,     0,     0,     0,     0,     0,     0,
        0,     0,    77,   108,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,    41,    63,     0,     0,     0,
        0,     0,    60,     0,    66,     0,     0,     0,     0,     0,
@@ -1123,23 +1124,23 @@ static const yytype_uint8 yydefact[] =
      121,     0,     0,     0,     0,   141,     0,   145,    75,     0,
        0,     0,    42,    47,    64,     0,    48,    49,    59,    65,
        0,    67,    45,    36,   107,     0,     0,     0,     0,     0,
-     146,     0,     0,     0,   126,     0,     0,    81,    54,     0,
+     146,     0,     0,     0,   126,     0,   157,    81,    54,     0,
       38,    35,     0,     0,     0,     0,    14,    15,     0,     0,
-       0,     0,     0,     0,    53,   105,     0,     0,     0,   144,
+       0,     0,   158,     0,    53,   105,     0,     0,     0,   144,
      104,     0,     0,   157,   142,     0,     0,   133,     0,     0,
-     158,     0,     0,     0,   155,     0,   132,     0,     0,     0,
+     159,     0,     0,     0,   155,     0,   132,     0,     0,     0,
        0,     0,     0,     0,     0,   156,     0,   134
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -350,  -350,   -80,  -350,  -350,   537,  -350,  -350,  -142,  -350,
+    -350,  -350,   -80,  -350,  -350,   534,  -350,  -350,  -142,  -350,
     -350,  -350,   -94,  -107,  -102,  -350,   428,  -350,   134,  -350,
     -350,  -350,  -185,  -236,  -350,   179,  -350,   237,  -133,  -184,
     -171,  -350,  -174,   383,   111,   -21,   -39,   485,    64,  -242,
     -143,  -350,  -349,  -350,   107,   -28,  -350,   -34,  -350,   -68,
-    -350,   481,  -350,   478
+    -350,   481,  -350,   483
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
@@ -1210,13 +1211,13 @@ static const yytype_int16 yytable[] =
      170,   171,   406,   409,   172,   415,   410,   416,   419,   420,
      423,   430,   173,   433,   174,   436,   443,   434,   175,   176,
      177,   178,   444,   469,   180,   181,   445,   182,   453,   183,
-     473,   446,   456,   454,   186,   187,   188,   189,   478,   190,
+     478,   446,   456,   454,   186,   187,   188,   189,   491,   190,
      455,   163,   191,   164,   192,   457,   193,   194,   465,   195,
-     196,   470,   474,   197,   477,   165,   491,   475,   486,   198,
-     199,   200,   492,   166,   167,   168,   489,   169,   170,   171,
-     493,   494,   172,   490,    34,   497,   431,   450,   407,   249,
+     196,   470,   473,   197,   493,   165,   489,   475,   474,   198,
+     199,   200,   477,   166,   167,   168,   486,   169,   170,   171,
+     492,    34,   172,   490,   494,   497,   431,   450,   407,   249,
      173,   471,   174,   115,   118,     0,   175,   176,   177,   178,
-     480,   126,   180,   159,     0,   182,     0,   183,     0,     0,
+     480,     0,   180,   159,     0,   182,   126,   183,     0,     0,
        0,     0,   186,   187,   188,   189,     0,   190,     0,   163,
      191,   164,   192,     0,   193,   194,     0,   195,   196,     0,
        0,   197,     0,     0,     0,     0,     0,   198,   199,   200,
@@ -1296,13 +1297,13 @@ static const yytype_int16 yycheck[] =
       33,    34,    93,     7,    37,     7,    38,    86,    85,    48,
       88,    93,    45,    87,    47,    86,    10,    89,    51,    52,
       53,    54,     7,     7,    57,    58,    74,    60,    41,    62,
-      17,    86,    89,    86,    67,    68,    69,    70,    10,    72,
+      10,    86,    89,    86,    67,    68,    69,    70,     7,    72,
       86,     6,    75,     8,    77,    89,    79,    80,    89,    82,
-      83,    89,    89,    86,    89,    20,     7,    86,    89,    92,
-      93,    94,    85,    28,    29,    30,    93,    32,    33,    34,
-      12,    86,    37,    89,    27,    89,   387,   433,   331,   186,
+      83,    89,    87,    86,    12,    20,    93,    86,    89,    92,
+      93,    94,    89,    28,    29,    30,    89,    32,    33,    34,
+      85,    27,    37,    89,    86,    89,   387,   433,   331,   186,
       45,   460,    47,    88,    93,    -1,    51,    52,    53,    54,
-     473,   103,    57,   155,    -1,    60,    -1,    62,    -1,    -1,
+     473,    -1,    57,   155,    -1,    60,   103,    62,    -1,    -1,
       -1,    -1,    67,    68,    69,    70,    -1,    72,    -1,     6,
       75,     8,    77,    -1,    79,    80,    -1,    82,    83,    -1,
       -1,    86,    -1,    -1,    -1,    -1,    -1,    92,    93,    94,
@@ -1379,7 +1380,7 @@ static const yytype_uint8 yystos[] =
      137,   123,   123,    10,     7,    74,    86,   125,     7,   117,
      113,   123,   123,    41,    86,    86,    89,    89,   123,   123,
        6,    74,   138,   139,     7,    89,   140,   117,   123,     7,
-      89,   129,   117,    17,    89,    86,    23,    89,    10,    12,
+      89,   129,   117,    87,    89,    86,    23,    89,    10,    12,
      139,   117,   123,   117,   123,    23,    89,    10,   123,    93,
       89,     7,    85,    12,    86,   123,   123,    89
 };
@@ -1402,10 +1403,11 @@ static const yytype_uint8 yyr1[] =
      136,   136,   136,   136,   136,   136,   136,   136,   136,   136,
      136,   136,   136,   136,   136,   136,   136,   136,   136,   136,
      136,   136,   136,   136,   136,   136,   136,   136,   137,   137,
-     137,   137,   137,   137,   137,   138,   138,   139,   139,   140,
-     140,   140,   140,   140,   140,   141,   141,   142,   142,   142,
-     142,   142,   143,   143,   143,   143,   143,   143,   143,   143,
-     144,   144,   144,   145,   146,   146,   146,   147,   148,   148
+     137,   137,   137,   137,   137,   138,   138,   139,   139,   139,
+     140,   140,   140,   140,   140,   140,   141,   141,   142,   142,
+     142,   142,   142,   143,   143,   143,   143,   143,   143,   143,
+     143,   144,   144,   144,   145,   146,   146,   146,   147,   148,
+     148
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -1426,10 +1428,11 @@ static const yytype_int8 yyr2[] =
        4,     4,     3,     3,     3,     3,     6,     4,     4,     4,
        1,     4,    10,     8,    16,     4,     4,     4,     4,     4,
        4,     5,     8,     4,     8,     5,     5,     1,     1,     1,
-       1,     1,     1,     1,     3,     4,     9,     2,     3,     4,
-       1,     6,     4,     4,     1,     3,     1,     3,     3,     3,
-       3,     1,     1,     1,     1,     1,     1,     2,     1,     3,
-       0,     1,     3,     2,     0,     1,     3,     3,     1,     3
+       1,     1,     1,     1,     3,     4,     9,     0,     1,     3,
+       4,     1,     6,     4,     4,     1,     3,     1,     3,     3,
+       3,     3,     1,     1,     1,     1,     1,     1,     2,     1,
+       3,     0,     1,     3,     2,     0,     1,     3,     3,     1,
+       3
 };
 
 
@@ -2020,1133 +2023,1139 @@ yyreduce:
   case 2: /* Program: LanguageDecl ListExtension ListDecl  */
 #line 516 "Syntax.y"
                                               { (yyval.program_) = make_AProgram((yyvsp[-2].languagedecl_), reverseListExtension((yyvsp[-1].listextension_)), reverseListDecl((yyvsp[0].listdecl_))); result->program_ = (yyval.program_); }
-#line 2024 "Parser.c"
+#line 2027 "Parser.c"
     break;
 
   case 3: /* ListStellaIdent: %empty  */
 #line 518 "Syntax.y"
                               { (yyval.liststellaident_) = 0; result->liststellaident_ = (yyval.liststellaident_); }
-#line 2030 "Parser.c"
+#line 2033 "Parser.c"
     break;
 
   case 4: /* ListStellaIdent: T_StellaIdent  */
 #line 519 "Syntax.y"
                   { (yyval.liststellaident_) = make_ListStellaIdent((yyvsp[0]._string), 0); result->liststellaident_ = (yyval.liststellaident_); }
-#line 2036 "Parser.c"
+#line 2039 "Parser.c"
     break;
 
   case 5: /* ListStellaIdent: T_StellaIdent _COMMA ListStellaIdent  */
 #line 520 "Syntax.y"
                                          { (yyval.liststellaident_) = make_ListStellaIdent((yyvsp[-2]._string), (yyvsp[0].liststellaident_)); result->liststellaident_ = (yyval.liststellaident_); }
-#line 2042 "Parser.c"
+#line 2045 "Parser.c"
     break;
 
   case 6: /* LanguageDecl: _KW_language _KW_core _SEMI  */
 #line 522 "Syntax.y"
                                            { (yyval.languagedecl_) = make_LanguageCore(); result->languagedecl_ = (yyval.languagedecl_); }
-#line 2048 "Parser.c"
+#line 2051 "Parser.c"
     break;
 
   case 7: /* Extension: _KW_extend _KW_with ListExtensionName  */
 #line 524 "Syntax.y"
                                                   { (yyval.extension_) = make_AnExtension((yyvsp[0].listextensionname_)); result->extension_ = (yyval.extension_); }
-#line 2054 "Parser.c"
+#line 2057 "Parser.c"
     break;
 
   case 8: /* ListExtensionName: %empty  */
 #line 526 "Syntax.y"
                                 { (yyval.listextensionname_) = 0; result->listextensionname_ = (yyval.listextensionname_); }
-#line 2060 "Parser.c"
+#line 2063 "Parser.c"
     break;
 
   case 9: /* ListExtensionName: T_ExtensionName  */
 #line 527 "Syntax.y"
                     { (yyval.listextensionname_) = make_ListExtensionName((yyvsp[0]._string), 0); result->listextensionname_ = (yyval.listextensionname_); }
-#line 2066 "Parser.c"
+#line 2069 "Parser.c"
     break;
 
   case 10: /* ListExtensionName: T_ExtensionName _COMMA ListExtensionName  */
 #line 528 "Syntax.y"
                                              { (yyval.listextensionname_) = make_ListExtensionName((yyvsp[-2]._string), (yyvsp[0].listextensionname_)); result->listextensionname_ = (yyval.listextensionname_); }
-#line 2072 "Parser.c"
+#line 2075 "Parser.c"
     break;
 
   case 11: /* ListExtension: %empty  */
 #line 530 "Syntax.y"
                             { (yyval.listextension_) = 0; result->listextension_ = (yyval.listextension_); }
-#line 2078 "Parser.c"
+#line 2081 "Parser.c"
     break;
 
   case 12: /* ListExtension: ListExtension Extension _SEMI  */
 #line 531 "Syntax.y"
                                   { (yyval.listextension_) = make_ListExtension((yyvsp[-1].extension_), (yyvsp[-2].listextension_)); result->listextension_ = (yyval.listextension_); }
-#line 2084 "Parser.c"
+#line 2087 "Parser.c"
     break;
 
   case 13: /* Decl: ListAnnotation _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE  */
 #line 533 "Syntax.y"
                                                                                                                                        { (yyval.decl_) = make_DeclFun(reverseListAnnotation((yyvsp[-12].listannotation_)), (yyvsp[-10]._string), (yyvsp[-8].listparamdecl_), (yyvsp[-6].returntype_), (yyvsp[-5].throwtype_), reverseListDecl((yyvsp[-3].listdecl_)), (yyvsp[-1].expr_)); result->decl_ = (yyval.decl_); }
-#line 2090 "Parser.c"
+#line 2093 "Parser.c"
     break;
 
   case 14: /* Decl: ListAnnotation _KW_generic _KW_fn T_StellaIdent _LBRACK ListStellaIdent _RBRACK _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE  */
 #line 534 "Syntax.y"
                                                                                                                                                                                 { (yyval.decl_) = make_DeclFunGeneric(reverseListAnnotation((yyvsp[-16].listannotation_)), (yyvsp[-13]._string), (yyvsp[-11].liststellaident_), (yyvsp[-8].listparamdecl_), (yyvsp[-6].returntype_), (yyvsp[-5].throwtype_), reverseListDecl((yyvsp[-3].listdecl_)), (yyvsp[-1].expr_)); result->decl_ = (yyval.decl_); }
-#line 2096 "Parser.c"
+#line 2099 "Parser.c"
     break;
 
   case 15: /* Decl: ListAnnotation _KW_mod _LBRACK ListModality _RBRACK _KW_fn T_StellaIdent _LPAREN ListParamDecl _RPAREN ReturnType ThrowType _LBRACE ListDecl _KW_return Expr _RBRACE  */
 #line 535 "Syntax.y"
                                                                                                                                                                          { (yyval.decl_) = make_DeclFunMod(reverseListAnnotation((yyvsp[-16].listannotation_)), (yyvsp[-13].listmodality_), (yyvsp[-10]._string), (yyvsp[-8].listparamdecl_), (yyvsp[-6].returntype_), (yyvsp[-5].throwtype_), reverseListDecl((yyvsp[-3].listdecl_)), (yyvsp[-1].expr_)); result->decl_ = (yyval.decl_); }
-#line 2102 "Parser.c"
+#line 2105 "Parser.c"
     break;
 
   case 16: /* Decl: _KW_type T_StellaIdent _EQ Type  */
 #line 536 "Syntax.y"
                                     { (yyval.decl_) = make_DeclTypeAlias((yyvsp[-2]._string), (yyvsp[0].type_)); result->decl_ = (yyval.decl_); }
-#line 2108 "Parser.c"
+#line 2111 "Parser.c"
     break;
 
   case 17: /* Decl: _KW_exception _KW_type _EQ Type  */
 #line 537 "Syntax.y"
                                     { (yyval.decl_) = make_DeclExceptionType((yyvsp[0].type_)); result->decl_ = (yyval.decl_); }
-#line 2114 "Parser.c"
+#line 2117 "Parser.c"
     break;
 
   case 18: /* Decl: _KW_exception _KW_variant T_StellaIdent _COLON Type  */
 #line 538 "Syntax.y"
                                                         { (yyval.decl_) = make_DeclExceptionVariant((yyvsp[-2]._string), (yyvsp[0].type_)); result->decl_ = (yyval.decl_); }
-#line 2120 "Parser.c"
+#line 2123 "Parser.c"
     break;
 
   case 19: /* ListDecl: %empty  */
 #line 540 "Syntax.y"
                        { (yyval.listdecl_) = 0; result->listdecl_ = (yyval.listdecl_); }
-#line 2126 "Parser.c"
+#line 2129 "Parser.c"
     break;
 
   case 20: /* ListDecl: ListDecl Decl  */
 #line 541 "Syntax.y"
                   { (yyval.listdecl_) = make_ListDecl((yyvsp[0].decl_), (yyvsp[-1].listdecl_)); result->listdecl_ = (yyval.listdecl_); }
-#line 2132 "Parser.c"
+#line 2135 "Parser.c"
     break;
 
   case 21: /* Annotation: _KW_inline  */
 #line 548 "Syntax.y"
                         { (yyval.annotation_) = make_InlineAnnotation(); result->annotation_ = (yyval.annotation_); }
-#line 2138 "Parser.c"
+#line 2141 "Parser.c"
     break;
 
   case 22: /* ListAnnotation: %empty  */
 #line 550 "Syntax.y"
                              { (yyval.listannotation_) = 0; result->listannotation_ = (yyval.listannotation_); }
-#line 2144 "Parser.c"
+#line 2147 "Parser.c"
     break;
 
   case 23: /* ListAnnotation: ListAnnotation Annotation  */
 #line 551 "Syntax.y"
                               { (yyval.listannotation_) = make_ListAnnotation((yyvsp[0].annotation_), (yyvsp[-1].listannotation_)); result->listannotation_ = (yyval.listannotation_); }
-#line 2150 "Parser.c"
+#line 2153 "Parser.c"
     break;
 
   case 24: /* ParamDecl: T_StellaIdent _COLON Type  */
 #line 553 "Syntax.y"
                                       { (yyval.paramdecl_) = make_AParamDecl((yyvsp[-2]._string), (yyvsp[0].type_)); result->paramdecl_ = (yyval.paramdecl_); }
-#line 2156 "Parser.c"
+#line 2159 "Parser.c"
     break;
 
   case 25: /* ListParamDecl: %empty  */
 #line 555 "Syntax.y"
                             { (yyval.listparamdecl_) = 0; result->listparamdecl_ = (yyval.listparamdecl_); }
-#line 2162 "Parser.c"
+#line 2165 "Parser.c"
     break;
 
   case 26: /* ListParamDecl: ParamDecl  */
 #line 556 "Syntax.y"
               { (yyval.listparamdecl_) = make_ListParamDecl((yyvsp[0].paramdecl_), 0); result->listparamdecl_ = (yyval.listparamdecl_); }
-#line 2168 "Parser.c"
+#line 2171 "Parser.c"
     break;
 
   case 27: /* ListParamDecl: ParamDecl _COMMA ListParamDecl  */
 #line 557 "Syntax.y"
                                    { (yyval.listparamdecl_) = make_ListParamDecl((yyvsp[-2].paramdecl_), (yyvsp[0].listparamdecl_)); result->listparamdecl_ = (yyval.listparamdecl_); }
-#line 2174 "Parser.c"
+#line 2177 "Parser.c"
     break;
 
   case 28: /* ReturnType: %empty  */
 #line 559 "Syntax.y"
                          { (yyval.returntype_) = make_NoReturnType(); result->returntype_ = (yyval.returntype_); }
-#line 2180 "Parser.c"
+#line 2183 "Parser.c"
     break;
 
   case 29: /* ReturnType: _RARROW Type  */
 #line 560 "Syntax.y"
                  { (yyval.returntype_) = make_SomeReturnType((yyvsp[0].type_)); result->returntype_ = (yyval.returntype_); }
-#line 2186 "Parser.c"
+#line 2189 "Parser.c"
     break;
 
   case 30: /* ThrowType: %empty  */
 #line 562 "Syntax.y"
                         { (yyval.throwtype_) = make_NoThrowType(); result->throwtype_ = (yyval.throwtype_); }
-#line 2192 "Parser.c"
+#line 2195 "Parser.c"
     break;
 
   case 31: /* ThrowType: _KW_throws ListType9  */
 #line 563 "Syntax.y"
                          { (yyval.throwtype_) = make_SomeThrowType((yyvsp[0].listtype_)); result->throwtype_ = (yyval.throwtype_); }
-#line 2198 "Parser.c"
+#line 2201 "Parser.c"
     break;
 
   case 32: /* Type9: Type  */
 #line 565 "Syntax.y"
              { (yyval.type_) = (yyvsp[0].type_); result->type_ = (yyval.type_); }
-#line 2204 "Parser.c"
+#line 2207 "Parser.c"
     break;
 
   case 33: /* ListType9: Type9  */
 #line 567 "Syntax.y"
                   { (yyval.listtype_) = make_ListType((yyvsp[0].type_), 0); result->listtype_ = (yyval.listtype_); }
-#line 2210 "Parser.c"
+#line 2213 "Parser.c"
     break;
 
   case 34: /* ListType9: Type9 _COMMA ListType9  */
 #line 568 "Syntax.y"
                            { (yyval.listtype_) = make_ListType((yyvsp[-2].type_), (yyvsp[0].listtype_)); result->listtype_ = (yyval.listtype_); }
-#line 2216 "Parser.c"
+#line 2219 "Parser.c"
     break;
 
   case 35: /* MatchCase: Pattern _RDARROW Expr  */
 #line 570 "Syntax.y"
                                   { (yyval.matchcase_) = make_AMatchCase((yyvsp[-2].pattern_), (yyvsp[0].expr_)); result->matchcase_ = (yyval.matchcase_); }
-#line 2222 "Parser.c"
+#line 2225 "Parser.c"
     break;
 
   case 36: /* ListMatchCase: %empty  */
 #line 572 "Syntax.y"
                             { (yyval.listmatchcase_) = 0; result->listmatchcase_ = (yyval.listmatchcase_); }
-#line 2228 "Parser.c"
+#line 2231 "Parser.c"
     break;
 
   case 37: /* ListMatchCase: MatchCase  */
 #line 573 "Syntax.y"
               { (yyval.listmatchcase_) = make_ListMatchCase((yyvsp[0].matchcase_), 0); result->listmatchcase_ = (yyval.listmatchcase_); }
-#line 2234 "Parser.c"
+#line 2237 "Parser.c"
     break;
 
   case 38: /* ListMatchCase: MatchCase _BAR ListMatchCase  */
 #line 574 "Syntax.y"
                                  { (yyval.listmatchcase_) = make_ListMatchCase((yyvsp[-2].matchcase_), (yyvsp[0].listmatchcase_)); result->listmatchcase_ = (yyval.listmatchcase_); }
-#line 2240 "Parser.c"
+#line 2243 "Parser.c"
     break;
 
   case 39: /* OptionalTyping: %empty  */
 #line 576 "Syntax.y"
                              { (yyval.optionaltyping_) = make_NoTyping(); result->optionaltyping_ = (yyval.optionaltyping_); }
-#line 2246 "Parser.c"
+#line 2249 "Parser.c"
     break;
 
   case 40: /* OptionalTyping: _COLON Type  */
 #line 577 "Syntax.y"
                 { (yyval.optionaltyping_) = make_SomeTyping((yyvsp[0].type_)); result->optionaltyping_ = (yyval.optionaltyping_); }
-#line 2252 "Parser.c"
+#line 2255 "Parser.c"
     break;
 
   case 41: /* PatternData: %empty  */
 #line 579 "Syntax.y"
                           { (yyval.patterndata_) = make_NoPatternData(); result->patterndata_ = (yyval.patterndata_); }
-#line 2258 "Parser.c"
+#line 2261 "Parser.c"
     break;
 
   case 42: /* PatternData: _EQ Pattern  */
 #line 580 "Syntax.y"
                 { (yyval.patterndata_) = make_SomePatternData((yyvsp[0].pattern_)); result->patterndata_ = (yyval.patterndata_); }
-#line 2264 "Parser.c"
+#line 2267 "Parser.c"
     break;
 
   case 43: /* ExprData: %empty  */
 #line 582 "Syntax.y"
                        { (yyval.exprdata_) = make_NoExprData(); result->exprdata_ = (yyval.exprdata_); }
-#line 2270 "Parser.c"
+#line 2273 "Parser.c"
     break;
 
   case 44: /* ExprData: _EQ Expr  */
 #line 583 "Syntax.y"
              { (yyval.exprdata_) = make_SomeExprData((yyvsp[0].expr_)); result->exprdata_ = (yyval.exprdata_); }
-#line 2276 "Parser.c"
+#line 2279 "Parser.c"
     break;
 
   case 45: /* Pattern: Pattern _KW_cast _KW_as Type  */
 #line 585 "Syntax.y"
                                        { (yyval.pattern_) = make_PatternCastAs((yyvsp[-3].pattern_), (yyvsp[0].type_)); result->pattern_ = (yyval.pattern_); }
-#line 2282 "Parser.c"
+#line 2285 "Parser.c"
     break;
 
   case 46: /* Pattern: Pattern _KW_as Type  */
 #line 586 "Syntax.y"
                         { (yyval.pattern_) = make_PatternAsc((yyvsp[-2].pattern_), (yyvsp[0].type_)); result->pattern_ = (yyval.pattern_); }
-#line 2288 "Parser.c"
+#line 2291 "Parser.c"
     break;
 
   case 47: /* Pattern: _SYMB_13 T_StellaIdent PatternData _SYMB_14  */
 #line 587 "Syntax.y"
                                                 { (yyval.pattern_) = make_PatternVariant((yyvsp[-2]._string), (yyvsp[-1].patterndata_)); result->pattern_ = (yyval.pattern_); }
-#line 2294 "Parser.c"
+#line 2297 "Parser.c"
     break;
 
   case 48: /* Pattern: _KW_inl _LPAREN Pattern _RPAREN  */
 #line 588 "Syntax.y"
                                     { (yyval.pattern_) = make_PatternInl((yyvsp[-1].pattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2300 "Parser.c"
+#line 2303 "Parser.c"
     break;
 
   case 49: /* Pattern: _KW_inr _LPAREN Pattern _RPAREN  */
 #line 589 "Syntax.y"
                                     { (yyval.pattern_) = make_PatternInr((yyvsp[-1].pattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2306 "Parser.c"
+#line 2309 "Parser.c"
     break;
 
   case 50: /* Pattern: _LBRACE ListPattern _RBRACE  */
 #line 590 "Syntax.y"
                                 { (yyval.pattern_) = make_PatternTuple((yyvsp[-1].listpattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2312 "Parser.c"
+#line 2315 "Parser.c"
     break;
 
   case 51: /* Pattern: _LBRACE ListLabelledPattern _RBRACE  */
 #line 591 "Syntax.y"
                                         { (yyval.pattern_) = make_PatternRecord((yyvsp[-1].listlabelledpattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2318 "Parser.c"
+#line 2321 "Parser.c"
     break;
 
   case 52: /* Pattern: _LBRACK ListPattern _RBRACK  */
 #line 592 "Syntax.y"
                                 { (yyval.pattern_) = make_PatternList((yyvsp[-1].listpattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2324 "Parser.c"
+#line 2327 "Parser.c"
     break;
 
   case 53: /* Pattern: _KW_cons _LPAREN Pattern _COMMA Pattern _RPAREN  */
 #line 593 "Syntax.y"
                                                     { (yyval.pattern_) = make_PatternCons((yyvsp[-3].pattern_), (yyvsp[-1].pattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2330 "Parser.c"
+#line 2333 "Parser.c"
     break;
 
   case 54: /* Pattern: _LPAREN Pattern _COMMA Pattern _RPAREN  */
 #line 594 "Syntax.y"
                                            { (yyval.pattern_) = make_patternCons((yyvsp[-3].pattern_), (yyvsp[-1].pattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2336 "Parser.c"
+#line 2339 "Parser.c"
     break;
 
   case 55: /* Pattern: _KW_false  */
 #line 595 "Syntax.y"
               { (yyval.pattern_) = make_PatternFalse(); result->pattern_ = (yyval.pattern_); }
-#line 2342 "Parser.c"
+#line 2345 "Parser.c"
     break;
 
   case 56: /* Pattern: _KW_true  */
 #line 596 "Syntax.y"
              { (yyval.pattern_) = make_PatternTrue(); result->pattern_ = (yyval.pattern_); }
-#line 2348 "Parser.c"
+#line 2351 "Parser.c"
     break;
 
   case 57: /* Pattern: _KW_unit  */
 #line 597 "Syntax.y"
              { (yyval.pattern_) = make_PatternUnit(); result->pattern_ = (yyval.pattern_); }
-#line 2354 "Parser.c"
+#line 2357 "Parser.c"
     break;
 
   case 58: /* Pattern: _INTEGER_  */
 #line 598 "Syntax.y"
               { (yyval.pattern_) = make_PatternInt((yyvsp[0]._int)); result->pattern_ = (yyval.pattern_); }
-#line 2360 "Parser.c"
+#line 2363 "Parser.c"
     break;
 
   case 59: /* Pattern: _KW_succ _LPAREN Pattern _RPAREN  */
 #line 599 "Syntax.y"
                                      { (yyval.pattern_) = make_PatternSucc((yyvsp[-1].pattern_)); result->pattern_ = (yyval.pattern_); }
-#line 2366 "Parser.c"
+#line 2369 "Parser.c"
     break;
 
   case 60: /* Pattern: T_StellaIdent  */
 #line 600 "Syntax.y"
                   { (yyval.pattern_) = make_PatternVar((yyvsp[0]._string)); result->pattern_ = (yyval.pattern_); }
-#line 2372 "Parser.c"
+#line 2375 "Parser.c"
     break;
 
   case 61: /* Pattern: _LPAREN Pattern _RPAREN  */
 #line 601 "Syntax.y"
                             { (yyval.pattern_) = (yyvsp[-1].pattern_); result->pattern_ = (yyval.pattern_); }
-#line 2378 "Parser.c"
+#line 2381 "Parser.c"
     break;
 
   case 62: /* ListPattern: %empty  */
 #line 603 "Syntax.y"
                           { (yyval.listpattern_) = 0; result->listpattern_ = (yyval.listpattern_); }
-#line 2384 "Parser.c"
+#line 2387 "Parser.c"
     break;
 
   case 63: /* ListPattern: Pattern  */
 #line 604 "Syntax.y"
             { (yyval.listpattern_) = make_ListPattern((yyvsp[0].pattern_), 0); result->listpattern_ = (yyval.listpattern_); }
-#line 2390 "Parser.c"
+#line 2393 "Parser.c"
     break;
 
   case 64: /* ListPattern: Pattern _COMMA ListPattern  */
 #line 605 "Syntax.y"
                                { (yyval.listpattern_) = make_ListPattern((yyvsp[-2].pattern_), (yyvsp[0].listpattern_)); result->listpattern_ = (yyval.listpattern_); }
-#line 2396 "Parser.c"
+#line 2399 "Parser.c"
     break;
 
   case 65: /* LabelledPattern: T_StellaIdent _EQ Pattern  */
 #line 607 "Syntax.y"
                                             { (yyval.labelledpattern_) = make_ALabelledPattern((yyvsp[-2]._string), (yyvsp[0].pattern_)); result->labelledpattern_ = (yyval.labelledpattern_); }
-#line 2402 "Parser.c"
+#line 2405 "Parser.c"
     break;
 
   case 66: /* ListLabelledPattern: LabelledPattern  */
 #line 609 "Syntax.y"
                                       { (yyval.listlabelledpattern_) = make_ListLabelledPattern((yyvsp[0].labelledpattern_), 0); result->listlabelledpattern_ = (yyval.listlabelledpattern_); }
-#line 2408 "Parser.c"
+#line 2411 "Parser.c"
     break;
 
   case 67: /* ListLabelledPattern: LabelledPattern _COMMA ListLabelledPattern  */
 #line 610 "Syntax.y"
                                                { (yyval.listlabelledpattern_) = make_ListLabelledPattern((yyvsp[-2].labelledpattern_), (yyvsp[0].listlabelledpattern_)); result->listlabelledpattern_ = (yyval.listlabelledpattern_); }
-#line 2414 "Parser.c"
+#line 2417 "Parser.c"
     break;
 
   case 68: /* Binding: T_StellaIdent _EQ Expr  */
 #line 612 "Syntax.y"
                                  { (yyval.binding_) = make_ABinding((yyvsp[-2]._string), (yyvsp[0].expr_)); result->binding_ = (yyval.binding_); }
-#line 2420 "Parser.c"
+#line 2423 "Parser.c"
     break;
 
   case 69: /* ListBinding: Binding  */
 #line 614 "Syntax.y"
                       { (yyval.listbinding_) = make_ListBinding((yyvsp[0].binding_), 0); result->listbinding_ = (yyval.listbinding_); }
-#line 2426 "Parser.c"
+#line 2429 "Parser.c"
     break;
 
   case 70: /* ListBinding: Binding _COMMA ListBinding  */
 #line 615 "Syntax.y"
                                { (yyval.listbinding_) = make_ListBinding((yyvsp[-2].binding_), (yyvsp[0].listbinding_)); result->listbinding_ = (yyval.listbinding_); }
-#line 2432 "Parser.c"
+#line 2435 "Parser.c"
     break;
 
   case 71: /* Expr: Expr1 _SEMI Expr  */
 #line 617 "Syntax.y"
                         { (yyval.expr_) = make_Sequence((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2438 "Parser.c"
+#line 2441 "Parser.c"
     break;
 
   case 72: /* Expr: Expr1 _SEMI  */
 #line 618 "Syntax.y"
                 { (yyval.expr_) = (yyvsp[-1].expr_); result->expr_ = (yyval.expr_); }
-#line 2444 "Parser.c"
+#line 2447 "Parser.c"
     break;
 
   case 73: /* Expr: _KW_let ListPatternBinding _KW_in Expr  */
 #line 619 "Syntax.y"
                                            { (yyval.expr_) = make_Let((yyvsp[-2].listpatternbinding_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2450 "Parser.c"
+#line 2453 "Parser.c"
     break;
 
   case 74: /* Expr: _KW_letrec ListPatternBinding _KW_in Expr  */
 #line 620 "Syntax.y"
                                               { (yyval.expr_) = make_LetRec((yyvsp[-2].listpatternbinding_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2456 "Parser.c"
+#line 2459 "Parser.c"
     break;
 
   case 75: /* Expr: _KW_generic _LBRACK ListStellaIdent _RBRACK Expr  */
 #line 621 "Syntax.y"
                                                      { (yyval.expr_) = make_TypeAbstraction((yyvsp[-2].liststellaident_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2462 "Parser.c"
+#line 2465 "Parser.c"
     break;
 
   case 76: /* Expr: Expr1  */
 #line 622 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2468 "Parser.c"
+#line 2471 "Parser.c"
     break;
 
   case 77: /* ListExpr: %empty  */
 #line 624 "Syntax.y"
                        { (yyval.listexpr_) = 0; result->listexpr_ = (yyval.listexpr_); }
-#line 2474 "Parser.c"
+#line 2477 "Parser.c"
     break;
 
   case 78: /* ListExpr: Expr  */
 #line 625 "Syntax.y"
          { (yyval.listexpr_) = make_ListExpr((yyvsp[0].expr_), 0); result->listexpr_ = (yyval.listexpr_); }
-#line 2480 "Parser.c"
+#line 2483 "Parser.c"
     break;
 
   case 79: /* ListExpr: Expr _COMMA ListExpr  */
 #line 626 "Syntax.y"
                          { (yyval.listexpr_) = make_ListExpr((yyvsp[-2].expr_), (yyvsp[0].listexpr_)); result->listexpr_ = (yyval.listexpr_); }
-#line 2486 "Parser.c"
+#line 2489 "Parser.c"
     break;
 
   case 80: /* Expr1: Expr2 _COLONEQ Expr1  */
 #line 628 "Syntax.y"
                              { (yyval.expr_) = make_Assign((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2492 "Parser.c"
+#line 2495 "Parser.c"
     break;
 
   case 81: /* Expr1: _KW_if Expr1 _KW_then Expr1 _KW_else Expr1  */
 #line 629 "Syntax.y"
                                                { (yyval.expr_) = make_If((yyvsp[-4].expr_), (yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2498 "Parser.c"
+#line 2501 "Parser.c"
     break;
 
   case 82: /* Expr1: Expr2  */
 #line 630 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2504 "Parser.c"
+#line 2507 "Parser.c"
     break;
 
   case 83: /* PatternBinding: Pattern _EQ Expr  */
 #line 632 "Syntax.y"
                                   { (yyval.patternbinding_) = make_APatternBinding((yyvsp[-2].pattern_), (yyvsp[0].expr_)); result->patternbinding_ = (yyval.patternbinding_); }
-#line 2510 "Parser.c"
+#line 2513 "Parser.c"
     break;
 
   case 84: /* ListPatternBinding: PatternBinding  */
 #line 634 "Syntax.y"
                                     { (yyval.listpatternbinding_) = make_ListPatternBinding((yyvsp[0].patternbinding_), 0); result->listpatternbinding_ = (yyval.listpatternbinding_); }
-#line 2516 "Parser.c"
+#line 2519 "Parser.c"
     break;
 
   case 85: /* ListPatternBinding: PatternBinding _COMMA ListPatternBinding  */
 #line 635 "Syntax.y"
                                              { (yyval.listpatternbinding_) = make_ListPatternBinding((yyvsp[-2].patternbinding_), (yyvsp[0].listpatternbinding_)); result->listpatternbinding_ = (yyval.listpatternbinding_); }
-#line 2522 "Parser.c"
+#line 2525 "Parser.c"
     break;
 
   case 86: /* Expr2: Expr3 _LT Expr3  */
 #line 637 "Syntax.y"
                         { (yyval.expr_) = make_LessThan((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2528 "Parser.c"
+#line 2531 "Parser.c"
     break;
 
   case 87: /* Expr2: Expr3 _LDARROW Expr3  */
 #line 638 "Syntax.y"
                          { (yyval.expr_) = make_LessThanOrEqual((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2534 "Parser.c"
+#line 2537 "Parser.c"
     break;
 
   case 88: /* Expr2: Expr3 _GT Expr3  */
 #line 639 "Syntax.y"
                     { (yyval.expr_) = make_GreaterThan((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2540 "Parser.c"
+#line 2543 "Parser.c"
     break;
 
   case 89: /* Expr2: Expr3 _GTEQ Expr3  */
 #line 640 "Syntax.y"
                       { (yyval.expr_) = make_GreaterThanOrEqual((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2546 "Parser.c"
+#line 2549 "Parser.c"
     break;
 
   case 90: /* Expr2: Expr3 _DEQ Expr3  */
 #line 641 "Syntax.y"
                      { (yyval.expr_) = make_Equal((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2552 "Parser.c"
+#line 2555 "Parser.c"
     break;
 
   case 91: /* Expr2: Expr3 _BANGEQ Expr3  */
 #line 642 "Syntax.y"
                         { (yyval.expr_) = make_NotEqual((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2558 "Parser.c"
+#line 2561 "Parser.c"
     break;
 
   case 92: /* Expr2: Expr3  */
 #line 643 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2564 "Parser.c"
+#line 2567 "Parser.c"
     break;
 
   case 93: /* LabelledEffect: T_StellaIdent _COLON Type  */
 #line 648 "Syntax.y"
                                            { (yyval.labelledeffect_) = make_ALabelledEffect((yyvsp[-2]._string), (yyvsp[0].type_)); result->labelledeffect_ = (yyval.labelledeffect_); }
-#line 2570 "Parser.c"
+#line 2573 "Parser.c"
     break;
 
   case 94: /* ListLabelledEffect: %empty  */
 #line 650 "Syntax.y"
                                  { (yyval.listlabelledeffect_) = 0; result->listlabelledeffect_ = (yyval.listlabelledeffect_); }
-#line 2576 "Parser.c"
+#line 2579 "Parser.c"
     break;
 
   case 95: /* ListLabelledEffect: LabelledEffect  */
 #line 651 "Syntax.y"
                    { (yyval.listlabelledeffect_) = make_ListLabelledEffect((yyvsp[0].labelledeffect_), 0); result->listlabelledeffect_ = (yyval.listlabelledeffect_); }
-#line 2582 "Parser.c"
+#line 2585 "Parser.c"
     break;
 
   case 96: /* ListLabelledEffect: LabelledEffect _COMMA ListLabelledEffect  */
 #line 652 "Syntax.y"
                                              { (yyval.listlabelledeffect_) = make_ListLabelledEffect((yyvsp[-2].labelledeffect_), (yyvsp[0].listlabelledeffect_)); result->listlabelledeffect_ = (yyval.listlabelledeffect_); }
-#line 2588 "Parser.c"
+#line 2591 "Parser.c"
     break;
 
   case 97: /* Modality: _KW_lock  */
 #line 654 "Syntax.y"
                     { (yyval.modality_) = make_ModalityLock(); result->modality_ = (yyval.modality_); }
-#line 2594 "Parser.c"
+#line 2597 "Parser.c"
     break;
 
   case 98: /* Modality: _KW_abs _LT ListLabelledEffect _GT  */
 #line 655 "Syntax.y"
                                        { (yyval.modality_) = make_ModalityAbs((yyvsp[-1].listlabelledeffect_)); result->modality_ = (yyval.modality_); }
-#line 2600 "Parser.c"
+#line 2603 "Parser.c"
     break;
 
   case 99: /* Modality: _KW_rel _LT ListStellaIdent _BAR ListLabelledEffect _GT  */
 #line 656 "Syntax.y"
                                                             { (yyval.modality_) = make_ModalityRel((yyvsp[-3].liststellaident_), (yyvsp[-1].listlabelledeffect_)); result->modality_ = (yyval.modality_); }
-#line 2606 "Parser.c"
+#line 2609 "Parser.c"
     break;
 
   case 100: /* ListModality: Modality  */
 #line 658 "Syntax.y"
                         { (yyval.listmodality_) = make_ListModality((yyvsp[0].modality_), 0); result->listmodality_ = (yyval.listmodality_); }
-#line 2612 "Parser.c"
+#line 2615 "Parser.c"
     break;
 
   case 101: /* ListModality: Modality _COMMA ListModality  */
 #line 659 "Syntax.y"
                                  { (yyval.listmodality_) = make_ListModality((yyvsp[-2].modality_), (yyvsp[0].listmodality_)); result->listmodality_ = (yyval.listmodality_); }
-#line 2618 "Parser.c"
+#line 2621 "Parser.c"
     break;
 
   case 102: /* Expr3: Expr3 _KW_as Type2  */
 #line 661 "Syntax.y"
                            { (yyval.expr_) = make_TypeAsc((yyvsp[-2].expr_), (yyvsp[0].type_)); result->expr_ = (yyval.expr_); }
-#line 2624 "Parser.c"
+#line 2627 "Parser.c"
     break;
 
   case 103: /* Expr3: Expr3 _KW_cast _KW_as Type2  */
 #line 662 "Syntax.y"
                                 { (yyval.expr_) = make_TypeCast((yyvsp[-3].expr_), (yyvsp[0].type_)); result->expr_ = (yyval.expr_); }
-#line 2630 "Parser.c"
+#line 2633 "Parser.c"
     break;
 
   case 104: /* Expr3: _KW_fn _LPAREN ListParamDecl _RPAREN _LBRACE _KW_return Expr _RBRACE  */
 #line 663 "Syntax.y"
                                                                          { (yyval.expr_) = make_Abstraction((yyvsp[-5].listparamdecl_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2636 "Parser.c"
+#line 2639 "Parser.c"
     break;
 
   case 105: /* Expr3: _KW_mod _LBRACK Modality _RBRACK _LBRACE Expr _RBRACE  */
 #line 664 "Syntax.y"
                                                           { (yyval.expr_) = make_ModBox((yyvsp[-4].modality_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2642 "Parser.c"
+#line 2645 "Parser.c"
     break;
 
   case 106: /* Expr3: _SYMB_13 T_StellaIdent ExprData _SYMB_14  */
 #line 665 "Syntax.y"
                                              { (yyval.expr_) = make_Variant((yyvsp[-2]._string), (yyvsp[-1].exprdata_)); result->expr_ = (yyval.expr_); }
-#line 2648 "Parser.c"
+#line 2651 "Parser.c"
     break;
 
   case 107: /* Expr3: _KW_match Expr2 _LBRACE ListMatchCase _RBRACE  */
 #line 666 "Syntax.y"
                                                   { (yyval.expr_) = make_Match((yyvsp[-3].expr_), (yyvsp[-1].listmatchcase_)); result->expr_ = (yyval.expr_); }
-#line 2654 "Parser.c"
+#line 2657 "Parser.c"
     break;
 
   case 108: /* Expr3: _LBRACK ListExpr _RBRACK  */
 #line 667 "Syntax.y"
                              { (yyval.expr_) = make_List((yyvsp[-1].listexpr_)); result->expr_ = (yyval.expr_); }
-#line 2660 "Parser.c"
+#line 2663 "Parser.c"
     break;
 
   case 109: /* Expr3: Expr3 _PLUS Expr4  */
 #line 668 "Syntax.y"
                       { (yyval.expr_) = make_Add((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2666 "Parser.c"
+#line 2669 "Parser.c"
     break;
 
   case 110: /* Expr3: Expr3 _MINUS Expr4  */
 #line 669 "Syntax.y"
                        { (yyval.expr_) = make_Subtract((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2672 "Parser.c"
+#line 2675 "Parser.c"
     break;
 
   case 111: /* Expr3: Expr3 _KW_or Expr4  */
 #line 670 "Syntax.y"
                        { (yyval.expr_) = make_LogicOr((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2678 "Parser.c"
+#line 2681 "Parser.c"
     break;
 
   case 112: /* Expr3: Expr4  */
 #line 671 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2684 "Parser.c"
+#line 2687 "Parser.c"
     break;
 
   case 113: /* Expr4: Expr4 _STAR Expr5  */
 #line 673 "Syntax.y"
                           { (yyval.expr_) = make_Multiply((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2690 "Parser.c"
+#line 2693 "Parser.c"
     break;
 
   case 114: /* Expr4: Expr4 _SLASH Expr5  */
 #line 674 "Syntax.y"
                        { (yyval.expr_) = make_Divide((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2696 "Parser.c"
+#line 2699 "Parser.c"
     break;
 
   case 115: /* Expr4: Expr4 _KW_and Expr5  */
 #line 675 "Syntax.y"
                         { (yyval.expr_) = make_LogicAnd((yyvsp[-2].expr_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2702 "Parser.c"
+#line 2705 "Parser.c"
     break;
 
   case 116: /* Expr4: Expr5  */
 #line 676 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2708 "Parser.c"
+#line 2711 "Parser.c"
     break;
 
   case 117: /* Expr5: _KW_new _LPAREN Expr _RPAREN  */
 #line 678 "Syntax.y"
                                      { (yyval.expr_) = make_Ref((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2714 "Parser.c"
+#line 2717 "Parser.c"
     break;
 
   case 118: /* Expr5: _STAR Expr5  */
 #line 679 "Syntax.y"
                 { (yyval.expr_) = make_Deref((yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2720 "Parser.c"
+#line 2723 "Parser.c"
     break;
 
   case 119: /* Expr5: Expr6  */
 #line 680 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2726 "Parser.c"
+#line 2729 "Parser.c"
     break;
 
   case 120: /* Expr6: Expr6 _LPAREN ListExpr _RPAREN  */
 #line 682 "Syntax.y"
                                        { (yyval.expr_) = make_Application((yyvsp[-3].expr_), (yyvsp[-1].listexpr_)); result->expr_ = (yyval.expr_); }
-#line 2732 "Parser.c"
+#line 2735 "Parser.c"
     break;
 
   case 121: /* Expr6: Expr6 _LBRACK ListType _RBRACK  */
 #line 683 "Syntax.y"
                                    { (yyval.expr_) = make_TypeApplication((yyvsp[-3].expr_), (yyvsp[-1].listtype_)); result->expr_ = (yyval.expr_); }
-#line 2738 "Parser.c"
+#line 2741 "Parser.c"
     break;
 
   case 122: /* Expr6: Expr6 _DOT T_StellaIdent  */
 #line 684 "Syntax.y"
                              { (yyval.expr_) = make_DotRecord((yyvsp[-2].expr_), (yyvsp[0]._string)); result->expr_ = (yyval.expr_); }
-#line 2744 "Parser.c"
+#line 2747 "Parser.c"
     break;
 
   case 123: /* Expr6: Expr6 _DOT _INTEGER_  */
 #line 685 "Syntax.y"
                          { (yyval.expr_) = make_DotTuple((yyvsp[-2].expr_), (yyvsp[0]._int)); result->expr_ = (yyval.expr_); }
-#line 2750 "Parser.c"
+#line 2753 "Parser.c"
     break;
 
   case 124: /* Expr6: _LBRACE ListExpr _RBRACE  */
 #line 686 "Syntax.y"
                              { (yyval.expr_) = make_Tuple((yyvsp[-1].listexpr_)); result->expr_ = (yyval.expr_); }
-#line 2756 "Parser.c"
+#line 2759 "Parser.c"
     break;
 
   case 125: /* Expr6: _LBRACE ListBinding _RBRACE  */
 #line 687 "Syntax.y"
                                 { (yyval.expr_) = make_Record((yyvsp[-1].listbinding_)); result->expr_ = (yyval.expr_); }
-#line 2762 "Parser.c"
+#line 2765 "Parser.c"
     break;
 
   case 126: /* Expr6: _KW_cons _LPAREN Expr _COMMA Expr _RPAREN  */
 #line 688 "Syntax.y"
                                               { (yyval.expr_) = make_ConsList((yyvsp[-3].expr_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2768 "Parser.c"
+#line 2771 "Parser.c"
     break;
 
   case 127: /* Expr6: _SYMB_27 _LPAREN Expr _RPAREN  */
 #line 689 "Syntax.y"
                                   { (yyval.expr_) = make_Head((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2774 "Parser.c"
+#line 2777 "Parser.c"
     break;
 
   case 128: /* Expr6: _SYMB_28 _LPAREN Expr _RPAREN  */
 #line 690 "Syntax.y"
                                   { (yyval.expr_) = make_IsEmpty((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2780 "Parser.c"
+#line 2783 "Parser.c"
     break;
 
   case 129: /* Expr6: _SYMB_29 _LPAREN Expr _RPAREN  */
 #line 691 "Syntax.y"
                                   { (yyval.expr_) = make_Tail((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2786 "Parser.c"
+#line 2789 "Parser.c"
     break;
 
   case 130: /* Expr6: _SYMB_30  */
 #line 692 "Syntax.y"
              { (yyval.expr_) = make_Panic(); result->expr_ = (yyval.expr_); }
-#line 2792 "Parser.c"
+#line 2795 "Parser.c"
     break;
 
   case 131: /* Expr6: _KW_throw _LPAREN Expr _RPAREN  */
 #line 693 "Syntax.y"
                                    { (yyval.expr_) = make_Throw((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2798 "Parser.c"
+#line 2801 "Parser.c"
     break;
 
   case 132: /* Expr6: _KW_try _LBRACE Expr _RBRACE _KW_catch _LBRACE Pattern _RDARROW Expr _RBRACE  */
 #line 694 "Syntax.y"
                                                                                  { (yyval.expr_) = make_TryCatch((yyvsp[-7].expr_), (yyvsp[-3].pattern_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2804 "Parser.c"
+#line 2807 "Parser.c"
     break;
 
   case 133: /* Expr6: _KW_try _LBRACE Expr _RBRACE _KW_with _LBRACE Expr _RBRACE  */
 #line 695 "Syntax.y"
                                                                { (yyval.expr_) = make_TryWith((yyvsp[-5].expr_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2810 "Parser.c"
+#line 2813 "Parser.c"
     break;
 
   case 134: /* Expr6: _KW_try _LBRACE Expr _RBRACE _KW_cast _KW_as Type _LBRACE Pattern _RDARROW Expr _RBRACE _KW_with _LBRACE Expr _RBRACE  */
 #line 696 "Syntax.y"
                                                                                                                           { (yyval.expr_) = make_TryCastAs((yyvsp[-13].expr_), (yyvsp[-9].type_), (yyvsp[-7].pattern_), (yyvsp[-5].expr_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2816 "Parser.c"
+#line 2819 "Parser.c"
     break;
 
   case 135: /* Expr6: _KW_inl _LPAREN Expr _RPAREN  */
 #line 697 "Syntax.y"
                                  { (yyval.expr_) = make_Inl((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2822 "Parser.c"
+#line 2825 "Parser.c"
     break;
 
   case 136: /* Expr6: _KW_inr _LPAREN Expr _RPAREN  */
 #line 698 "Syntax.y"
                                  { (yyval.expr_) = make_Inr((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2828 "Parser.c"
+#line 2831 "Parser.c"
     break;
 
   case 137: /* Expr6: _KW_succ _LPAREN Expr _RPAREN  */
 #line 699 "Syntax.y"
                                   { (yyval.expr_) = make_Succ((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2834 "Parser.c"
+#line 2837 "Parser.c"
     break;
 
   case 138: /* Expr6: _KW_not _LPAREN Expr _RPAREN  */
 #line 700 "Syntax.y"
                                  { (yyval.expr_) = make_LogicNot((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2840 "Parser.c"
+#line 2843 "Parser.c"
     break;
 
   case 139: /* Expr6: _SYMB_31 _LPAREN Expr _RPAREN  */
 #line 701 "Syntax.y"
                                   { (yyval.expr_) = make_Pred((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2846 "Parser.c"
+#line 2849 "Parser.c"
     break;
 
   case 140: /* Expr6: _SYMB_32 _LPAREN Expr _RPAREN  */
 #line 702 "Syntax.y"
                                   { (yyval.expr_) = make_IsZero((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2852 "Parser.c"
+#line 2855 "Parser.c"
     break;
 
   case 141: /* Expr6: _KW_do T_StellaIdent _LPAREN Expr _RPAREN  */
 #line 703 "Syntax.y"
                                               { (yyval.expr_) = make_ModDo((yyvsp[-3]._string), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2858 "Parser.c"
+#line 2861 "Parser.c"
     break;
 
   case 142: /* Expr6: _KW_handle _LBRACE Expr _RBRACE _KW_with _LBRACE ListHandler _RBRACE  */
 #line 704 "Syntax.y"
                                                                          { (yyval.expr_) = make_ModHandle((yyvsp[-5].expr_), (yyvsp[-1].listhandler_)); result->expr_ = (yyval.expr_); }
-#line 2864 "Parser.c"
+#line 2867 "Parser.c"
     break;
 
   case 143: /* Expr6: _KW_fix _LPAREN Expr _RPAREN  */
 #line 705 "Syntax.y"
                                  { (yyval.expr_) = make_Fix((yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2870 "Parser.c"
+#line 2873 "Parser.c"
     break;
 
   case 144: /* Expr6: _SYMB_33 _LPAREN Expr _COMMA Expr _COMMA Expr _RPAREN  */
 #line 706 "Syntax.y"
                                                           { (yyval.expr_) = make_NatRec((yyvsp[-5].expr_), (yyvsp[-3].expr_), (yyvsp[-1].expr_)); result->expr_ = (yyval.expr_); }
-#line 2876 "Parser.c"
+#line 2879 "Parser.c"
     break;
 
   case 145: /* Expr6: _KW_fold _LBRACK Type _RBRACK Expr7  */
 #line 707 "Syntax.y"
                                         { (yyval.expr_) = make_Fold((yyvsp[-2].type_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2882 "Parser.c"
+#line 2885 "Parser.c"
     break;
 
   case 146: /* Expr6: _KW_unfold _LBRACK Type _RBRACK Expr7  */
 #line 708 "Syntax.y"
                                           { (yyval.expr_) = make_Unfold((yyvsp[-2].type_), (yyvsp[0].expr_)); result->expr_ = (yyval.expr_); }
-#line 2888 "Parser.c"
+#line 2891 "Parser.c"
     break;
 
   case 147: /* Expr6: Expr7  */
 #line 709 "Syntax.y"
           { (yyval.expr_) = (yyvsp[0].expr_); result->expr_ = (yyval.expr_); }
-#line 2894 "Parser.c"
+#line 2897 "Parser.c"
     break;
 
   case 148: /* Expr7: _KW_true  */
 #line 711 "Syntax.y"
                  { (yyval.expr_) = make_ConstTrue(); result->expr_ = (yyval.expr_); }
-#line 2900 "Parser.c"
+#line 2903 "Parser.c"
     break;
 
   case 149: /* Expr7: _KW_false  */
 #line 712 "Syntax.y"
               { (yyval.expr_) = make_ConstFalse(); result->expr_ = (yyval.expr_); }
-#line 2906 "Parser.c"
+#line 2909 "Parser.c"
     break;
 
   case 150: /* Expr7: _KW_unit  */
 #line 713 "Syntax.y"
              { (yyval.expr_) = make_ConstUnit(); result->expr_ = (yyval.expr_); }
-#line 2912 "Parser.c"
+#line 2915 "Parser.c"
     break;
 
   case 151: /* Expr7: _INTEGER_  */
 #line 714 "Syntax.y"
               { (yyval.expr_) = make_ConstInt((yyvsp[0]._int)); result->expr_ = (yyval.expr_); }
-#line 2918 "Parser.c"
+#line 2921 "Parser.c"
     break;
 
   case 152: /* Expr7: T_MemoryAddress  */
 #line 715 "Syntax.y"
                     { (yyval.expr_) = make_ConstMemory((yyvsp[0]._string)); result->expr_ = (yyval.expr_); }
-#line 2924 "Parser.c"
+#line 2927 "Parser.c"
     break;
 
   case 153: /* Expr7: T_StellaIdent  */
 #line 716 "Syntax.y"
                   { (yyval.expr_) = make_Var((yyvsp[0]._string)); result->expr_ = (yyval.expr_); }
-#line 2930 "Parser.c"
+#line 2933 "Parser.c"
     break;
 
   case 154: /* Expr7: _LPAREN Expr _RPAREN  */
 #line 717 "Syntax.y"
                          { (yyval.expr_) = (yyvsp[-1].expr_); result->expr_ = (yyval.expr_); }
-#line 2936 "Parser.c"
+#line 2939 "Parser.c"
     break;
 
   case 155: /* Handler: _KW_return Pattern _RARROW Expr  */
 #line 719 "Syntax.y"
                                           { (yyval.handler_) = make_HandlerReturn((yyvsp[-2].pattern_), (yyvsp[0].expr_)); result->handler_ = (yyval.handler_); }
-#line 2942 "Parser.c"
+#line 2945 "Parser.c"
     break;
 
   case 156: /* Handler: _LPAREN LabelledEffect _COMMA Pattern _COMMA T_StellaIdent _RPAREN _RARROW Expr  */
 #line 720 "Syntax.y"
                                                                                     { (yyval.handler_) = make_HandlerLabel((yyvsp[-7].labelledeffect_), (yyvsp[-5].pattern_), (yyvsp[-3]._string), (yyvsp[0].expr_)); result->handler_ = (yyval.handler_); }
-#line 2948 "Parser.c"
+#line 2951 "Parser.c"
     break;
 
-  case 157: /* ListHandler: Handler _SEMI  */
+  case 157: /* ListHandler: %empty  */
 #line 722 "Syntax.y"
-                            { (yyval.listhandler_) = make_ListHandler((yyvsp[-1].handler_), 0); result->listhandler_ = (yyval.listhandler_); }
-#line 2954 "Parser.c"
+                          { (yyval.listhandler_) = 0; result->listhandler_ = (yyval.listhandler_); }
+#line 2957 "Parser.c"
     break;
 
-  case 158: /* ListHandler: Handler _SEMI ListHandler  */
+  case 158: /* ListHandler: Handler  */
 #line 723 "Syntax.y"
-                              { (yyval.listhandler_) = make_ListHandler((yyvsp[-2].handler_), (yyvsp[0].listhandler_)); result->listhandler_ = (yyval.listhandler_); }
-#line 2960 "Parser.c"
+            { (yyval.listhandler_) = make_ListHandler((yyvsp[0].handler_), 0); result->listhandler_ = (yyval.listhandler_); }
+#line 2963 "Parser.c"
     break;
 
-  case 159: /* Type: _LBRACK Modality _RBRACK Type  */
-#line 725 "Syntax.y"
-                                     { (yyval.type_) = make_TypeMod((yyvsp[-2].modality_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
-#line 2966 "Parser.c"
+  case 159: /* ListHandler: Handler _BAR ListHandler  */
+#line 724 "Syntax.y"
+                             { (yyval.listhandler_) = make_ListHandler((yyvsp[-2].handler_), (yyvsp[0].listhandler_)); result->listhandler_ = (yyval.listhandler_); }
+#line 2969 "Parser.c"
     break;
 
-  case 160: /* Type: _KW_auto  */
+  case 160: /* Type: _LBRACK Modality _RBRACK Type  */
 #line 726 "Syntax.y"
-             { (yyval.type_) = make_TypeAuto(); result->type_ = (yyval.type_); }
-#line 2972 "Parser.c"
+                                     { (yyval.type_) = make_TypeMod((yyvsp[-2].modality_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
+#line 2975 "Parser.c"
     break;
 
-  case 161: /* Type: _KW_fn _LPAREN ListType _RPAREN _RARROW Type  */
+  case 161: /* Type: _KW_auto  */
 #line 727 "Syntax.y"
-                                                 { (yyval.type_) = make_TypeFun((yyvsp[-3].listtype_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
-#line 2978 "Parser.c"
+             { (yyval.type_) = make_TypeAuto(); result->type_ = (yyval.type_); }
+#line 2981 "Parser.c"
     break;
 
-  case 162: /* Type: _KW_forall ListStellaIdent _DOT Type  */
+  case 162: /* Type: _KW_fn _LPAREN ListType _RPAREN _RARROW Type  */
 #line 728 "Syntax.y"
-                                         { (yyval.type_) = make_TypeForAll((yyvsp[-2].liststellaident_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
-#line 2984 "Parser.c"
+                                                 { (yyval.type_) = make_TypeFun((yyvsp[-3].listtype_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
+#line 2987 "Parser.c"
     break;
 
-  case 163: /* Type: _KW_86 T_StellaIdent _DOT Type  */
+  case 163: /* Type: _KW_forall ListStellaIdent _DOT Type  */
 #line 729 "Syntax.y"
-                                   { (yyval.type_) = make_TypeRec((yyvsp[-2]._string), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
-#line 2990 "Parser.c"
+                                         { (yyval.type_) = make_TypeForAll((yyvsp[-2].liststellaident_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
+#line 2993 "Parser.c"
     break;
 
-  case 164: /* Type: Type1  */
+  case 164: /* Type: _KW_86 T_StellaIdent _DOT Type  */
 #line 730 "Syntax.y"
+                                   { (yyval.type_) = make_TypeRec((yyvsp[-2]._string), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
+#line 2999 "Parser.c"
+    break;
+
+  case 165: /* Type: Type1  */
+#line 731 "Syntax.y"
           { (yyval.type_) = (yyvsp[0].type_); result->type_ = (yyval.type_); }
-#line 2996 "Parser.c"
+#line 3005 "Parser.c"
     break;
 
-  case 165: /* Type1: Type2 _PLUS Type2  */
-#line 732 "Syntax.y"
-                          { (yyval.type_) = make_TypeSum((yyvsp[-2].type_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
-#line 3002 "Parser.c"
-    break;
-
-  case 166: /* Type1: Type2  */
+  case 166: /* Type1: Type2 _PLUS Type2  */
 #line 733 "Syntax.y"
+                          { (yyval.type_) = make_TypeSum((yyvsp[-2].type_), (yyvsp[0].type_)); result->type_ = (yyval.type_); }
+#line 3011 "Parser.c"
+    break;
+
+  case 167: /* Type1: Type2  */
+#line 734 "Syntax.y"
           { (yyval.type_) = (yyvsp[0].type_); result->type_ = (yyval.type_); }
-#line 3008 "Parser.c"
+#line 3017 "Parser.c"
     break;
 
-  case 167: /* Type2: _LBRACE ListType _RBRACE  */
-#line 735 "Syntax.y"
-                                 { (yyval.type_) = make_TypeTuple((yyvsp[-1].listtype_)); result->type_ = (yyval.type_); }
-#line 3014 "Parser.c"
-    break;
-
-  case 168: /* Type2: _LBRACE ListRecordFieldType _RBRACE  */
+  case 168: /* Type2: _LBRACE ListType _RBRACE  */
 #line 736 "Syntax.y"
-                                        { (yyval.type_) = make_TypeRecord((yyvsp[-1].listrecordfieldtype_)); result->type_ = (yyval.type_); }
-#line 3020 "Parser.c"
+                                 { (yyval.type_) = make_TypeTuple((yyvsp[-1].listtype_)); result->type_ = (yyval.type_); }
+#line 3023 "Parser.c"
     break;
 
-  case 169: /* Type2: _SYMB_13 ListVariantFieldType _SYMB_14  */
+  case 169: /* Type2: _LBRACE ListRecordFieldType _RBRACE  */
 #line 737 "Syntax.y"
-                                           { (yyval.type_) = make_TypeVariant((yyvsp[-1].listvariantfieldtype_)); result->type_ = (yyval.type_); }
-#line 3026 "Parser.c"
+                                        { (yyval.type_) = make_TypeRecord((yyvsp[-1].listrecordfieldtype_)); result->type_ = (yyval.type_); }
+#line 3029 "Parser.c"
     break;
 
-  case 170: /* Type2: _LBRACK Type _RBRACK  */
+  case 170: /* Type2: _SYMB_13 ListVariantFieldType _SYMB_14  */
 #line 738 "Syntax.y"
-                         { (yyval.type_) = make_TypeList((yyvsp[-1].type_)); result->type_ = (yyval.type_); }
-#line 3032 "Parser.c"
+                                           { (yyval.type_) = make_TypeVariant((yyvsp[-1].listvariantfieldtype_)); result->type_ = (yyval.type_); }
+#line 3035 "Parser.c"
     break;
 
-  case 171: /* Type2: Type3  */
+  case 171: /* Type2: _LBRACK Type _RBRACK  */
 #line 739 "Syntax.y"
+                         { (yyval.type_) = make_TypeList((yyvsp[-1].type_)); result->type_ = (yyval.type_); }
+#line 3041 "Parser.c"
+    break;
+
+  case 172: /* Type2: Type3  */
+#line 740 "Syntax.y"
           { (yyval.type_) = (yyvsp[0].type_); result->type_ = (yyval.type_); }
-#line 3038 "Parser.c"
+#line 3047 "Parser.c"
     break;
 
-  case 172: /* Type3: _KW_Bool  */
-#line 741 "Syntax.y"
-                 { (yyval.type_) = make_TypeBool(); result->type_ = (yyval.type_); }
-#line 3044 "Parser.c"
-    break;
-
-  case 173: /* Type3: _KW_Nat  */
+  case 173: /* Type3: _KW_Bool  */
 #line 742 "Syntax.y"
-            { (yyval.type_) = make_TypeNat(); result->type_ = (yyval.type_); }
-#line 3050 "Parser.c"
+                 { (yyval.type_) = make_TypeBool(); result->type_ = (yyval.type_); }
+#line 3053 "Parser.c"
     break;
 
-  case 174: /* Type3: _KW_Unit  */
+  case 174: /* Type3: _KW_Nat  */
 #line 743 "Syntax.y"
-             { (yyval.type_) = make_TypeUnit(); result->type_ = (yyval.type_); }
-#line 3056 "Parser.c"
+            { (yyval.type_) = make_TypeNat(); result->type_ = (yyval.type_); }
+#line 3059 "Parser.c"
     break;
 
-  case 175: /* Type3: _KW_Top  */
+  case 175: /* Type3: _KW_Unit  */
 #line 744 "Syntax.y"
-            { (yyval.type_) = make_TypeTop(); result->type_ = (yyval.type_); }
-#line 3062 "Parser.c"
+             { (yyval.type_) = make_TypeUnit(); result->type_ = (yyval.type_); }
+#line 3065 "Parser.c"
     break;
 
-  case 176: /* Type3: _KW_Bot  */
+  case 176: /* Type3: _KW_Top  */
 #line 745 "Syntax.y"
-            { (yyval.type_) = make_TypeBottom(); result->type_ = (yyval.type_); }
-#line 3068 "Parser.c"
+            { (yyval.type_) = make_TypeTop(); result->type_ = (yyval.type_); }
+#line 3071 "Parser.c"
     break;
 
-  case 177: /* Type3: _AMP Type2  */
+  case 177: /* Type3: _KW_Bot  */
 #line 746 "Syntax.y"
-               { (yyval.type_) = make_TypeRef((yyvsp[0].type_)); result->type_ = (yyval.type_); }
-#line 3074 "Parser.c"
+            { (yyval.type_) = make_TypeBottom(); result->type_ = (yyval.type_); }
+#line 3077 "Parser.c"
     break;
 
-  case 178: /* Type3: T_StellaIdent  */
+  case 178: /* Type3: _AMP Type2  */
 #line 747 "Syntax.y"
-                  { (yyval.type_) = make_TypeVar((yyvsp[0]._string)); result->type_ = (yyval.type_); }
-#line 3080 "Parser.c"
+               { (yyval.type_) = make_TypeRef((yyvsp[0].type_)); result->type_ = (yyval.type_); }
+#line 3083 "Parser.c"
     break;
 
-  case 179: /* Type3: _LPAREN Type _RPAREN  */
+  case 179: /* Type3: T_StellaIdent  */
 #line 748 "Syntax.y"
+                  { (yyval.type_) = make_TypeVar((yyvsp[0]._string)); result->type_ = (yyval.type_); }
+#line 3089 "Parser.c"
+    break;
+
+  case 180: /* Type3: _LPAREN Type _RPAREN  */
+#line 749 "Syntax.y"
                          { (yyval.type_) = (yyvsp[-1].type_); result->type_ = (yyval.type_); }
-#line 3086 "Parser.c"
+#line 3095 "Parser.c"
     break;
 
-  case 180: /* ListType: %empty  */
-#line 750 "Syntax.y"
-                       { (yyval.listtype_) = 0; result->listtype_ = (yyval.listtype_); }
-#line 3092 "Parser.c"
-    break;
-
-  case 181: /* ListType: Type  */
+  case 181: /* ListType: %empty  */
 #line 751 "Syntax.y"
-         { (yyval.listtype_) = make_ListType((yyvsp[0].type_), 0); result->listtype_ = (yyval.listtype_); }
-#line 3098 "Parser.c"
+                       { (yyval.listtype_) = 0; result->listtype_ = (yyval.listtype_); }
+#line 3101 "Parser.c"
     break;
 
-  case 182: /* ListType: Type _COMMA ListType  */
+  case 182: /* ListType: Type  */
 #line 752 "Syntax.y"
+         { (yyval.listtype_) = make_ListType((yyvsp[0].type_), 0); result->listtype_ = (yyval.listtype_); }
+#line 3107 "Parser.c"
+    break;
+
+  case 183: /* ListType: Type _COMMA ListType  */
+#line 753 "Syntax.y"
                          { (yyval.listtype_) = make_ListType((yyvsp[-2].type_), (yyvsp[0].listtype_)); result->listtype_ = (yyval.listtype_); }
-#line 3104 "Parser.c"
+#line 3113 "Parser.c"
     break;
 
-  case 183: /* VariantFieldType: T_StellaIdent OptionalTyping  */
-#line 754 "Syntax.y"
+  case 184: /* VariantFieldType: T_StellaIdent OptionalTyping  */
+#line 755 "Syntax.y"
                                                 { (yyval.variantfieldtype_) = make_AVariantFieldType((yyvsp[-1]._string), (yyvsp[0].optionaltyping_)); result->variantfieldtype_ = (yyval.variantfieldtype_); }
-#line 3110 "Parser.c"
+#line 3119 "Parser.c"
     break;
 
-  case 184: /* ListVariantFieldType: %empty  */
-#line 756 "Syntax.y"
-                                   { (yyval.listvariantfieldtype_) = 0; result->listvariantfieldtype_ = (yyval.listvariantfieldtype_); }
-#line 3116 "Parser.c"
-    break;
-
-  case 185: /* ListVariantFieldType: VariantFieldType  */
+  case 185: /* ListVariantFieldType: %empty  */
 #line 757 "Syntax.y"
-                     { (yyval.listvariantfieldtype_) = make_ListVariantFieldType((yyvsp[0].variantfieldtype_), 0); result->listvariantfieldtype_ = (yyval.listvariantfieldtype_); }
-#line 3122 "Parser.c"
+                                   { (yyval.listvariantfieldtype_) = 0; result->listvariantfieldtype_ = (yyval.listvariantfieldtype_); }
+#line 3125 "Parser.c"
     break;
 
-  case 186: /* ListVariantFieldType: VariantFieldType _COMMA ListVariantFieldType  */
+  case 186: /* ListVariantFieldType: VariantFieldType  */
 #line 758 "Syntax.y"
+                     { (yyval.listvariantfieldtype_) = make_ListVariantFieldType((yyvsp[0].variantfieldtype_), 0); result->listvariantfieldtype_ = (yyval.listvariantfieldtype_); }
+#line 3131 "Parser.c"
+    break;
+
+  case 187: /* ListVariantFieldType: VariantFieldType _COMMA ListVariantFieldType  */
+#line 759 "Syntax.y"
                                                  { (yyval.listvariantfieldtype_) = make_ListVariantFieldType((yyvsp[-2].variantfieldtype_), (yyvsp[0].listvariantfieldtype_)); result->listvariantfieldtype_ = (yyval.listvariantfieldtype_); }
-#line 3128 "Parser.c"
+#line 3137 "Parser.c"
     break;
 
-  case 187: /* RecordFieldType: T_StellaIdent _COLON Type  */
-#line 760 "Syntax.y"
+  case 188: /* RecordFieldType: T_StellaIdent _COLON Type  */
+#line 761 "Syntax.y"
                                             { (yyval.recordfieldtype_) = make_ARecordFieldType((yyvsp[-2]._string), (yyvsp[0].type_)); result->recordfieldtype_ = (yyval.recordfieldtype_); }
-#line 3134 "Parser.c"
+#line 3143 "Parser.c"
     break;
 
-  case 188: /* ListRecordFieldType: RecordFieldType  */
-#line 762 "Syntax.y"
-                                      { (yyval.listrecordfieldtype_) = make_ListRecordFieldType((yyvsp[0].recordfieldtype_), 0); result->listrecordfieldtype_ = (yyval.listrecordfieldtype_); }
-#line 3140 "Parser.c"
-    break;
-
-  case 189: /* ListRecordFieldType: RecordFieldType _COMMA ListRecordFieldType  */
+  case 189: /* ListRecordFieldType: RecordFieldType  */
 #line 763 "Syntax.y"
+                                      { (yyval.listrecordfieldtype_) = make_ListRecordFieldType((yyvsp[0].recordfieldtype_), 0); result->listrecordfieldtype_ = (yyval.listrecordfieldtype_); }
+#line 3149 "Parser.c"
+    break;
+
+  case 190: /* ListRecordFieldType: RecordFieldType _COMMA ListRecordFieldType  */
+#line 764 "Syntax.y"
                                                { (yyval.listrecordfieldtype_) = make_ListRecordFieldType((yyvsp[-2].recordfieldtype_), (yyvsp[0].listrecordfieldtype_)); result->listrecordfieldtype_ = (yyval.listrecordfieldtype_); }
-#line 3146 "Parser.c"
+#line 3155 "Parser.c"
     break;
 
 
-#line 3150 "Parser.c"
+#line 3159 "Parser.c"
 
       default: break;
     }
@@ -3344,7 +3353,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 768 "Syntax.y"
+#line 769 "Syntax.y"
 
 
 
