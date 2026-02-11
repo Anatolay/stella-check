@@ -287,33 +287,76 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
           then ()
           else error(UnexpectedTypeForExpressions)
         Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
-    ModHandle(expr, handlers) -> ()
+    ModHandle(expr, handlers) -> typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
     // ModBox(ModalityLock, expr) -> typecheck-expr-div(Cons(Lock(ModalityLock), environment), expr, expected-type)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
   ()
 
-fun typecheck-handlers-div(environment : environment, handlers : list<handler_>, type_ : type_, mode : mode) : <typechecker> ()
+/*
+Beast of a function
+
+1. Collecect handled effects
+2. Use (1) to typecheck (infer type of) expression wrapped in handle
+3. Use (1) and (2) to typecheck the return handler
+(also check that there is exactly one return handler)
+4. Typecheck each handler
+*/
+fun typecheck-handle-expr-div(environment : environment, expr : expr, handlers : list<handler_>, expected-type : type_, mode : mode) : <div, typechecker> ()
+  // Separate return handlers from effect handlers as they are typechecked differently 
   fun split-handlers(h)
     match h
       HandlerReturn(p, e) -> Left((p, e))
       HandlerLabel(le, p, i, e) -> Right((le, p, i, e))
   val (returns, label-handlers) = handlers.span-map(split-handlers)
-  fun collect-labels(labels, acc) : <typechecker> dict<stellaIdent, list<type_>>
+  // (1)
+  fun collect-labels(labels, acc) : <typechecker> dict<stellaIdent, type_>
     match labels
       [] -> acc
       Cons(ALabelledEffect(ident, effect-type), labels-tail) -> match acc.dict/lookup(ident)
         Just -> error(MultipleHandlersForOneLabel)
         Nothing -> match effect-type
-          TypeFun -> collect-labels(labels-tail, acc.insert(ident, [effect-type]))
+          TypeFun -> collect-labels(labels-tail, acc.insert(ident, effect-type))
           _ -> error(NonFunctionEffect(ident, effect-type))
-  val extension : effect-extension = collect-labels(label-handlers.map(fst), empty)
+  val effect-labels // D
+    = collect-labels(label-handlers.map(fst), empty)
+  val effect-extension-modality // <|D>
+    = ModalityRel([], effect-labels.to-list.map(fn ((l, t)) ALabelledEffect(l, t)))
+  // (2)
+  val expr-type = infer-expr-div(
+    environment.add-lock(effect-extension-modality),
+    expr,
+    mode.update-effects(effect-labels.merge(mode.effects))
+  )
+  // (3)
   match returns
     [] -> error(NoReturnInHandler)
-    [(pattern, expr)] -> ()
+    [(PatternVar(ident), return-expr)] -> typecheck-expr-div(
+      environment.add-var(ident, TypeMod(effect-extension-modality, expr-type)),
+      return-expr,
+      expected-type,
+      mode
+    )
+    [(_, _)] -> error(UnsupportedNode("non-var pattern in return handler"))
     _ -> error(SeveralReturnsInHandler)
-  
+  // (4)
+  fun typecheck-handler(ALabelledEffect(ident, effect-type), pattern, continuation-ident, handler-expr) : _ ()
+    val (arg-type, return-type) = match effect-type
+      TypeFun([a], b) -> (a, b)
+      _ -> error(NonFunctionEffect(ident, effect-type))
+    // TODO: support more patterns
+    val pattern-ident = match pattern
+      PatternVar(i) -> i
+      _ -> error(UnsupportedNode("non-var pattern"))
+    typecheck-expr-div(
+      environment.add-var(pattern-ident, arg-type).add-var(continuation-ident, TypeFun([return-type], expected-type)),
+      handler-expr,
+      expected-type,
+      mode
+    )
+    ()
+  label-handlers.foreach(fn ((le, p, i, e)) -> typecheck-handler(le, p, i, e))
 
 // TODO: pattern bindings appear in let expresisons. Probably there could be
 // issues related to modalities/effects/anything appearing in the process,

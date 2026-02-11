@@ -7,7 +7,7 @@ import utils/dict
 import stella/typecheck/modalities
 
 pub type environment
-  Environment(vars : list<env-item>)
+  Environment(items : list<env-item>)
 
 type env-item
   Lock(modality : modality)
@@ -66,3 +66,6 @@ pub fun environment/has-ident(environment : environment, ident : stellaIdent) : 
   match environment.lookup-ignore-locks(ident)
     Nothing -> False
     Just -> True
+
+pub fun environment/add-lock(Environment(items) : environment, modality : modality) : environment
+  Environment(Cons(Lock(modality), items))
