@@ -509,7 +509,7 @@ ListBinding make_ListBinding(Binding p1, ListBinding p2);
 
 struct Expr_
 {
-  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_ModBox, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_ModDo, is_ModHandle, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
+  enum { is_Sequence, is_Assign, is_If, is_Let, is_LetRec, is_ModLet, is_TypeAbstraction, is_LessThan, is_LessThanOrEqual, is_GreaterThan, is_GreaterThanOrEqual, is_Equal, is_NotEqual, is_TypeAsc, is_TypeCast, is_Abstraction, is_ModBox, is_Variant, is_Match, is_List, is_Add, is_Subtract, is_LogicOr, is_Multiply, is_Divide, is_LogicAnd, is_Ref, is_Deref, is_Application, is_TypeApplication, is_DotRecord, is_DotTuple, is_Tuple, is_Record, is_ConsList, is_Head, is_IsEmpty, is_Tail, is_Panic, is_Throw, is_TryCatch, is_TryWith, is_TryCastAs, is_Inl, is_Inr, is_Succ, is_LogicNot, is_Pred, is_IsZero, is_ModDo, is_ModHandle, is_Fix, is_NatRec, is_Fold, is_Unfold, is_ConstTrue, is_ConstFalse, is_ConstUnit, is_ConstInt, is_ConstMemory, is_Var } kind;
   union
   {
     struct { Expr expr_1, expr_2; } sequence_;
@@ -517,6 +517,7 @@ struct Expr_
     struct { Expr expr_1, expr_2, expr_3; } if_;
     struct { Expr expr_; ListPatternBinding listpatternbinding_; } let_;
     struct { Expr expr_; ListPatternBinding listpatternbinding_; } letRec_;
+    struct { Expr expr_; ListPatternBinding listpatternbinding_; Modality modality_1, modality_2; } modLet_;
     struct { Expr expr_; ListStellaIdent liststellaident_; } typeAbstraction_;
     struct { Expr expr_1, expr_2; } lessThan_;
     struct { Expr expr_1, expr_2; } lessThanOrEqual_;
@@ -576,6 +577,7 @@ Expr make_Assign(Expr p0, Expr p1);
 Expr make_If(Expr p0, Expr p1, Expr p2);
 Expr make_Let(ListPatternBinding p0, Expr p1);
 Expr make_LetRec(ListPatternBinding p0, Expr p1);
+Expr make_ModLet(Modality p0, Modality p1, ListPatternBinding p2, Expr p3);
 Expr make_TypeAbstraction(ListStellaIdent p0, Expr p1);
 Expr make_LessThan(Expr p0, Expr p1);
 Expr make_LessThanOrEqual(Expr p0, Expr p1);

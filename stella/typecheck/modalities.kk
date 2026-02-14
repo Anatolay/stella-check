@@ -11,6 +11,18 @@ pub type modalities
 
 pub val modalities/identity : modalities = Modalities(False, identity)
 
+pub fun modalities/singleton(modality : modality) : modalities
+  match modality
+    ModalityLock -> Modalities(True, identity)
+    ModalityRel(masks, effects) -> Modalities(False, relative-from-labelledEffects(masks, effects))
+    ModalityAbs(effects) -> Modalities(False, absolute-from-labelledEffects(effects))
+
+// First apply m1, then m2
+pub fun modalities/compose(m1 : modalities, m2 : modalities) : modalities
+  val is-locked = m1.is-locked || m2.is-locked
+  val effects = m1.effects.compose(m2.effects)
+  Modalities(is-locked, effects)
+
 pub fun modalities/add(Modalities(is-locked, effects) : modalities, modality : modality) : modalities
   match modality
     ModalityLock -> Modalities(True, effects)

@@ -420,6 +420,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_inr          /* inr */
 %token          _KW_language     /* language */
 %token          _KW_let          /* let */
+%token          _KW_letm         /* letm */
 %token          _KW_letrec       /* letrec */
 %token          _KW_lock         /* lock */
 %token          _KW_match        /* match */
@@ -445,7 +446,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _BAR             /* | */
 %token          _SYMB_14         /* |> */
 %token          _RBRACE          /* } */
-%token          _KW_86           /* µ */
+%token          _KW_87           /* µ */
 %token<_string> T_ExtensionName  /* ExtensionName */
 %token<_string> T_MemoryAddress  /* MemoryAddress */
 %token<_string> T_StellaIdent    /* StellaIdent */
@@ -618,6 +619,7 @@ Expr : Expr1 _SEMI Expr { $$ = make_Sequence($1, $3); result->expr_ = $$; }
   | Expr1 _SEMI { $$ = $1; result->expr_ = $$; }
   | _KW_let ListPatternBinding _KW_in Expr { $$ = make_Let($2, $4); result->expr_ = $$; }
   | _KW_letrec ListPatternBinding _KW_in Expr { $$ = make_LetRec($2, $4); result->expr_ = $$; }
+  | _KW_letm _LBRACK Modality _COMMA Modality _RBRACK ListPatternBinding _KW_in Expr { $$ = make_ModLet($3, $5, $7, $9); result->expr_ = $$; }
   | _KW_generic _LBRACK ListStellaIdent _RBRACK Expr { $$ = make_TypeAbstraction($3, $5); result->expr_ = $$; }
   | Expr1 { $$ = $1; result->expr_ = $$; }
 ;
@@ -727,7 +729,7 @@ Type : _LBRACK Modality _RBRACK Type { $$ = make_TypeMod($2, $4); result->type_ 
   | _KW_auto { $$ = make_TypeAuto(); result->type_ = $$; }
   | _KW_fn _LPAREN ListType _RPAREN _RARROW Type { $$ = make_TypeFun($3, $6); result->type_ = $$; }
   | _KW_forall ListStellaIdent _DOT Type { $$ = make_TypeForAll($2, $4); result->type_ = $$; }
-  | _KW_86 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
+  | _KW_87 T_StellaIdent _DOT Type { $$ = make_TypeRec($2, $4); result->type_ = $$; }
   | Type1 { $$ = $1; result->type_ = $$; }
 ;
 Type1 : Type2 _PLUS Type2 { $$ = make_TypeSum($1, $3); result->type_ = $$; }

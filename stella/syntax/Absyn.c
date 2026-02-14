@@ -1143,6 +1143,24 @@ Expr make_LetRec(ListPatternBinding p1, Expr p2)
     return tmp;
 }
 
+/********************   ModLet    ********************/
+
+Expr make_ModLet(Modality p1, Modality p2, ListPatternBinding p3, Expr p4)
+{
+    Expr tmp = (Expr) malloc(sizeof(*tmp));
+    if (!tmp)
+    {
+        fprintf(stderr, "Error: out of memory when allocating ModLet!\n");
+        exit(1);
+    }
+    tmp->kind = is_ModLet;
+    tmp->u.modLet_.modality_1 = p1;
+    tmp->u.modLet_.modality_2 = p2;
+    tmp->u.modLet_.listpatternbinding_ = p3;
+    tmp->u.modLet_.expr_ = p4;
+    return tmp;
+}
+
 /********************   TypeAbstraction    ********************/
 
 Expr make_TypeAbstraction(ListStellaIdent p1, Expr p2)
@@ -2874,6 +2892,14 @@ Expr clone_Expr(Expr p)
       , clone_Expr(p->u.letRec_.expr_)
       );
 
+  case is_ModLet:
+    return make_ModLet
+      ( clone_Modality(p->u.modLet_.modality_1)
+      , clone_Modality(p->u.modLet_.modality_2)
+      , clone_ListPatternBinding(p->u.modLet_.listpatternbinding_)
+      , clone_Expr(p->u.modLet_.expr_)
+      );
+
   case is_TypeAbstraction:
     return make_TypeAbstraction
       ( clone_ListStellaIdent(p->u.typeAbstraction_.liststellaident_)
@@ -3956,6 +3982,13 @@ void free_Expr(Expr p)
   case is_LetRec:
     free_ListPatternBinding(p->u.letRec_.listpatternbinding_);
     free_Expr(p->u.letRec_.expr_);
+    break;
+
+  case is_ModLet:
+    free_Modality(p->u.modLet_.modality_1);
+    free_Modality(p->u.modLet_.modality_2);
+    free_ListPatternBinding(p->u.modLet_.listpatternbinding_);
+    free_Expr(p->u.modLet_.expr_);
     break;
 
   case is_TypeAbstraction:

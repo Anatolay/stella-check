@@ -585,6 +585,13 @@ void visitExpr(Expr p)
     visitListPatternBinding(p->u.letRec_.listpatternbinding_);
     visitExpr(p->u.letRec_.expr_);
     break;
+  case is_ModLet:
+    /* Code for ModLet Goes Here */
+    visitModality(p->u.modLet_.modality_1);
+    visitModality(p->u.modLet_.modality_2);
+    visitListPatternBinding(p->u.modLet_.listpatternbinding_);
+    visitExpr(p->u.modLet_.expr_);
+    break;
   case is_TypeAbstraction:
     /* Code for TypeAbstraction Goes Here */
     visitListStellaIdent(p->u.typeAbstraction_.liststellaident_);

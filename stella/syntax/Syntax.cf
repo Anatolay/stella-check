@@ -90,6 +90,7 @@ Assign.       Expr1 ::= Expr2 ":=" Expr1;
 If.           Expr1 ::= "if" Expr1 "then" Expr1 "else" Expr1 ;
 Let.          Expr ::= "let" [PatternBinding] "in" Expr ;
 LetRec.       Expr ::= "letrec" [PatternBinding] "in" Expr ;
+ModLet.       Expr ::= "letm" "[" Modality "," Modality "]" [PatternBinding] "in" Expr ;
 TypeAbstraction.  Expr ::= "generic" "[" [StellaIdent] "]" Expr ;
 
 APatternBinding. PatternBinding ::= Pattern "=" Expr ;

@@ -13,5 +13,5 @@ fn identity(n : Nat) -> Nat {
 }
 
 fn main(x : Nat) -> [Nat] {
-  return work(mod [rel< | check : fn(Nat) -> Nat >] { identity }, x)
+  return work(identity, x)
 }

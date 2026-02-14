@@ -67,6 +67,36 @@ pub fun list/show(?a/show : (a) -> string, l : list<a>) : string
   val ss = l.map(a/show)
   "[" ++ ss.join(", ") ++ "]"
 
+pub fun labelledEffect/show((ALabelledEffect(ident, type_)) : labelledEffect) : string
+  ident.show ++ " : " ++ type_.show
+
+pub fun labelledEffect/(==)((ALabelledEffect(ident1, type1)) : labelledEffect, ALabelledEffect(ident2, type2) : labelledEffect) : bool
+  ident1 == ident2 && type1 == type2
+
+pub fun modality/show(m : modality) : string
+  match m
+    ModalityLock -> "lock"
+    ModalityRel(effect-mask, effect-extention) -> "<" ++ effect-mask.show ++ "|" ++ effect-extention.show ++ ">"
+    ModalityAbs(effects) -> "[" ++ effects.show ++ "]"
+
+pub fun modality/(==)(m1 : modality, m2 : modality) : bool
+  match (m1, m2)
+    (ModalityLock, ModalityLock) -> True
+    (ModalityRel(masks1, effects1), ModalityRel(masks2, effects2)) -> masks1 == masks2 && effects1 == effects2
+    (ModalityAbs(effects1), ModalityAbs(effects2)) -> effects1 == effects2
+    _ -> False
+
+pub fun expr/is-value(expr : expr) : bool
+  match expr
+    ConstTrue -> True
+    ConstFalse -> True
+    ConstUnit -> True
+    ConstInt -> True
+    Succ(n) -> n.is-value
+    Var -> True
+    Abstraction -> True
+    ModBox(_, e) -> e.is-value
+    _ -> False
 
 pub fun list/span-map( xs : list<a>, predicate : a -> e either<b, c> ) : e (list<b>,list<c>)
   fun go(ys, acc-b, acc-c)

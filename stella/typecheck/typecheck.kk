@@ -120,6 +120,9 @@ pub type stella-error
   NoReturnInHandler
   SeveralReturnsInHandler
   MultipleHandlersForOneLabel
+  ModalityMismatch(expected-modality : modality, actual-modality : modality)
+  ExpectedNonModalType(expected-type : type_)
+  NonValueBox
 
 // pub fun list/has-key(lst : list<(a,b)>, key : a, @implicit/a/(==) : (a,a) -> bool) : bool
 //   match lst
@@ -141,6 +144,15 @@ pub fun collect-decls(declarations : list<decl>) : typechecker environment
         val input-types = params.map(fn (AParamDecl(_, t)) t)
         val fun-type = TypeFun(input-types, return-type)
         environment.add-var(ident, fun-type)
+      DeclFunMod(_, raw-modalities, ident, params, SomeReturnType(return-type)) ->
+        if environment.has-ident(ident) then error(FunAlreadyDefined(ident.string))
+        val input-types = params.map(fn (AParamDecl(_, t)) t)
+        val fun-type = TypeFun(input-types, return-type)
+        val converted = raw-modalities.map(singleton)
+        val modalities = match converted
+          Nil -> modalities/identity
+          Cons(head, tail) -> tail.foldl(head, fn (ms, m) ms.compose(m))
+        environment.add(ident, modalities, fun-type)
       // TODO: Handle other declarations
       _ -> environment
   declarations.foldl(empty, handle-decl)
@@ -287,14 +299,35 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
           then ()
           else error(UnexpectedTypeForExpressions)
         Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
+
     ModHandle(expr, handlers) ->
       typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
 
-    // ModBox(ModalityLock, expr) -> typecheck-expr-div(Cons(Lock(ModalityLock), environment), expr, expected-type)
+    // ModBox(ModalityLock, expr) -> typecheck-expr-div(environment.add-lock(ModalityLock), expr, expected-type, mode)
+    ModBox(modality, expr) ->
+      if not(is-value(expr)) then error(NonValueBox)
+      match expected-type
+        TypeMod(expected-modality, type_) ->
+          log("Why")
+          if expected-modality == modality
+          then typecheck-expr-div(environment.add-lock(modality), expr, type_, mode.apply-modality(modality))
+          else error(ModalityMismatch(expected-modality, modality))
+        _ -> error(ExpectedNonModalType(expected-type))
+
+    // TODO : support multiple pattern bindings, support non variable patterns
+    // let_nu mod_mu x = M in N
+    ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
+      val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
+      val type_ = match mu-type
+        TypeMod(modality, t) ->
+          log("Why")
+          // TODO: another error?
+          if mu == modality then t else error(UnexpectedTypeForExpressions)
+        _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
+      typecheck-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, expected-type, mode)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
-  ()
 
 /*
 Beast of a function
@@ -483,8 +516,34 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
     //   val extra-environment = infer-pattern-bindings-div(environment, patterns)
     //   infer-expr-div(extra-environment.append(environment), expr)
 
-    // // Modalities
-    // Mod(ModLock, expr) -> infer-expr-div(Cons(Lock(ModLock), environment), expr)
+    // MODAL
+    ModDo(eff-ident, expr) ->
+      match mode.effects.lookup(eff-ident)
+        Nothing -> error(UnknownEffect(eff-ident))
+        Just(TypeFun([arg-type], return-type)) ->
+          typecheck-expr-div(environment, expr, arg-type, mode)
+          return-type
+        Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
+
+    // ModHandle(expr, handlers) -> ()
+
+    ModBox(modality, expr) ->
+      log("Why")
+      if not(is-value(expr)) then error(NonValueBox)
+      val type_ = infer-expr-div(environment.add-lock(modality), expr, mode.apply-modality(modality))
+      TypeMod(modality, type_)
+
+    // TODO : support multiple pattern bindings, support non variable patterns
+    // let_nu mod_mu x = M in N
+    ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
+      val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
+      val type_ = match mu-type
+        TypeMod(modality, t) ->
+          log("Why")
+          // TODO: another error?
+          if mu == modality then t else error(UnexpectedTypeForExpressions)
+        _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
+      infer-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, mode)
 
     // OTHERWISE
     _ -> err(UnhandledExpression)
@@ -514,8 +573,11 @@ pub fun stella-error-to-string(err : stella-error) : string
     UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! UNKNOWN_EFFECT"
     NonFunctionEffect(ident, type_) -> "FAILURE!!! Effect labels should have function types, but " ++ ident.string ++ " has type " ++ type_.show ++ ". NON_FUNCTION_EFFECT"
     NoReturnInHandler -> "FAILURE!!! Handle expressions has to have a `return` case! NO_RETURN_IN_HANDLER"
-    SeveralReturnsInHandler -> "FAILURE!!! Handler expression must have exactly one `return` case! SEBERAL_RETURNS_IN_HANDLER"
+    SeveralReturnsInHandler -> "FAILURE!!! Handler expression must have exactly one `return` case! SEVERAL_RETURNS_IN_HANDLER"
     MultipleHandlersForOneLabel -> "Failure!!! MULTIPLE_HANDLERS_FOR_ONE_LABEL"
+    ModalityMismatch(expected-modality, actual-modality) -> "FAILURE!!! MODALITY_MISMATCH: expected " ++ expected-modality.show ++ " but got " ++ actual-modality.show
+    ExpectedNonModalType(type_) -> "FAILURE!!! EXPECTED_NON_MODAL_TYPE: expected " ++ type_.show ++ " but got expression of modal type"
+    NonValueBox -> "FAILURE!!! NON_VALUE_BOX: mod [...] can only wrap values"
 
 pub fun typecheck-modal(prog : program) : <console, div> ()
   with final ctl error(e : stella-error)

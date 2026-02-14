@@ -108,6 +108,7 @@ pub type expr
   If (expr_1 : expr, expr_2 : expr, expr_3 : expr)
   Let (patternBindingList : list<patternBinding>, expr : expr)
   LetRec (patternBindingList : list<patternBinding>, expr : expr)
+  ModLet (modality_1 : modality, modality_2 : modality, patternBindingList : list<patternBinding>, expr : expr)
   TypeAbstraction (stellaIdentList : list<stellaIdent>, expr : expr)
   LessThan (expr_1 : expr, expr_2 : expr)
   LessThanOrEqual (expr_1 : expr, expr_2 : expr)

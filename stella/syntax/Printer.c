@@ -1592,6 +1592,20 @@ void ppExpr(Expr p, int _i_)
     if (_i_ > 0) renderC(_R_PAREN);
     break;
 
+  case is_ModLet:
+    if (_i_ > 0) renderC(_L_PAREN);
+    renderS("letm");
+    renderC('[');
+    ppModality(p->u.modLet_.modality_1, 0);
+    renderC(',');
+    ppModality(p->u.modLet_.modality_2, 0);
+    renderC(']');
+    ppListPatternBinding(p->u.modLet_.listpatternbinding_, 0);
+    renderS("in");
+    ppExpr(p->u.modLet_.expr_, 0);
+    if (_i_ > 0) renderC(_R_PAREN);
+    break;
+
   case is_TypeAbstraction:
     if (_i_ > 0) renderC(_L_PAREN);
     renderS("generic");
@@ -3614,6 +3628,24 @@ void shExpr(Expr p)
     shListPatternBinding(p->u.letRec_.listpatternbinding_);
   bufAppendC(' ');
     shExpr(p->u.letRec_.expr_);
+
+    bufAppendC(')');
+
+    break;
+  case is_ModLet:
+    bufAppendC('(');
+
+    bufAppendS("ModLet");
+
+    bufAppendC(' ');
+
+    shModality(p->u.modLet_.modality_1);
+  bufAppendC(' ');
+    shModality(p->u.modLet_.modality_2);
+  bufAppendC(' ');
+    shListPatternBinding(p->u.modLet_.listpatternbinding_);
+  bufAppendC(' ');
+    shExpr(p->u.modLet_.expr_);
 
     bufAppendC(')');
 
