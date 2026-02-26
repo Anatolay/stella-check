@@ -114,6 +114,8 @@ pub type stella-error
   NotATuple
   UnexpectedTupleLength
   TupleIndexOutOfBounds
+  UnexpectedList
+  AmbiguousListType
   // Modal effects
   UnknownEffect(ident : stellaIdent)
   NonFunctionEffect(ident : stellaIdent, type_ : type_)
@@ -172,6 +174,7 @@ pub fun typecheck-decl-div(environment : environment, declaration : decl, mode :
   // TODO: support other declarations
   match declaration
     DeclFunMod(_, modalities, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
+      log("Checking function " ++ fname.show)
       // TODO: throw errors on repeated/conflicting modalities
       fun apply-modality(effects : dict<stellaIdent, type_>, modality : modality) : dict<stellaIdent, type_>
         match modality
@@ -283,6 +286,18 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
             Just(elem-type) -> if elem-type == expected-type then () else error(UnexpectedTypeForExpressions)
         _ -> error(NotATuple)
     
+    // LISTS
+    List(exprs) ->
+      match expected-type
+        TypeList(elem-type) ->
+          exprs.foreach(fn (e) typecheck-expr-div(environment, e, elem-type, mode))
+        _ -> error(UnexpectedList)
+    ConsList(expr-head, expr-tail) -> match expected-type
+      TypeList(elem-type) ->
+        typecheck-expr-div(environment, expr-head, elem-type, mode)
+        typecheck-expr-div(environment, expr-tail, TypeList(elem-type), mode)
+      _ -> error(UnexpectedList)
+
     // // LET-BINDING
     // Let(patterns, expr) ->
     //   // TODO: support more patterns than just variables
@@ -317,6 +332,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
     // TODO : support multiple pattern bindings, support non variable patterns
     // let_nu mod_mu x = M in N
     ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
+      log("Checking modal let, expecting " ++ expected-type.show)
       val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
       val type_ = match mu-type
         TypeMod(modality, t) ->
@@ -464,6 +480,7 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
       )
     Application(callee, args) ->
       val fun-type = infer-expr-div(environment, callee, mode)
+      log("Function type : " ++ fun-type.show)
       match fun-type
         TypeFun(params, return-type) ->
           if params.length != args.length then error(IncorrectNumberOfArguments)
@@ -510,6 +527,19 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
             Just(elem-type) -> elem-type
         _ -> err(NotATuple)
 
+    // LISTS
+    List(exprs) ->
+      match exprs
+        [] -> error(AmbiguousListType)
+        Cons(head, tail) ->
+          val elem-type = infer-expr-div(environment, head, mode)
+          tail.foreach(fn (e) typecheck-expr-div(environment, e, elem-type, mode))
+          elem-type
+    ConsList(expr-head, expr-tail) ->
+      val elem-type = infer-expr-div(environment, expr-head, mode)
+      typecheck-expr-div(environment, expr-tail, TypeList(elem-type), mode)
+      TypeList(elem-type)
+
     // // LET-BINDING
     // Let(patterns, expr) ->
     //   // TODO: support more patterns than just variables
@@ -536,6 +566,7 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
     // TODO : support multiple pattern bindings, support non variable patterns
     // let_nu mod_mu x = M in N
     ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
+      log("Inferring modal let")
       val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
       val type_ = match mu-type
         TypeMod(modality, t) ->
@@ -570,6 +601,9 @@ pub fun stella-error-to-string(err : stella-error) : string
     NotATuple -> "FAILURE!!! ERROR_NOT_A_TUPLE"
     UnexpectedTupleLength -> "FAILURE!!! ERROR_UNEXPECTED_TUPLE_LENGTH"
     TupleIndexOutOfBounds -> "FAILURE!!! ERROR_TUPLE_INDEX_OUT_OF_BOUNDS"
+    UnexpectedList -> "FAILURE!!! UNEXPECTED_LIST"
+    AmbiguousListType -> "FAILURE!!! AMBIGUOUS_LIST_TYPE"
+    // Modal
     UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! UNKNOWN_EFFECT"
     NonFunctionEffect(ident, type_) -> "FAILURE!!! Effect labels should have function types, but " ++ ident.string ++ " has type " ++ type_.show ++ ". NON_FUNCTION_EFFECT"
     NoReturnInHandler -> "FAILURE!!! Handle expressions has to have a `return` case! NO_RETURN_IN_HANDLER"

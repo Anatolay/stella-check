@@ -5,13 +5,13 @@ language core;
 
 // asList : [](<Gen Int>(1 -> 1) -> List Int)
 fn asList(f : [rel< | yield : fn(Nat) -> Unit >] fn(Unit)->Unit) -> [Nat] {
-  return handle { f(unit) } with {
-      return unit -> []
+  return handle { letm [rel< | > , rel< | yield : fn(Nat) -> Unit >] g = f in g(unit) } with {
+      return u -> []
     | (yield : fn(Nat) -> Unit, x, r) -> cons(x, r(unit))
   }
 }
 
 
 fn main(x : Nat) -> [Nat] {
-  return asList(fn (u : Unit) { return do yield(0) })
+  return asList(mod [rel< | yield : fn(Nat) -> Unit >] {fn (u : Unit) { return do yield(0) }})
 }

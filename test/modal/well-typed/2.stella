@@ -1,9 +1,9 @@
 language core;
 
-fn zero(n : Nat) -> Nat {
+fn zero(n : Nat) -> [lock] Nat {
   return mod [lock] { 0 }
 }
 
 fn main(x : Nat) -> Nat {
-  return zero(x)
+  return letm [rel< | >, lock] z = zero(x) in z
 }
