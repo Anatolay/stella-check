@@ -5,6 +5,7 @@ import stella/prelude
 import utils/dict
 
 import stella/typecheck/modalities
+import stella/typecheck/modal-effects
 
 pub type environment
   Environment(items : list<env-item>)
@@ -16,20 +17,20 @@ type env-item
 pub val environment/empty : environment = Environment([])
 
 pub type environment-lookup
-  Found(modalities : modalities, type_ : type_)
+  Found(locks : effect-modality, modalities : modalities, type_ : type_)
   // Locked(locks : modality, mod : modality, type_ : type_)
   NotFound
 
 pub fun environment/lookup(environment : environment, ident : stellaIdent) : environment-lookup
-  fun traverse-vars(vars : list<env-item>, modalities : modalities) : environment-lookup
+  fun traverse-vars(vars : list<env-item>, locks : effect-modality) : environment-lookup
     match vars
       [] -> NotFound
-      // TODO: in the future it will accumulate different modalities
-      // to see if a given variable can be used at the given mode
-      Cons(Lock, tail) -> traverse-vars(tail, modalities) // TODO
+      Cons(Lock(ModalityAbs(e)), tail) -> traverse-vars(tail, e.absolute-from-labelledEffects.compose(locks))
+      Cons(Lock(ModalityRel(m, e)), tail) -> traverse-vars(tail, relative-from-labelledEffects(m,e).compose(locks)) // TODO
+      Cons(Lock(ModalityLock), _tail) -> NotFound
       Cons(Dict(d), tail) -> match d.lookup(ident)
-        Nothing -> traverse-vars(tail, modalities)
-        Just((mods, type_)) -> Found(mods, type_)
+        Nothing -> traverse-vars(tail, locks)
+        Just((mods, type_)) -> Found(locks, mods, type_)
   match environment
     Environment(vars) -> traverse-vars(vars, identity)
 

@@ -43,10 +43,10 @@ pub fun modalities/add-many(modalities : modalities, modality-list : list<modali
 // [mu][nu][eta]T   ->   (eta . nu . mu, T)
 // Note: following [1], modalities compose left-to-right,
 // meaning eta applies first in (eta . nu)
-pub fun unpeel-modalities(type_ : type_) : (modalities, type_)
-  fun go(acc, t)
-    match t
-      TypeMod(m, t') -> go(Cons(m, acc), t')
-      _ -> (acc, t)
-  val (lst, unpeeled-type) = go([], type_)
-  (identity.add-many(lst), unpeeled-type)
+// pub fun unpeel-modalities(type_ : type_) : (modalities, type_)
+//   fun go(acc, t)
+//     match t
+//       TypeMod(m, t') -> go(Cons(m, acc), t')
+//       _ -> (acc, t)
+//   val (lst, unpeeled-type) = go([], type_)
+//   (identity.add-many(lst), unpeeled-type)

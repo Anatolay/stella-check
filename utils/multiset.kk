@@ -16,6 +16,9 @@ pub fun multiset/from-list(elems : list<a>, @implicit/a/(==) : (a,a) -> bool) : 
     [] -> empty
     Cons(x, xs) -> from-list(xs).insert(x)
 
+pub fun multiset/to-list(Multiset(d) : multiset<a>) : list<a>
+  d.to-list.flatmap(fn ((a, n)) replicate(a, n))
+
 pub fun multiset/lookup(m : multiset<a>, elem : a, @implicit/a/(==) : (a,a) -> bool) : maybe<int>
   match m
     Multiset(d) -> d.lookup(elem)
@@ -50,3 +53,10 @@ pub fun multiset/merge(m1 : multiset<a>, m2 : multiset<a>, @implicit/a/(==) : (a
     Multiset(d) ->
       val pairs = d.to-list()
       pairs.foldr(m2, fn ((elem, count), multiset) multiset.insert-many(elem, count))
+
+pub fun multiset/diff(Multiset(d1) : multiset<a>, Multiset(d2) : multiset<a>, @implicit/a/(==) : (a,a) -> bool) : multiset<a>
+  fun go(d : dict<a, int>, (a, n) : (a, int), @implicit/a/(==) : (a,a) -> bool) : dict<a, int>
+    match dict/lookup(d, a)
+      Nothing -> d
+      Just(m) -> if m > n then d.insert(a, m - n) else d.remove(a)
+  Multiset(d2.to-list.foldl(d1, go))

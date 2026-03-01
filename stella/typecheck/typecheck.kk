@@ -28,74 +28,6 @@ pub fun list/all(bs : list<bool>) : bool
 
 alias typechecker = <prelude/error<stella-error>, log<string>>
 
-// E <= F if
-// 1. Labels in E are subset of labels in F
-// and
-// 2. For the same label `l`, E has nothing OR the same operation as F
-// fun is-sub-effect-context(c1 : effect-context, c2 : effect-context) : bool
-//   val lbls = c1.keys()
-//   fun check(label : string) : bool
-//     match (c1.lookup(label), c2.lookup(label))
-//       (Nothing, _) -> False // impossible
-//       (Just(_), Nothing) -> False
-//       (Just(presences1), Just(presences2)) -> presences1.zip(presences2).map(fn ((p1, p2)) is-sub-presence(p1,p2)).all()
-//   lbls.map(check).all()
-
-// D1 <= D2 if
-// 1. Labels in D1 and D2 are the same
-// and
-// 2. For the same label `l`, D1 has nothing OR the same operation as D2
-// fun is-sub-effect-extension(c1 : effect-extension, c2 : effect-extension) : bool
-//   val lbls1 = c1.keys()
-//   val lbls2 = c2.keys()
-//   fun check(label : string) : bool
-//     match (c1.lookup(label), c2.lookup(label))
-//       (Nothing, _) -> False // impossible
-//       (Just(_), Nothing) -> False
-//       (Just(presences1), Just(presences2)) ->
-//         presences1.length() == presences2.length() && presences1.zip(presences2).map(fn ((p1, p2)) is-sub-presence(p1,p2)).all()
-//   lbls1.map(check).all() && lbls1.length() == lbls2.length()
-
-
-// pub fun apply-modality(m : modality, ec : effect-context) : effect-context
-//   match m
-//     Identity -> ec
-//     Absolute(c) -> c // [E](F)  =  E
-//     Relative(l, d) -> extend(d, remove(ec, l)) // <L|D>(F)  =  D + (F - L)
-
-
-// mu_F => nu_F is a safe transform when the action of mu on F
-// results in a smaller context then the action of nu on F
-// pub fun is-safe-transform(m1 : modality, m2 : modality, ef : effect-context) : bool
-//   // I have several questions to the original paper
-//   // match (m1, m2)
-//   //   (Absolute(e), _) -> e.is-sub-effect-context(apply-modality(m2, ef))
-//   //   (Relative(l1, d1), Relative(l2, d2)) -> False
-//   //   _ -> False
-//   // This does not align with the paper in certain cases, but seems reasonable
-//   is-sub-effect-context(apply-modality(m1, ef),apply-modality(m2, ef))
-
-
-
-// pub fun has-key(c : environment, k : stellaIdent) : bool
-//   match c
-//     Nil -> False
-//     Cons(Var(name), rest) -> if name == k then True else rest.has-key(k)
-//     Cons(_, rest) -> rest.has-key(k)
-
-// pub fun get-item(c : environment, k : stellaIdent) : maybe<type_>
-//   c.get-item-with([], k)
-
-// pub fun get-item-with(c : environment, mods : list<mod>, k : stellaIdent) : maybe<type_>
-//   match c
-//     Nil -> Nothing
-//     Cons(Lock(ModLock), _) -> Nothing
-//     Cons(Var(name, typ, modality), rest) -> if name == k && modality.unlocks(mods) then Just(typ) else rest.get-item-with(mods, k)
-
-// pub fun unlocks(m : modality, locks : list<mod>) : bool
-//   // TODO: add more modes and modalities
-//   True
-
 pub type stella-error
   NoMain
   UnsupportedNode(str : string)
@@ -126,11 +58,6 @@ pub type stella-error
   ExpectedNonModalType(expected-type : type_)
   NonValueBox
 
-// pub fun list/has-key(lst : list<(a,b)>, key : a, @implicit/a/(==) : (a,a) -> bool) : bool
-//   match lst
-//     [] -> False
-//     Cons(Var(name), rest) -> if name == k then True else rest.has-key(k)
-//     Cons(_, rest) -> rest.has-key(k)
 
 
 /* TYPECHECKING */
@@ -216,14 +143,16 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
   match expression
     // FUNCTIONS AND VARIABLES (lambda-calculi)
     // TODO: do not ignore locks
-    Var(ident) -> match environment.lookup-ignore-locks(ident)
-      Nothing ->
+    Var(ident) -> match environment.lookup(ident)
+      NotFound ->
         log("Why?")
         // TODO: rework errors for locked variables
         if environment.has-ident(ident) then error(LockedVariable(ident.string)) else error(UndefinedVariable(ident.string))
-      Just((_, typ)) ->
-        log("Why?")
-        if typ == expected-type then () else error(UnexpectedTypeForExpressions)
+      Found(locks, _, type_) -> match across(type_, locks, mode.effects)
+        Nothing -> error(LockedVariable(ident.string)) // TODO: rework
+        Just(ty) ->
+          log("Why?")
+          if ty == expected-type then () else error(UnexpectedTypeForExpressions)
     Abstraction(param-decls, body) -> match expected-type
       TypeFun(expected-arg-types, expected-return-type) ->
         if expected-arg-types.length != param-decls.length then error(UnexpectedNumberOfParametersInLambda)
@@ -307,40 +236,40 @@ fun typecheck-expr-div(environment : environment, expression : expr, expected-ty
     // MODAL
     ModDo(eff-ident, expr) ->
       match mode.effects.lookup(eff-ident)
-        Nothing -> error(UnknownEffect(eff-ident))
-        Just(TypeFun([arg-type], return-type)) ->
+        Just(Cons(TypeFun([arg-type], return-type), _)) ->
           typecheck-expr-div(environment, expr, arg-type, mode)
           if return-type == expected-type
           then ()
           else error(UnexpectedTypeForExpressions)
-        Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
+        Just(Cons(eff-type, _)) -> error(NonFunctionEffect(eff-ident, eff-type))
+        _ -> error(UnknownEffect(eff-ident))
 
     ModHandle(expr, handlers) ->
       typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
 
     // ModBox(ModalityLock, expr) -> typecheck-expr-div(environment.add-lock(ModalityLock), expr, expected-type, mode)
-    ModBox(modality, expr) ->
-      if not(is-value(expr)) then error(NonValueBox)
-      match expected-type
-        TypeMod(expected-modality, type_) ->
-          log("Why")
-          if expected-modality == modality
-          then typecheck-expr-div(environment.add-lock(modality), expr, type_, mode.apply-modality(modality))
-          else error(ModalityMismatch(expected-modality, modality))
-        _ -> error(ExpectedNonModalType(expected-type))
+    // ModBox(modality, expr) ->
+    //   if not(is-value(expr)) then error(NonValueBox)
+    //   match expected-type
+    //     TypeMod(expected-modality, type_) ->
+    //       log("Why")
+    //       if expected-modality == modality
+    //       then typecheck-expr-div(environment.add-lock(modality), expr, type_, mode.apply-modality(modality))
+    //       else error(ModalityMismatch(expected-modality, modality))
+    //     _ -> error(ExpectedNonModalType(expected-type))
 
     // TODO : support multiple pattern bindings, support non variable patterns
     // let_nu mod_mu x = M in N
-    ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
-      log("Checking modal let, expecting " ++ expected-type.show)
-      val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
-      val type_ = match mu-type
-        TypeMod(modality, t) ->
-          log("Why")
-          // TODO: another error?
-          if mu == modality then t else error(UnexpectedTypeForExpressions)
-        _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
-      typecheck-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, expected-type, mode)
+    // ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
+    //   log("Checking modal let, expecting " ++ expected-type.show)
+    //   val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
+    //   val type_ = match mu-type
+    //     TypeMod(modality, t) ->
+    //       log("Why")
+    //       // TODO: another error?
+    //       if mu == modality then t else error(UnexpectedTypeForExpressions)
+    //     _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
+    //   typecheck-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, expected-type, mode)
 
     // OTHERWISE
     _ -> error(UnhandledExpression)
@@ -378,7 +307,9 @@ fun typecheck-handle-expr-div(environment : environment, expr : expr, handlers :
   val expr-type = infer-expr-div(
     environment.add-lock(effect-extension-modality),
     expr,
-    mode.update-effects(effect-labels.merge(mode.effects))
+    // TODO
+    // mode.update-effects(effect-labels.merge(mode.effects))
+    mode
   )
   // (3)
   match returns
@@ -549,32 +480,32 @@ fun infer-expr-div(environment : environment, expression : expr, mode : mode) : 
     // MODAL
     ModDo(eff-ident, expr) ->
       match mode.effects.lookup(eff-ident)
-        Nothing -> error(UnknownEffect(eff-ident))
-        Just(TypeFun([arg-type], return-type)) ->
+        Just(Cons(TypeFun([arg-type], return-type), _)) ->
           typecheck-expr-div(environment, expr, arg-type, mode)
           return-type
-        Just(eff-type) -> error(NonFunctionEffect(eff-ident, eff-type))
+        Just(Cons(eff-type, _)) -> error(NonFunctionEffect(eff-ident, eff-type))
+        _ -> error(UnknownEffect(eff-ident))
 
     // ModHandle(expr, handlers) -> ()
 
-    ModBox(modality, expr) ->
-      log("Why")
-      if not(is-value(expr)) then error(NonValueBox)
-      val type_ = infer-expr-div(environment.add-lock(modality), expr, mode.apply-modality(modality))
-      TypeMod(modality, type_)
+    // ModBox(modality, expr) ->
+    //   log("Why")
+    //   if not(is-value(expr)) then error(NonValueBox)
+    //   val type_ = infer-expr-div(environment.add-lock(modality), expr, mode.apply-modality(modality))
+    //   TypeMod(modality, type_)
 
     // TODO : support multiple pattern bindings, support non variable patterns
     // let_nu mod_mu x = M in N
-    ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
-      log("Inferring modal let")
-      val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
-      val type_ = match mu-type
-        TypeMod(modality, t) ->
-          log("Why")
-          // TODO: another error?
-          if mu == modality then t else error(UnexpectedTypeForExpressions)
-        _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
-      infer-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, mode)
+    // ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body) ->
+    //   log("Inferring modal let")
+    //   val mu-type = infer-expr-div(environment.add-lock(nu), expr, mode.apply-modality(nu))
+    //   val type_ = match mu-type
+    //     TypeMod(modality, t) ->
+    //       log("Why")
+    //       // TODO: another error?
+    //       if mu == modality then t else error(UnexpectedTypeForExpressions)
+    //     _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
+    //   infer-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, mode)
 
     // OTHERWISE
     _ -> err(UnhandledExpression)
