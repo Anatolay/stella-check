@@ -67,6 +67,13 @@ pub fun list/show(?a/show : (a) -> string, l : list<a>) : string
   val ss = l.map(a/show)
   "[" ++ ss.join(", ") ++ "]"
 
+pub fun list/is-prefix(l1 : list<a>, l2 : list<a>, ?a/(==) : (a, a) -> bool) : bool
+  match l1
+    [] -> True
+    Cons(x, xs) -> match l2
+      [] -> False
+      Cons(y, ys) -> x == y && xs.is-prefix(ys)
+
 pub fun labelledEffect/show((ALabelledEffect(ident, type_)) : labelledEffect) : string
   ident.show ++ " : " ++ type_.show
 

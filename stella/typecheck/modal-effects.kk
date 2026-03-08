@@ -20,6 +20,13 @@ pub alias effect-extension = dict<stellaIdent, list<type_>>
 pub alias effect-mask = multiset<stellaIdent>
 
 
+pub fun effect-context/is-sub-effect(e1 : effect-context, e2 : effect-context) : bool
+  fun check((label : stellaIdent, types1 : list<type_>)) : bool
+    match e2.lookup(label)
+      Nothing -> False
+      Just(types2) -> types1.is-prefix(types2)
+  e1.to-list.all(check)
+
 pub fun effect-context/merge(e1 : effect-context, e2 : effect-context) : effect-context
   fun go(acc, (l : stellaIdent, types : list<type_>))
     match dict/lookup(acc, l)
@@ -126,6 +133,11 @@ pub fun right-residual(nu : effect-modality, mu : effect-modality, f : effect-co
         Just(new-f) -> Just(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)))
       _ -> Nothing
 
+pub fun effect-modality/apply-modality(mu : effect-modality, e : effect-context) : effect-context
+  match mu
+    Absolute(e') -> e'
+    Relative(l, d) -> extend(d, remove(e, l))
+
 pub fun type_/is-absolute(type_ : type_) : bool
   match type_
     TypeUnit -> True
@@ -147,7 +159,9 @@ pub fun unpeel-effect-modalities(type_ : type_) : (effect-modality, type_)
       TypeMod(ModalityRel(m, e), t') -> go(Cons(relative-from-labelledEffects(m, e), acc), t')
       _ -> (acc, t)
   val (lst, unpeeled-type) = go([], type_)
-  (lst.foldl(identity, fn (acc, m) acc.compose(m)), unpeeled-type)
+  // (lst.foldl(identity, fn (acc, m) acc.compose(m)), unpeeled-type)
+  // Not sure actually which is correct
+  (lst.reverse.foldl(identity, fn (acc, m) acc.compose(m)), unpeeled-type)
 
 pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : maybe<(type_)>
   if type_.is-absolute
@@ -157,3 +171,19 @@ pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : maybe<
     match right-residual(nu, mu, f)
       Nothing -> Nothing
       Just(zeta) -> Just(TypeMod(zeta.to-raw, ty))
+
+pub fun can-transform-type(mu : effect-modality, type_ : type_, nu : effect-modality, e : effect-context) : bool
+  if type_.is-absolute
+  then True
+  else can-transform(mu, nu, e)
+
+pub fun can-transform(mu : effect-modality, nu : effect-modality, f : effect-context) : bool
+  match (mu, nu)
+    (Absolute(e), _) -> e.is-sub-effect(apply-modality(nu, f))
+    (Relative(l1, d1), Relative(l2, d2)) ->
+      val(l, d) = difference(l1, d1)
+      val(l', d') = difference(l2, d2)
+      // TODO
+      // l == l' && d == d'
+      False
+    _ -> False

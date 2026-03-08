@@ -15,6 +15,6 @@ fn identity(n : Nat) -> Nat {
   return n
 }
 
-fn main(x : Nat) -> Nat {
+fn main(x : Nat) -> [Nat] {
   return work(fn (m : Nat) {return check(x)}, x)
 }

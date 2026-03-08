@@ -5,7 +5,7 @@ language core;
 // work : [](<Check>(Nat -> Nat) -> Nat -> Nat)
 
 fn work(f : [rel< | check : fn(Nat) -> Nat >] fn(Nat)->Nat, x : Nat) -> Nat {
-  return handle { letm [rel< | > , rel< | check : fn(Nat) -> Nat >] g = f in g(x) } with {
+  return handle { f(x) } with {
       return n -> n
     | (check : fn(Nat) -> Nat, n, r) -> 0
   }
@@ -15,6 +15,6 @@ fn identity(n : Nat) -> Nat {
   return n
 }
 
-fn main(x : Nat) -> Nat {
-  return work(mod [rel< | check : fn(Nat) -> Nat >] { identity }, x)
+fn main(x : Nat) -> [Nat] {
+  return work(identity, x)
 }
