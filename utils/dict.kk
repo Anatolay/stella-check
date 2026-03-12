@@ -24,8 +24,6 @@ pub fun dict/to-list(dict : dict<a, b>) : list<(a, b)>
 pub fun dict/from-list(lst : list<(a, b)>, @implicit/a/(==) : (a,a) -> bool) : dict<a, b>
   lst.foldl(empty, fn (dict, (a, b)) dict.insert(a, b))
 
-// pub fun dict/from-list(lst : list<(a, b)>) : dict<a, b>
-  // match
 
 pub fun dict/lookup(dict : dict<a, b>, key : a, @implicit/a/(==) : (a,a) -> bool) : maybe<b>
   match dict
@@ -43,6 +41,14 @@ pub fun dict/insert(dict : dict<a, b>, key : a, value : b, @implicit/a/(==) : (a
 pub fun dict/merge(dict1 : dict<a, b>, dict2 : dict<a, b>, @implicit/a/(==) : (a,a) -> bool) : dict<a, b>
   match (dict1, dict2)
     (Dict(l1), Dict(l2)) -> Dict(l1.merge(l2))
+
+
+pub fun dict/is-subdict(d1 : dict<a, b>, d2 : dict<a, b>, ?a/(==) : (a, a) -> bool, ?b/(==) : (b, b) -> bool) : bool
+  val pairs = d1.to-list
+  pairs.all(fn ((key, value)) d2.lookup(key) == Just(value))
+
+pub fun dict/(==)(d1 : dict<a, b>, d2 : dict<a, b>, ?a/(==) : (a, a) -> bool, ?b/(==) : (b, b) -> bool) : bool
+  d1.is-subdict(d2) && d2.is-subdict(d1)
 
 
 // LIST utils used by `dict`

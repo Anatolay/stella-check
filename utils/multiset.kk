@@ -19,6 +19,9 @@ pub fun multiset/from-list(elems : list<a>, @implicit/a/(==) : (a,a) -> bool) : 
 pub fun multiset/to-list(Multiset(d) : multiset<a>) : list<a>
   d.to-list.flatmap(fn ((a, n)) replicate(a, n))
 
+pub fun multiset/(==)(Multiset(d1) : multiset<a>, Multiset(d2) : multiset<a>, ?a/(==) : (a, a) -> bool) : bool
+  d1 == d2
+
 pub fun multiset/lookup(m : multiset<a>, elem : a, @implicit/a/(==) : (a,a) -> bool) : maybe<int>
   match m
     Multiset(d) -> d.lookup(elem)

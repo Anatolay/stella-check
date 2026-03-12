@@ -171,13 +171,18 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         typecheck-expr-div(environment.add-param-decls(param-decls), body, Expect(expected-return-type), mode)
       _ -> error(UnexpectedLambda)
     (Application(callee, args), Infer) ->
+      log("APPLICATION")
       val callee-type = typecheck-expr-div(environment, callee, Infer, mode)
       val (mu, fun-type) = callee-type.unpeel-effect-modalities
+      log(show(callee-type))
+      log(show(fun-type))
+      log(show(can-transform(mu, identity, mode.effects)))
       if can-transform(mu, identity, mode.effects)
       then
         match fun-type
           TypeFun(params, return-type) ->
             if params.length != args.length then error(IncorrectNumberOfArguments)
+            log(params.show)
             args.zip(params).foreach(fn ((arg, param)) unit(typecheck-expr-div(environment, arg, Expect(param), mode)))
             return-type
           _ -> error(NotAFunction)
@@ -268,9 +273,12 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
     // DEFAULT. For all expressions that can be directly inferred and then checked
     (_, Expect(expected-type)) ->
       val inferred-type = typecheck-expr-div(environment, expression, Infer, mode)
-      val (mu, a) = unpeel-effect-modalities(expected-type)
-      val (nu, b) = unpeel-effect-modalities(inferred-type)
+      val (mu, a) = unpeel-effect-modalities(inferred-type)
+      val (nu, b) = unpeel-effect-modalities(expected-type)
       if a != b then error(UnexpectedTypeForExpressions)
+      log(show(a))
+      log(show(mu))
+      log(show(nu))
       if can-transform-type(mu, a, nu, mode.effects) then expected-type else error(ModalityMismatch(mu.to-raw, nu.to-raw))
     _ -> error(UnhandledExpression)
 

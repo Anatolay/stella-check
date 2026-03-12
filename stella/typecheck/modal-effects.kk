@@ -97,6 +97,13 @@ pub type effect-modality
   Absolute(effect-context : effect-context)
   Relative(effect-mask : effect-mask, effect-extension : effect-extension)
 
+
+pub fun effect-modality/show(em : effect-modality) : string
+  match em
+    Absolute(ec) -> "[" ++ ec.to-list.show ++ "]"
+    Relative(em, ee) -> "<" ++ em.to-list.show ++ " | " ++ ee.to-list.show ++ ">"
+
+
 // Identity: a relative effect modality that does NOT mask any labels and does NOT add any labels
 pub val effect-modality/identity : effect-modality = Relative(empty, empty)
 
@@ -172,18 +179,17 @@ pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : maybe<
       Nothing -> Nothing
       Just(zeta) -> Just(TypeMod(zeta.to-raw, ty))
 
-pub fun can-transform-type(mu : effect-modality, type_ : type_, nu : effect-modality, e : effect-context) : bool
+pub fun can-transform-type(mu : effect-modality, type_ : type_, nu : effect-modality, e : effect-context) : <log<string>> bool
   if type_.is-absolute
   then True
   else can-transform(mu, nu, e)
 
-pub fun can-transform(mu : effect-modality, nu : effect-modality, f : effect-context) : bool
+pub fun can-transform(mu : effect-modality, nu : effect-modality, f : effect-context) : <log<string>> bool
   match (mu, nu)
     (Absolute(e), _) -> e.is-sub-effect(apply-modality(nu, f))
-    (Relative(l1, d1), Relative(l2, d2)) ->
-      val(l, d) = difference(l1, d1)
-      val(l', d') = difference(l2, d2)
-      // TODO
-      // l == l' && d == d'
-      False
+    (Relative, Relative) ->
+      // log("CAN TRANSFORM")
+      // log(apply-modality(mu, f).to-list.show)
+      // log(apply-modality(nu, f).to-list.show)
+      (apply-modality(mu, f)).is-sub-effect(apply-modality(nu, f))
     _ -> False

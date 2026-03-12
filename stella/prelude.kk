@@ -61,6 +61,10 @@ pub fun type_/show(t : type_) : string
     // TypeBottom
     // TypeRef (type_ : type_)
     TypeVar(ident) -> "var " ++ ident.show
+    TypeMod(m, t) -> match m
+      ModalityLock -> "lock" ++ t.show
+      ModalityRel -> "<rel>" ++ t.show
+      ModalityAbs -> "[abs]" ++ t.show
     _ -> "UnexpectedType"
 
 pub fun list/show(?a/show : (a) -> string, l : list<a>) : string
