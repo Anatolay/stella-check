@@ -43,7 +43,7 @@ fun effect-extension/to-mask(ext : effect-extension) : effect-mask
 fun effect-extension/extract(effect-extension : effect-extension, labels : multiset<stellaIdent>) : maybe<effect-extension>
   fun go(ext : effect-extension, lbls : list<stellaIdent>, acc : effect-extension) : maybe<effect-extension>
     match lbls
-      Nil -> Just(ext)
+      Nil -> Just(acc)
       Cons(l, ls) -> match ext.lookup(l)
         Just(Cons(t, _)) -> go(ext.remove-first-label(l), ls, acc.add-label-end(l, t))
         _ -> Nothing
@@ -56,18 +56,18 @@ fun remove-first-label(ec : effect-extension, label : stellaIdent) : effect-exte
     Just(Cons(_, [])) -> ec.remove(label)
     Just(Cons(_, rest)) -> ec.insert(label, rest)
 
-fun add-label-end(ec : effect-extension, label : stellaIdent, type_ : type_) : effect-extension
+pub fun add-label-end(ec : effect-extension, label : stellaIdent, type_ : type_) : effect-extension
   match ec.lookup(label)
     Nothing -> ec.insert(label, [type_])
     Just(lst) -> ec.insert(label, lst ++ [type_])
 
-fun add-label-start(ec : effect-extension, label : stellaIdent, type_ : type_) : effect-extension
+pub fun add-label-start(ec : effect-extension, label : stellaIdent, type_ : type_) : effect-extension
   match ec.lookup(label)
     Nothing -> ec.insert(label, [type_])
     Just(lst) -> ec.insert(label, Cons(type_, lst))
 
 // D + E  =  D,E
-fun extend(d : effect-extension, e : effect-context) : effect-context
+pub fun extend(d : effect-extension, e : effect-context) : effect-context
   d.effect-context/merge(e)
 // . - L  =  .         (l:P, E) - L  =  ...
 fun remove(c : effect-context, l : effect-mask) : effect-context
@@ -131,15 +131,6 @@ pub fun effect-modality/compose(m1 : effect-modality, m2 : effect-modality) : ef
       val (l, d) = difference(l2, d1)
       Relative(l1.merge(l), d2.effect-context/merge(d))
 
-pub fun right-residual(nu : effect-modality, mu : effect-modality, f : effect-context) : maybe<effect-modality>
-  match mu
-    Absolute(e) -> Just(Absolute(e))
-    Relative(masks2, extensions2) -> match nu
-      Relative(masks1, extensions1) -> match extract(f, masks1.diff(masks2))
-        Nothing -> Nothing
-        Just(new-f) -> Just(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)))
-      _ -> Nothing
-
 pub fun effect-modality/apply-modality(mu : effect-modality, e : effect-context) : effect-context
   match mu
     Absolute(e') -> e'
@@ -170,11 +161,34 @@ pub fun unpeel-effect-modalities(type_ : type_) : (effect-modality, type_)
   // Not sure actually which is correct
   (lst.reverse.foldl(identity, fn (acc, m) acc.compose(m)), unpeeled-type)
 
-pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : maybe<(type_)>
+pub fun right-residual(m1 : effect-modality, m2 : effect-modality, f : effect-context) : <log<string>> maybe<effect-modality>
+  match (m1, m2)
+    (_, Absolute(e)) -> Just(Absolute(e))
+    (Relative(masks1, extensions1), Relative(masks2, extensions2)) ->
+      match extract(f, masks1.diff(masks2))
+        Nothing -> Nothing
+        Just(new-f) ->
+          log("")
+          log("RESIDUAL")
+          log(masks1.to-list.show)
+          log(masks2.to-list.show)
+          log(masks1.diff(masks2).to-list.show)
+          log(f.to-list.show)
+          log(new-f.to-list.show)
+          log("")
+          log(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)).show)
+          Just(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)))
+    _ -> Nothing
+
+pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : <log<string>> maybe<(type_)>
   if type_.is-absolute
   then Just(type_)
   else
     val (mu, ty) = type_.unpeel-effect-modalities()
+    log("ACROSS")
+    log(mu.show)
+    log(ty.show)
+    log(nu.show)
     match right-residual(nu, mu, f)
       Nothing -> Nothing
       Just(zeta) -> Just(TypeMod(zeta.to-raw, ty))
@@ -188,8 +202,10 @@ pub fun can-transform(mu : effect-modality, nu : effect-modality, f : effect-con
   match (mu, nu)
     (Absolute(e), _) -> e.is-sub-effect(apply-modality(nu, f))
     (Relative, Relative) ->
-      // log("CAN TRANSFORM")
-      // log(apply-modality(mu, f).to-list.show)
-      // log(apply-modality(nu, f).to-list.show)
+      log("CAN TRANSFORM")
+      // log("Mu: " ++ mu.show)
+      // log("Nu: " ++ nu.show)
+      log(apply-modality(mu, f).to-list.show)
+      log(apply-modality(nu, f).to-list.show)
       (apply-modality(mu, f)).is-sub-effect(apply-modality(nu, f))
     _ -> False

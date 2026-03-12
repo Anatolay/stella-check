@@ -11,6 +11,7 @@ import stella/typecheck/modalities
 import stella/typecheck/mode
 
 import utils/dict
+import utils/multiset
 
 /* UTILITY FUNCTIONS */
 
@@ -77,7 +78,7 @@ pub fun collect-decls(declarations : list<decl>) : typechecker environment
         if environment.has-ident(ident) then error(FunAlreadyDefined(ident.string))
         val input-types = params.map(fn (AParamDecl(_, t)) t)
         val fun-type = TypeFun(input-types, return-type)
-        val converted = raw-modalities.map(singleton)
+        val converted = raw-modalities.map(modalities/singleton)
         val modalities = match converted
           Nil -> modalities/identity
           Cons(head, tail) -> tail.foldl(head, fn (ms, m) ms.compose(m))
@@ -153,9 +154,28 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         log("Why?")
         // TODO: rework errors for locked variables
         if environment.has-ident(ident) then error(LockedVariable(ident.string)) else error(UndefinedVariable(ident.string))
-      Found(locks, _, type_) -> match across(type_, locks, mode.effects)
-        Nothing -> error(LockedVariable(ident.string)) // TODO: rework
-        Just(ty) -> ty
+      Found(locks, _, type_) ->
+        log("FOUND VAR " ++ ident.show)
+        log("With locks " ++ locks.show)
+        // match across(type_, locks, apply-modality(locks, mode.effects))
+        match across(type_, locks, mode.effects)
+          Nothing -> error(LockedVariable(ident.string)) // TODO: rework
+          Just(ty) ->
+            // match ty
+            //   TypeMod(m, t) ->
+            //     log(m.show)
+            //     log(t.show)
+            //   _ -> ()
+            ty
+      // Found(locks, modalities, type_) ->
+      //   log("Found variable " ++ ident.show)
+      //   if can-transform-type(modalities.effects, type_, locks, mode.effects)
+      //   then
+      //     log(type_.show)
+      //     log(across(type_, locks, mode.effects).show)
+      //     type_
+      //   else error(LockedVariable(ident.string)) // TODO: maybe another error?
+
     (Abstraction(param-decls, body), Infer) ->
       val extended-environment = environment.add-param-decls(param-decls)
       val return-type = typecheck-expr-div(extended-environment, body, Infer, mode)
@@ -175,8 +195,9 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       val callee-type = typecheck-expr-div(environment, callee, Infer, mode)
       val (mu, fun-type) = callee-type.unpeel-effect-modalities
       log(show(callee-type))
+      log(show(mu))
       log(show(fun-type))
-      log(show(can-transform(mu, identity, mode.effects)))
+      log(mode.effects.to-list.show)
       if can-transform(mu, identity, mode.effects)
       then
         match fun-type
@@ -267,6 +288,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
     // TODO
     (ModHandle(expr, handlers), Infer) -> error(UnhandledExpression)
     (ModHandle(expr, handlers), Expect(expected-type)) ->
+      log("HANDLERS")
       typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
       expected-type
 
@@ -300,32 +322,32 @@ fun typecheck-handle-expr-div(environment : environment, expr : expr, handlers :
       HandlerLabel(le, p, i, e) -> Right((le, p, i, e))
   val (returns, label-handlers) = handlers.span-map(split-handlers)
   // (1)
-  fun collect-labels(labels, acc) : <typechecker> dict<stellaIdent, type_>
+  fun collect-labels(labels, acc) : <typechecker> effect-extension
     match labels
       [] -> acc
       Cons(ALabelledEffect(ident, effect-type), labels-tail) -> match acc.dict/lookup(ident)
         Just -> error(MultipleHandlersForOneLabel)
         Nothing -> match effect-type
-          TypeFun -> collect-labels(labels-tail, acc.insert(ident, effect-type))
+          TypeFun -> collect-labels(labels-tail, acc.insert(ident, [effect-type]))
           _ -> error(NonFunctionEffect(ident, effect-type))
-  val effect-labels // D
+  val effect-extension // D
     = collect-labels(label-handlers.map(fst), empty)
-  val effect-extension-modality // <|D>
-    = ModalityRel([], effect-labels.to-list.map(fn ((l, t)) ALabelledEffect(l, t)))
+  val effect-extension-modality : effect-modality // <|D>
+    = Relative(multiset/empty, effect-extension)
   // (2)
+  log("COLLECTED HANDLERS:")
+  log(effect-extension-modality.show)
   val expr-type = typecheck-expr-div(
-    environment.add-lock(effect-extension-modality),
+    environment.add-lock(effect-extension-modality.to-raw),
     expr,
     Infer,
-    // TODO
-    // mode.update-effects(effect-labels.merge(mode.effects))
-    mode
+    mode.update-effects(effect-extension.extend(mode.effects))
   )
   // (3)
   match returns
     [] -> error(NoReturnInHandler)
     [(PatternVar(ident), return-expr)] -> typecheck-expr-div(
-      environment.add-var(ident, TypeMod(effect-extension-modality, expr-type)),
+      environment.add-var(ident, TypeMod(effect-extension-modality.to-raw, expr-type)),
       return-expr,
       Expect(expected-type),
       mode
