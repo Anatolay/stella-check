@@ -49,8 +49,8 @@ pub fun type_/show(t : type_) : string
     TypeFun(args, return-type) -> "(" ++ args.map(fn (a) pretend-decreasing(a).show).join(", ") ++ ") -> " ++ return-type.show
     // TypeForAll (stellaIdentList : list<stellaIdent>, type_ : type_)
     // TypeRec (stellaIdent : stellaIdent, type_ : type_)
-    // TypeSum (type__1 : type_, type__2 : type_)
-    // TypeTuple (type_List : list<type_>)
+    TypeSum (type_1, type_2) -> type_1.show ++ " + " ++ type_2.show
+    TypeTuple(types) -> "Tuple(" ++ types.map(fn (ty) pretend-decreasing(ty).show).join(", ") ++ ")"
     // TypeRecord (recordFieldTypeList : list<recordFieldType>)
     // TypeVariant (variantFieldTypeList : list<variantFieldType>)
     // TypeList (type_ : type_)

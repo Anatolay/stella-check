@@ -24,6 +24,69 @@ fun environment/add-param-decls(environment : environment, param-decls : list<pa
 pub fun list/all(bs : list<bool>) : bool
   bs.foldl(True,(&&))
 
+pub fun expr/show-name(e : expr) : string
+  match e
+    Sequence -> "Sequence"
+    Assign -> "Assign"
+    If -> "If"
+    Let -> "Let"
+    LetRec -> "LetRec"
+    ModLet -> "ModLet"
+    TypeAbstraction -> "TypeAbstraction"
+    LessThan -> "LessThan"
+    LessThanOrEqual -> "LessThanOrEqual"
+    GreaterThan -> "GreaterThan"
+    GreaterThanOrEqual -> "GreaterThanOrEqual"
+    Equal -> "Equal"
+    NotEqual -> "NotEqual"
+    TypeAsc -> "TypeAsc"
+    TypeCast -> "TypeCast"
+    Abstraction -> "Abstraction"
+    ModBox -> "ModBox"
+    Variant -> "Variant"
+    Match -> "Match"
+    List -> "List"
+    Add -> "Add"
+    Subtract -> "Subtract"
+    LogicOr -> "LogicOr"
+    Multiply -> "Multiply"
+    Divide -> "Divide"
+    LogicAnd -> "LogicAnd"
+    Ref -> "Ref"
+    Deref -> "Deref"
+    Application -> "Application"
+    TypeApplication -> "TypeApplication"
+    DotRecord -> "DotRecord"
+    DotTuple -> "DotTuple"
+    Tuple -> "Tuple"
+    Record -> "Record"
+    ConsList -> "ConsList"
+    Head -> "Head"
+    IsEmpty -> "IsEmpty"
+    Tail -> "Tail"
+    Panic -> "Panic"
+    Throw -> "Throw"
+    TryCatch -> "TryCatch"
+    TryWith -> "TryWith"
+    TryCastAs -> "TryCastAs"
+    Inl -> "Inl"
+    Inr -> "Inr"
+    Succ -> "Succ"
+    LogicNot -> "LogicNot"
+    Pred -> "Pred"
+    IsZero -> "IsZero"
+    ModDo -> "ModDo"
+    ModHandle -> "ModHandle"
+    Fix -> "Fix"
+    NatRec -> "NatRec"
+    Fold -> "Fold"
+    Unfold -> "Unfold"
+    ConstTrue -> "ConstTrue"
+    ConstFalse -> "ConstFalse"
+    ConstUnit -> "ConstUnit"
+    ConstInt -> "ConstInt"
+    ConstMemory -> "ConstMemory"
+    Var -> "Var"
 
 /* CONTEXT AND ESSENTIALS */
 
@@ -34,7 +97,7 @@ pub type stella-error
   UnsupportedNode(str : string)
   FunAlreadyDefined(fname : string)
   NoReturn // TODO: support declarations without return type
-  UnhandledExpression
+  UnhandledExpression(s : string)
   UndefinedVariable(vname : string)
   LockedVariable(vname : string)
   UnexpectedTypeForExpressions
@@ -102,6 +165,7 @@ pub fun typecheck-decl-div(environment : environment, declaration : decl, mode :
   // TODO: support other declarations
   match declaration
     DeclFunMod(_, modalities, fname, param-decls, SomeReturnType(return-type), _throw, decls, expression) ->
+      log("")
       log("Checking function " ++ fname.show)
       // TODO: throw errors on repeated/conflicting modalities
       fun apply-modality(effects : dict<stellaIdent, type_>, modality : modality) : dict<stellaIdent, type_>
@@ -155,18 +219,12 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         // TODO: rework errors for locked variables
         if environment.has-ident(ident) then error(LockedVariable(ident.string)) else error(UndefinedVariable(ident.string))
       Found(locks, _, type_) ->
-        log("FOUND VAR " ++ ident.show)
-        log("With locks " ++ locks.show)
+        // log("FOUND VAR " ++ ident.show)
+        // log("With locks " ++ locks.show)
         // match across(type_, locks, apply-modality(locks, mode.effects))
         match across(type_, locks, mode.effects)
           Nothing -> error(LockedVariable(ident.string)) // TODO: rework
-          Just(ty) ->
-            // match ty
-            //   TypeMod(m, t) ->
-            //     log(m.show)
-            //     log(t.show)
-            //   _ -> ()
-            ty
+          Just(ty) -> ty
       // Found(locks, modalities, type_) ->
       //   log("Found variable " ++ ident.show)
       //   if can-transform-type(modalities.effects, type_, locks, mode.effects)
@@ -194,16 +252,18 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       log("APPLICATION")
       val callee-type = typecheck-expr-div(environment, callee, Infer, mode)
       val (mu, fun-type) = callee-type.unpeel-effect-modalities
-      log(show(callee-type))
-      log(show(mu))
-      log(show(fun-type))
-      log(mode.effects.to-list.show)
+      // log(show(callee-type))
+      // log(show(mu))
+      // log(show(fun-type))
+      // log(mode.effects.to-list.show)
       if can-transform(mu, identity, mode.effects)
       then
         match fun-type
           TypeFun(params, return-type) ->
             if params.length != args.length then error(IncorrectNumberOfArguments)
-            log(params.show)
+            log("CHECKING ARGUMENTS")
+            log("Function type: " ++ fun-type.show)
+            // log(params.show)
             args.zip(params).foreach(fn ((arg, param)) unit(typecheck-expr-div(environment, arg, Expect(param), mode)))
             return-type
           _ -> error(NotAFunction)
@@ -220,7 +280,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       val inferred-type = typecheck-expr-div(environment, t, expectation, mode)
       typecheck-expr-div(environment, f, Expect(inferred-type), mode)
     
-        // NATURALS
+    // NATURALS
     (ConstInt, Infer) ->
       TypeNat
     (Succ(expr), Infer) ->
@@ -234,6 +294,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       val expected-type = typecheck-expr-div(environment, z, expectation, mode)
       val operator-type = TypeFun([TypeNat], TypeFun([expected-type], expected-type))
       typecheck-expr-div(environment, s, Expect(operator-type), mode)
+    // (Add)
 
     // UNIT
     (ConstUnit, Infer) ->
@@ -257,7 +318,24 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
             Nothing -> error(TupleIndexOutOfBounds)
             Just(elem-type) -> elem-type
         _ -> error(NotATuple)
-    
+
+    // SUM TYPES
+    (Inl(expr), Expect(TypeSum(expected-type, _))) ->
+      typecheck-expr-div(environment, expr, Expect(expected-type), mode)
+    (Inr(expr), Expect(TypeSum(_, expected-type))) ->
+      typecheck-expr-div(environment, expr, Expect(expected-type), mode)
+    (Match(expr, case-list), Expect(expected-type)) ->
+      val expr-type = typecheck-expr-div(environment, expr, Infer, mode)
+      log(expr-type.show)
+      fun handle-match-case(AMatchCase(pat, body) : matchCase) : _ ()
+        val new-vars = typecheck-pattern-div(environment, pat, expr-type, mode)
+        val new-environment = environment.add-many-vars(new-vars)
+        val ex-type = typecheck-expr-div(new-environment, body, Expect(expected-type), mode)
+        ()
+      case-list.map(handle-match-case)
+      expected-type
+
+
     // LISTS
     // List(exprs) ->
     //   match expected-type
@@ -286,7 +364,7 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         _ -> error(UnknownEffect(eff-ident))
 
     // TODO
-    (ModHandle(expr, handlers), Infer) -> error(UnhandledExpression)
+    (ModHandle(expr, handlers), Infer) -> error(UnhandledExpression("inference of handlers"))
     (ModHandle(expr, handlers), Expect(expected-type)) ->
       log("HANDLERS")
       typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
@@ -298,11 +376,11 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       val (mu, a) = unpeel-effect-modalities(inferred-type)
       val (nu, b) = unpeel-effect-modalities(expected-type)
       if a != b then error(UnexpectedTypeForExpressions)
-      log(show(a))
-      log(show(mu))
-      log(show(nu))
+      // log(show(a))
+      // log(show(mu))
+      // log(show(nu))
       if can-transform-type(mu, a, nu, mode.effects) then expected-type else error(ModalityMismatch(mu.to-raw, nu.to-raw))
-    _ -> error(UnhandledExpression)
+    _ -> error(UnhandledExpression(expression.show-name))
 
 
 /*
@@ -335,8 +413,8 @@ fun typecheck-handle-expr-div(environment : environment, expr : expr, handlers :
   val effect-extension-modality : effect-modality // <|D>
     = Relative(multiset/empty, effect-extension)
   // (2)
-  log("COLLECTED HANDLERS:")
-  log(effect-extension-modality.show)
+  // log("COLLECTED HANDLERS:")
+  // log(effect-extension-modality.show)
   val expr-type = typecheck-expr-div(
     environment.add-lock(effect-extension-modality.to-raw),
     expr,
@@ -408,7 +486,7 @@ pub fun infer-pattern-bindings-div(environment : environment, patterns : list<pa
       PatternVar(ident) -> ident
       _ ->
         // TODO: support more patterns than just variables
-        error(UnhandledExpression)
+        error(UnhandledExpression("non variable pattern binding"))
         StellaIdent("")
   val idents = patterns.map(get-ident)
   val exprs = patterns.map(fn (APatternBinding(_, e)) e)
@@ -418,6 +496,20 @@ pub fun infer-pattern-bindings-div(environment : environment, patterns : list<pa
   // hence we reverse the list
   idents.zip(types).reverse
 
+pub fun typecheck-pattern-div(environment : environment, pattern : pattern, expected-type : type_, mode : mode) : <typechecker, div> list<(stellaIdent, type_)>
+  val (_, type_) = expected-type.unpeel-effect-modalities()
+  match (pattern, type_)
+    (PatternVar(ident), _) -> [(ident, expected-type)]
+    (PatternInl(pat), TypeSum(type_, _)) ->
+      log("Here")
+      typecheck-pattern-div(environment, pat, type_, mode)
+    (PatternInr(pat), TypeSum(_, type_)) -> typecheck-pattern-div(environment, pat, type_, mode)
+    (PatternTuple(patterns), TypeTuple(types)) ->
+      log("Why")
+      if patterns.length != types.length then error(UnexpectedTupleLength)
+      val vars = patterns.zip(types).map(fn ((p, t)) typecheck-pattern-div(environment, p, t, mode)).concat
+      vars
+    _ -> error(UnhandledExpression("unhandled pattern"))
 
 /* MAIN */
 
@@ -427,7 +519,7 @@ pub fun stella-error-to-string(err : stella-error) : string
     UnsupportedNode(str) -> "FAILURE!!! Currently we do not support " ++ str
     FunAlreadyDefined(str) -> "FAILURE!!! Multiple definitions of " ++ str
     NoReturn -> "FAILURE!!! Currently we do not support missing return types"
-    UnhandledExpression -> "FAILURE!!! Unhandled expression!"
+    UnhandledExpression(s) -> "FAILURE!!! Unhandled expression! " ++ s
     UndefinedVariable(vname) -> "FAILURE!!! ERROR_UNDEFINED_VARIABLE " ++ vname ++ "!"
     LockedVariable(vname) -> "FAILURE!!! Trying to use variable " ++ vname ++ " in a locked term!"
     UnexpectedTypeForExpressions -> "FAILURE!!! ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION"

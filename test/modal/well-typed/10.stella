@@ -1,0 +1,13 @@
+language core;
+
+fn apply(f : fn(Nat)->Nat, x : Nat) -> Nat {
+  return f(x)
+}
+
+mod [abs< | check : fn(Nat) -> Nat >] fn run(n : Nat) -> Nat {
+  return do check(n)
+}
+
+mod [abs< | check : fn(Nat) -> Nat >] fn main(x : Nat) -> Nat {
+  return apply(run, x)
+}

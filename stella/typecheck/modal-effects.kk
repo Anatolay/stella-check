@@ -167,17 +167,7 @@ pub fun right-residual(m1 : effect-modality, m2 : effect-modality, f : effect-co
     (Relative(masks1, extensions1), Relative(masks2, extensions2)) ->
       match extract(f, masks1.diff(masks2))
         Nothing -> Nothing
-        Just(new-f) ->
-          log("")
-          log("RESIDUAL")
-          log(masks1.to-list.show)
-          log(masks2.to-list.show)
-          log(masks1.diff(masks2).to-list.show)
-          log(f.to-list.show)
-          log(new-f.to-list.show)
-          log("")
-          log(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)).show)
-          Just(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)))
+        Just(new-f) -> Just(Relative(extensions1.to-mask.merge(masks2.diff(masks1)), extensions2.extend(new-f)))
     _ -> Nothing
 
 pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : <log<string>> maybe<(type_)>
@@ -185,10 +175,10 @@ pub fun across(type_ : type_, nu : effect-modality, f : effect-context) : <log<s
   then Just(type_)
   else
     val (mu, ty) = type_.unpeel-effect-modalities()
-    log("ACROSS")
-    log(mu.show)
-    log(ty.show)
-    log(nu.show)
+    // log("ACROSS")
+    // log(mu.show)
+    // log(ty.show)
+    // log(nu.show)
     match right-residual(nu, mu, f)
       Nothing -> Nothing
       Just(zeta) -> Just(TypeMod(zeta.to-raw, ty))
@@ -202,10 +192,10 @@ pub fun can-transform(mu : effect-modality, nu : effect-modality, f : effect-con
   match (mu, nu)
     (Absolute(e), _) -> e.is-sub-effect(apply-modality(nu, f))
     (Relative, Relative) ->
-      log("CAN TRANSFORM")
+      // log("CAN TRANSFORM")
       // log("Mu: " ++ mu.show)
       // log("Nu: " ++ nu.show)
-      log(apply-modality(mu, f).to-list.show)
-      log(apply-modality(nu, f).to-list.show)
+      // log(apply-modality(mu, f).to-list.show)
+      // log(apply-modality(nu, f).to-list.show)
       (apply-modality(mu, f)).is-sub-effect(apply-modality(nu, f))
     _ -> False
