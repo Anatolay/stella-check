@@ -105,6 +105,7 @@ pub type stella-error
   UnexpectedNumberOfParametersInLambda
   UnexpectedTypeForParameter
   NotAFunction
+  NotAList
   IncorrectNumberOfArguments
   UnexpectedTuple
   NotATuple
@@ -112,6 +113,10 @@ pub type stella-error
   TupleIndexOutOfBounds
   UnexpectedList
   AmbiguousListType
+  AmbiguousSumType
+  IllegalEmptyMatching
+  UnexpectedInjection
+  UnexpectedPatternForType
   // Modal effects
   UnknownEffect(ident : stellaIdent)
   NonFunctionEffect(ident : stellaIdent, type_ : type_)
@@ -278,6 +283,9 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
     (If(b, t, f), _) ->
       typecheck-expr-div(environment, b, Expect(TypeBool), mode)
       val inferred-type = typecheck-expr-div(environment, t, expectation, mode)
+      match expectation
+        Infer -> log("Infer")
+        Expect(ty) -> log(ty.show)
       typecheck-expr-div(environment, f, Expect(inferred-type), mode)
     
     // NATURALS
@@ -320,11 +328,23 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         _ -> error(NotATuple)
 
     // SUM TYPES
-    (Inl(expr), Expect(TypeSum(expected-type, _))) ->
-      typecheck-expr-div(environment, expr, Expect(expected-type), mode)
-    (Inr(expr), Expect(TypeSum(_, expected-type))) ->
-      typecheck-expr-div(environment, expr, Expect(expected-type), mode)
+    (Inl(expr), Expect(TypeSum(expected-type-l, expected-type-r))) ->
+      typecheck-expr-div(environment, expr, Expect(expected-type-l), mode)
+      TypeSum(expected-type-l, expected-type-r)
+    (Inr(expr), Expect(TypeSum(expected-type-l, expected-type-r))) ->
+      typecheck-expr-div(environment, expr, Expect(expected-type-r), mode)
+      TypeSum(expected-type-l, expected-type-r)
+    (Inl, Infer) ->
+      error(AmbiguousSumType)
+    (Inr, Infer) ->
+      error(AmbiguousSumType)
+    (Inl, Expect) ->
+      error(UnexpectedInjection)
+    (Inr, Expect) ->
+      error(UnexpectedInjection)
     (Match(expr, case-list), Expect(expected-type)) ->
+      log("Why")
+      if case-list.length == 0 then error(IllegalEmptyMatching)
       val expr-type = typecheck-expr-div(environment, expr, Infer, mode)
       log(expr-type.show)
       fun handle-match-case(AMatchCase(pat, body) : matchCase) : _ ()
@@ -334,25 +354,75 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         ()
       case-list.map(handle-match-case)
       expected-type
-
+    (Match(expr, case-list), Infer) ->
+      val expr-type = typecheck-expr-div(environment, expr, Infer, mode)
+      match case-list
+        Nil -> error(IllegalEmptyMatching)
+        Cons(e, es) ->
+          fun handle-first-match-case(AMatchCase(pat, body) : matchCase) : _ type_
+            val new-vars = typecheck-pattern-div(environment, pat, expr-type, mode)
+            val new-environment = environment.add-many-vars(new-vars)
+            typecheck-expr-div(new-environment, body, Infer, mode)
+          val expected-type = handle-first-match-case(e)
+          fun handle-match-case(AMatchCase(pat, body) : matchCase) : _ ()
+            val new-vars = typecheck-pattern-div(environment, pat, expr-type, mode)
+            val new-environment = environment.add-many-vars(new-vars)
+            val ex-type = typecheck-expr-div(new-environment, body, Expect(expected-type), mode)
+            ()
+          es.map(handle-match-case)
+          expected-type
 
     // LISTS
-    // List(exprs) ->
-    //   match expected-type
-    //     TypeList(elem-type) ->
-    //       exprs.foreach(fn (e) typecheck-expr-div(environment, e, elem-type, mode))
-    //     _ -> error(UnexpectedList)
-    // ConsList(expr-head, expr-tail) -> match expected-type
-    //   TypeList(elem-type) ->
-    //     typecheck-expr-div(environment, expr-head, elem-type, mode)
-    //     typecheck-expr-div(environment, expr-tail, TypeList(elem-type), mode)
-    //   _ -> error(UnexpectedList)
+    (List(exprs), Expect(expected-type)) ->
+      match expected-type
+        TypeList(elem-type) ->
+          exprs.map(fn (e) typecheck-expr-div(environment, e, Expect(elem-type), mode))
+          expected-type
+        _ -> error(UnexpectedList)
+    (List(exprs), Infer) ->
+      match exprs
+        Nil -> error(AmbiguousListType)
+        Cons(e, es) ->
+          val elem-type = typecheck-expr-div(environment, e, Infer, mode)
+          es.map(fn (elem) typecheck-expr-div(environment, elem, Expect(elem-type), mode))
+          TypeList(elem-type)
+    (ConsList(expr-head, expr-tail), Expect(expected-type)) ->
+      match expected-type
+        TypeList(elem-type) ->
+          typecheck-expr-div(environment, expr-head, Expect(elem-type), mode)
+          typecheck-expr-div(environment, expr-tail, Expect(TypeList(elem-type)), mode)
+        _ -> error(UnexpectedList)
+    (ConsList(expr-head, expr-tail), Infer) ->
+      val elem-type = typecheck-expr-div(environment, expr-head, Infer, mode)
+      typecheck-expr-div(environment, expr-tail, Expect(TypeList(elem-type)), mode)
+    (Head(expr), Infer) ->
+      val expr-type = typecheck-expr-div(environment, expr, Infer, mode)
+      match expr-type
+        TypeList(elem-type) -> elem-type
+        _ -> error(NotAList)
+    (Head(expr), Expect(expected-type)) ->
+      typecheck-expr-div(environment, expr, Expect(TypeList(expected-type)), mode)
+    (IsEmpty(expr), Infer) ->
+      val expr-type = typecheck-expr-div(environment, expr, Infer, mode)
+      match expr-type
+        TypeList -> TypeBool
+        _ -> error(NotAList)
+    (Tail(expr), Infer) ->
+      val expr-type = typecheck-expr-div(environment, expr, Infer, mode)
+      match expr-type
+        TypeList(elem-type) -> TypeList(elem-type)
+        _ -> error(NotAList)
+    (Tail(expr), Expect(expected-type)) ->
+      match expected-type
+        TypeList(elem-type) ->
+          typecheck-expr-div(environment, expr, Expect(TypeList(elem-type)), mode)
+        _ -> error(UnexpectedList)
 
-    // // LET-BINDING
-    // Let(patterns, expr) ->
-    //   // TODO: support more patterns than just variables
-    //   val extra-environment = infer-pattern-bindings-div(environment, patterns)
-    //   typecheck-expr-div(extra-environment.append(environment), expr, expected-type)
+    // LET-BINDING
+    (Let(patterns, expr), _) ->
+      // TODO: support more patterns than just variables
+      val new-vars = infer-pattern-bindings-div(environment, patterns, mode)
+      typecheck-expr-div(environment.add-many-vars(new-vars), expr, expectation, mode)
 
     // MODAL
     (ModDo(eff-ident, expr), Infer)->
@@ -506,10 +576,16 @@ pub fun typecheck-pattern-div(environment : environment, pattern : pattern, expe
     (PatternInr(pat), TypeSum(_, type_)) -> typecheck-pattern-div(environment, pat, type_, mode)
     (PatternTuple(patterns), TypeTuple(types)) ->
       log("Why")
-      if patterns.length != types.length then error(UnexpectedTupleLength)
+      if patterns.length != types.length then error(UnexpectedPatternForType)
       val vars = patterns.zip(types).map(fn ((p, t)) typecheck-pattern-div(environment, p, t, mode)).concat
       vars
-    _ -> error(UnhandledExpression("unhandled pattern"))
+    (PatternInt, TypeNat) -> []
+    (PatternList(pats), TypeList(elem-type)) ->
+      pats.map(fn (p) typecheck-pattern-div(environment, p, elem-type, mode)).concat
+    (PatternUnit, TypeUnit) -> []
+    (PatternTrue, TypeBool) -> []
+    (PatternFalse, TypeBool) -> []
+    _ -> error(UnexpectedPatternForType)
 
 /* MAIN */
 
@@ -527,13 +603,18 @@ pub fun stella-error-to-string(err : stella-error) : string
     UnexpectedNumberOfParametersInLambda -> "FAILURE!!! ERROR_UNEXPECTED_NUMBER_OF_PARAMETERS_IN_LAMBDA"
     UnexpectedTypeForParameter -> "FAILURE!!! ERROR_UNEXPECTED_TYPE_FOR_PARAMETER"
     NotAFunction -> "FAILURE!!! ERROR_NOT_A_FUNCTION"
+    NotAList -> "FAILURE!!! ERROR_NOT_A_LIST"
     IncorrectNumberOfArguments -> "FAILURE!!! ERROR_INCORRECT_NUMBER_OF_ARGUMENTS"
     UnexpectedTuple -> "FAILURE!!! ERROR_UNEXPECTED_TUPLE"
     NotATuple -> "FAILURE!!! ERROR_NOT_A_TUPLE"
     UnexpectedTupleLength -> "FAILURE!!! ERROR_UNEXPECTED_TUPLE_LENGTH"
     TupleIndexOutOfBounds -> "FAILURE!!! ERROR_TUPLE_INDEX_OUT_OF_BOUNDS"
-    UnexpectedList -> "FAILURE!!! UNEXPECTED_LIST"
-    AmbiguousListType -> "FAILURE!!! AMBIGUOUS_LIST_TYPE"
+    UnexpectedList -> "FAILURE!!! ERROR_UNEXPECTED_LIST"
+    AmbiguousListType -> "FAILURE!!! ERROR_AMBIGUOUS_LIST_TYPE"
+    AmbiguousSumType -> "FAILURE!!! ERROR_AMBIGUOUS_SUM_TYPE"
+    IllegalEmptyMatching -> "FAILURE!!! ERROR_ILLEGAL_EMPTY_MATCHING"
+    UnexpectedInjection -> "FAILURE!!! ERROR_UNEXPECTED_INJECTION"
+    UnexpectedPatternForType -> "FAILURE!!! ERROR_UNEXPECTED_PATTERN_FOR_TYPE"
     // Modal
     UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! UNKNOWN_EFFECT"
     NonFunctionEffect(ident, type_) -> "FAILURE!!! Effect labels should have function types, but " ++ ident.string ++ " has type " ++ type_.show ++ ". NON_FUNCTION_EFFECT"
