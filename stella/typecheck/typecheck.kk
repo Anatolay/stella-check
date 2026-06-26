@@ -173,16 +173,17 @@ pub fun typecheck-decl-div(environment : environment, declaration : decl, mode :
       log("")
       log("Checking function " ++ fname.show)
       // TODO: throw errors on repeated/conflicting modalities
-      fun apply-modality(effects : dict<stellaIdent, type_>, modality : modality) : dict<stellaIdent, type_>
+      fun apply-modality(effects : effect-context, modality : modality) : effect-context
         match modality
-          ModalityAbs(efs) -> from-list(efs.map(fn (ALabelledEffect(ident, type_)) (ident, type_)))
+          ModalityAbs(efs) -> from-list(efs.map(fn (ALabelledEffect(ident, type_)) (ident, [type_])))
+          // TODO: Masking and extending seem incorrect for multiple instances of the same label
           ModalityRel(masks, additions) ->
             val new-effects = masks.foldl(effects, fn(es, ident) es.remove(ident))
-            additions.foldl(new-effects, fn(es, (ALabelledEffect(i, t))) es.insert(i, t))
+            additions.foldl(new-effects, fn(es, (ALabelledEffect(i, t))) es.insert(i, [t]))
           _ -> effects
       val effects = mode.effects()
       // TODO:
-      val new-effects = effects // modalities.foldl(effects, apply-modality)
+      val new-effects = modalities.foldl(effects, apply-modality)
       val new-mode = mode.update-effects(new-effects)
       val new-environment = environment.add-param-decls(param-decls)
       val new-new-environment = typecheck-decls-div(new-environment, decls, new-mode)
@@ -440,6 +441,39 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       typecheck-handle-expr-div(environment, expr, handlers, expected-type, mode)
       expected-type
 
+    (ModBox(ModalityLock, expr), Expect(TypeMod(ModalityLock, expected-type))) ->
+      typecheck-expr-div(environment.add-lock(ModalityLock), expr, Expect(expected-type), mode.lock)
+      TypeMod(ModalityLock, expected-type)
+    (ModBox(ModalityLock, expr), Infer) ->
+      val inferred-type = typecheck-expr-div(environment.add-lock(ModalityLock), expr, Infer, mode.lock)
+      TypeMod(ModalityLock, inferred-type)
+    (ModBox(modality, expr), Expect(expected-type)) ->
+      if not(is-value(expr)) then error(NonValueBox)
+      match expected-type
+        TypeMod(expected-modality, type_) ->
+          log("Why")
+          if expected-modality == modality
+          then
+            val new-effects = match modality
+              ModalityLock -> error(UnhandledExpression("Internal Error!"))
+              ModalityAbs(abs) -> abs.absolute-from-labelledEffects.apply-modality(empty)
+              ModalityRel(m, e) -> relative-from-labelledEffects(m, e).apply-modality(empty)
+            typecheck-expr-div(environment.add-lock(modality), expr, Expect(type_), mode.update-effects(new-effects))
+          else error(ModalityMismatch(expected-modality, modality))
+        _ -> error(ExpectedNonModalType(expected-type))
+
+    // TODO : support multiple pattern bindings, support non variable patterns
+    // let_nu mod_mu x = M in N
+    (ModLet(nu, mu, [APatternBinding(PatternVar(ident), expr)], body), Expect(expected-type)) ->
+      val mu-type = typecheck-expr-div(environment.add-lock(nu), expr, Infer, mode/apply-modality(mode, nu))
+      val type_ = match mu-type
+        TypeMod(modality, t) ->
+          log("Why")
+          // TODO: another error?
+          if mu == modality then t else error(UnexpectedTypeForExpressions)
+        _ -> error(UnexpectedTypeForExpressions) // TODO: another error?
+      typecheck-expr-div(environment.add(ident, singleton(nu).compose(singleton(mu)), type_), body, Expect(expected-type), mode)
+
     // DEFAULT. For all expressions that can be directly inferred and then checked
     (_, Expect(expected-type)) ->
       val inferred-type = typecheck-expr-div(environment, expression, Infer, mode)
@@ -618,8 +652,8 @@ pub fun stella-error-to-string(err : stella-error) : string
     // Modal
     UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! UNKNOWN_EFFECT"
     NonFunctionEffect(ident, type_) -> "FAILURE!!! Effect labels should have function types, but " ++ ident.string ++ " has type " ++ type_.show ++ ". NON_FUNCTION_EFFECT"
-    NoReturnInHandler -> "FAILURE!!! Handle expressions has to have a `return` case! NO_RETURN_IN_HANDLER"
-    SeveralReturnsInHandler -> "FAILURE!!! Handler expression must have exactly one `return` case! SEVERAL_RETURNS_IN_HANDLER"
+    NoReturnInHandler -> "FAILURE!!! Handle expressions has to have a `return` case! ERROR_NO_RETURN_IN_HANDLER"
+    SeveralReturnsInHandler -> "FAILURE!!! Handler expression must have exactly one `return` case! ERROR_SEVERAL_RETURNS_IN_HANDLER"
     MultipleHandlersForOneLabel -> "Failure!!! MULTIPLE_HANDLERS_FOR_ONE_LABEL"
     ModalityMismatch(expected-modality, actual-modality) -> "FAILURE!!! MODALITY_MISMATCH: expected " ++ expected-modality.show ++ " but got " ++ actual-modality.show
     ExpectedNonModalType(type_) -> "FAILURE!!! EXPECTED_NON_MODAL_TYPE: expected " ++ type_.show ++ " but got expression of modal type"
