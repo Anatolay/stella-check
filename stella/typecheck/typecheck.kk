@@ -247,29 +247,23 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
         param-decls.map(fn (AParamDecl(_, t)) t),
         return-type
       )
-    (Abstraction(param-decls, body), Expect(expected-type)) -> match expected-type
-      TypeFun(expected-arg-types, expected-return-type) ->
-        if expected-arg-types.length != param-decls.length then error(UnexpectedNumberOfParametersInLambda)
-        val are-equal = expected-arg-types.zipwith(param-decls, fn (e-type, AParamDecl(_, a-type)) -> e-type == a-type)
-        if not(all(are-equal)) then error(UnexpectedTypeForParameter)
-        typecheck-expr-div(environment.add-param-decls(param-decls), body, Expect(expected-return-type), mode)
-      _ -> error(UnexpectedLambda)
+    (Abstraction(param-decls, body), Expect(expected-type)) ->
+      match expected-type
+        TypeFun(expected-arg-types, expected-return-type) ->
+          if expected-arg-types.length != param-decls.length then error(UnexpectedNumberOfParametersInLambda)
+          val are-equal = expected-arg-types.zipwith(param-decls, fn (e-type, AParamDecl(_, a-type)) -> e-type == a-type)
+          if not(all(are-equal)) then error(UnexpectedTypeForParameter)
+          typecheck-expr-div(environment.add-param-decls(param-decls), body, Expect(expected-return-type), mode)
+          expected-type
+        _ -> error(UnexpectedLambda)
     (Application(callee, args), Infer) ->
-      log("APPLICATION")
       val callee-type = typecheck-expr-div(environment, callee, Infer, mode)
       val (mu, fun-type) = callee-type.unpeel-effect-modalities
-      // log(show(callee-type))
-      // log(show(mu))
-      // log(show(fun-type))
-      // log(mode.effects.to-list.show)
       if can-transform(mu, identity, mode.effects)
       then
         match fun-type
           TypeFun(params, return-type) ->
             if params.length != args.length then error(IncorrectNumberOfArguments)
-            log("CHECKING ARGUMENTS")
-            log("Function type: " ++ fun-type.show)
-            // log(params.show)
             args.zip(params).foreach(fn ((arg, param)) unit(typecheck-expr-div(environment, arg, Expect(param), mode)))
             return-type
           _ -> error(NotAFunction)
@@ -287,7 +281,10 @@ fun typecheck-expr-div(environment : environment, expression : expr, expectation
       match expectation
         Infer -> log("Infer")
         Expect(ty) -> log(ty.show)
-      typecheck-expr-div(environment, f, Expect(inferred-type), mode)
+      val temp-t = typecheck-expr-div(environment, f, Expect(inferred-type), mode)
+      log(temp-t.show)
+      log(f.show-name)
+      temp-t
     
     // NATURALS
     (ConstInt, Infer) ->
