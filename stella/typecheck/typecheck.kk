@@ -647,7 +647,7 @@ pub fun stella-error-to-string(err : stella-error) : string
     UnexpectedInjection -> "FAILURE!!! ERROR_UNEXPECTED_INJECTION"
     UnexpectedPatternForType -> "FAILURE!!! ERROR_UNEXPECTED_PATTERN_FOR_TYPE"
     // Modal
-    UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! UNKNOWN_EFFECT"
+    UnknownEffect(ident) -> "FAILURE!!! Unknown effect " ++ ident.string ++ "! ERROR_UNKNOWN_EFFECT"
     NonFunctionEffect(ident, type_) -> "FAILURE!!! Effect labels should have function types, but " ++ ident.string ++ " has type " ++ type_.show ++ ". NON_FUNCTION_EFFECT"
     NoReturnInHandler -> "FAILURE!!! Handle expressions has to have a `return` case! ERROR_NO_RETURN_IN_HANDLER"
     SeveralReturnsInHandler -> "FAILURE!!! Handler expression must have exactly one `return` case! ERROR_SEVERAL_RETURNS_IN_HANDLER"
